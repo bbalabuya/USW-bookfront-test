@@ -1,0 +1,134 @@
+.join-container{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 600px;
+    height: 100vh;
+    padding: 25px 25px 50px 25px;
+    border: 1px solid #b516ff;
+    box-sizing: border-box;
+    color: #000;
+    background-color: #ffffff;
+    height: 100%;
+    left: 50%;
+    gap: 15px;
+    transform: translateX(-50%);
+}
+
+.join-title{
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.double-input-container{
+    position: relative;
+    width: 100%;
+  
+    display: flex;
+    gap: 10px;
+}
+
+.join-input-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+
+.join-input-container{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.join-input{
+    width: 100%;
+    height: 100%;
+    outline: none;
+    border:1px solid #b516ff;
+    border-radius: 10px;
+    padding: 10px 10px 10px 10px;
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+    color: #000;
+}
+
+.join-input-title{
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.email-verify-button{
+    width: 100%;
+    height: 100%;
+    border: 1px solid #b516ff;
+    border-radius: 10px;
+    padding: 10px 10px 10px 10px;
+    box-sizing: border-box;
+    background-color: #b516ff;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.email-verify-button:hover{
+    background-color: #fff;
+    color: #b516ff;
+    border: 1px solid #b516ff;
+}
+
+.join-button{
+    width: 180px;
+    height: 50px;
+    border: 1px solid #b516ff;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 10px 10px 10px;
+    box-sizing: border-box;
+    background-color: #b516ff;
+    color: #fff;
+}
+
+.input-disabled {
+  background-color: #f0f0f0;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.join-input select {
+    appearance: none; /* 브라우저 기본 화살표 제거 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #b516ff;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23b516ff" height="16" viewBox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+  
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  
+  .join-input select:focus {
+    border-color: #8c00cc;
+    box-shadow: 0 0 0 2px rgba(181, 22, 255, 0.2);
+    outline: none;
+  }
+  
