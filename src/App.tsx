@@ -1,0 +1,55 @@
+import React from "react";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import Home from "./Home";
+import Header from "./header";
+import BoardList from "./pages/boardList";
+import Login from "./pages/login & join/login";
+import Join from "./pages/login & join/join";
+import Single from "./pages/singlePage/single";
+import Like from "./pages/mypage/like";
+import Bought from "./pages/mypage/bought";
+import Selling_book from "./pages/mypage/selling_book";
+import My_info from "./pages/mypage/my_info";
+import Change_info from "./pages/mypage/change_info";
+
+const hideHeaderPaths = ["/login", "/join","/mypage/change_info"];
+
+// 실제 콘텐츠를 렌더링하는 컴포넌트
+function AppContent() {
+  const location = useLocation();
+
+  const hideHeaderPaths = ["/login", "/join", "/mypage/change_info"];
+  const shouldHideHeader = hideHeaderPaths.some(path =>
+    location.pathname.startsWith(path)
+  );
+
+  return (
+    <>
+      {!shouldHideHeader && <Header />}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/join" element={<Join />} />
+        <Route path="/boardlist" element={<BoardList />} />
+        <Route path="/single/:postId" element={<Single />} />
+        <Route path="/mypage/like" element={<Like />} />
+        <Route path="/mypage/bought" element={<Bought />} />
+        <Route path="/mypage/selling_book" element={<Selling_book />} />
+        <Route path="/mypage/my_info" element={<My_info />} />
+        <Route path="/mypage/change_info" element={<Change_info />} />
+      </Routes>
+    </>
+  );
+}
+
+
+// BrowserRouter로 감싸는 루트 App
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+export default App;
