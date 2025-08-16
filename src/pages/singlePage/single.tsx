@@ -142,9 +142,10 @@ const Single = () => {
         </div>
 
         <div className="price-likeCount">
-          <div className="price">
-            {book.postPrice.toLocaleString()}원
-          </div>
+        <div className="price">
+  {typeof book.postPrice === "number" ? `${book.postPrice.toLocaleString()}원` : "가격 미정"}
+</div>
+
           <img className="hearts" src={hearts} alt="찜 이미지" />
           <div className="likeCount">{book.likeCount}</div>
         </div>

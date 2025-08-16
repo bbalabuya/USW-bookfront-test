@@ -75,7 +75,8 @@ const My_info = () => {
 
         </div>
         <div className="button-set">
-          <Link to="change_info" className="buttons">내 정보 변경</Link>
+          <Link to="/mypage/edit_my_info" className="buttons">내 정보 변경</Link>
+          <Link to="/mypage/change_pw" className="buttons">비밀번호 변경</Link>
           <div className="buttons">회원탈퇴</div>
         </div>
       </div>

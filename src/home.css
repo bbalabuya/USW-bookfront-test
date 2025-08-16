@@ -1,6 +1,5 @@
 .home-container {
   display: flex;
-  border: 1px solid black;
   position: absolute;
   align-items: center;
   justify-content: center;
@@ -23,13 +22,17 @@
 }
 
 .book-list-container {
-  border: 1px solid black;
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 1050px;
   height: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 한 줄에 4칸 */
+  gap: 20px;
+  box-sizing: border-box;
+  align-items: start; /* 각 셀의 위쪽 정렬 */
+  padding: 20px;
 }
 
 .filter-title {
@@ -101,6 +104,8 @@
     align-items: start; /* 각 셀의 위쪽 정렬 */
     padding: 20px;
   }
+
+  
   
   /* 각 책 카드 */
   .book-card {

@@ -11,8 +11,10 @@ import Bought from "./pages/mypage/bought";
 import Selling_book from "./pages/mypage/selling_book";
 import My_info from "./pages/mypage/my_info";
 import Change_info from "./pages/mypage/change_info";
-
-const hideHeaderPaths = ["/login", "/join","/mypage/change_info"];
+import Upload from "./pages/upload/upload";
+import EditMyInfo from "./pages/mypage/editMyInfo";
+import Chatlist from "./pages/chat/chatlist";
+import Chat from "./pages/chat/chat";
 
 // 실제 콘텐츠를 렌더링하는 컴포넌트
 function AppContent() {
@@ -37,6 +39,10 @@ function AppContent() {
         <Route path="/mypage/selling_book" element={<Selling_book />} />
         <Route path="/mypage/my_info" element={<My_info />} />
         <Route path="/mypage/change_info" element={<Change_info />} />
+        <Route path="/mypage/edit_my_info" element={<EditMyInfo />}/>    
+        <Route path="/upload" element={<Upload/>} />
+        <Route path="/chatlist" element={<Chatlist/>}/>
+        <Route path="/chat" element={<Chat />}/>
       </Routes>
     </>
   );

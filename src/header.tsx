@@ -14,7 +14,7 @@ const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 320px;
+  padding: 15px 250px;
   height: 70px;
   max-height: 70px;
   background-color: #f8f8f8;
@@ -190,8 +190,10 @@ const Header = () => {
       </SearchBox>
 
       <Nav>
-        <Link to="/chatlist" style={{whiteSpace: "nowrap"}}>거래채팅방</Link>
+        <Link to="/chatlist" style={{whiteSpace: "nowrap"}}>채팅방</Link>
         <Link to="/mypage/my_info" style={{whiteSpace: "nowrap"}}>마이페이지</Link>
+        <Link to="/upload" style={{whiteSpace:"nowrap"}}>책 팔기</Link>
+      </Nav>
         <div
           style={{
             width: "80px",
@@ -207,7 +209,7 @@ const Header = () => {
             <LoginButton onClick={handleLogin}>로그인</LoginButton>
           )}
         </div>
-      </Nav>
+      
     </HeaderContainer>
   );
 };
