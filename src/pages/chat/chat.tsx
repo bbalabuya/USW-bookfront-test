@@ -56,6 +56,8 @@ const Chat = () => {
       .catch(() => console.error("메시지 불러오기 실패"));
   }, [roomId]);
 
+  
+
   return (
     <div className="chat-whole-container">
       {/* 처음 상단 구성  */}
@@ -84,17 +86,41 @@ const Chat = () => {
         )}
       </div>
 
-      {/* 중간 대화 내역 */}
+      {/* 화면 중앙 채팅 내용 */}
       <div className="chat-message-screen">
-        {messages.map((msg) => (
-          <div key={msg.messageId} className="chat-message">
-            <span className="chat-sender">{msg.senderId}</span>:{" "}
-            <span className="chat-text">{msg.message}</span>
-            <div className="chat-time">
-              {new Date(msg.sentAt).toLocaleTimeString()}
+        {messages.map((msg) => {
+          const isMine = msg.senderId === "me";
+          return (
+            <div
+              key={msg.messageId}
+              className={`chat-message-row ${isMine ? "mine" : "opponent"}`}
+            >
+            <div className="chat-bubble-row">
+              {isMine ? ( // 내 메시지면 시간이 채팅왼쪽에,상대방이면 시간이 채팅 오른쪽에
+                <>
+                  <div className="chat-time">
+                    {new Date(msg.sentAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                < div className="chat-bubble mine">{msg.message}</div>
+                </>
+              ) : (
+                <>
+                  <div className="chat-bubble opponent">{msg.message}</div>
+                  <div className="chat-time">
+                    {new Date(msg.sentAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </>
+                )}
+                </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 하단 메시지 입력창 */}

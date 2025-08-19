@@ -60,26 +60,82 @@
     border:1px solid black;
 }
 
-.chat-button-set{
 
-}
-
-.indi-buttonSet{
-
-}
-
-.user-block{
-
-}
-
-.buttonSet{
-
-}
-
-.chat-message-screen{
+/* ==============================
+   채팅 메시지 영역
+================================= */
+.chat-message-screen {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 10px;
     overflow-y: auto;
-}
+    gap: 12px;
+  }
+  
+  /* 스크롤바 숨기기 */
+  .chat-message-screen::-webkit-scrollbar {
+    display: none;
+  }
+  .chat-message-screen {
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  /* 메시지 줄 전체 */
+  .chat-message-row {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+  }
+  
+  /* 내 메시지 (오른쪽 정렬) */
+  .chat-message-row.mine {
+    align-self: flex-end;
+    text-align: right;
+  }
+  
+  /* 상대방 메시지 (왼쪽 정렬) */
+  .chat-message-row.opponent {
+    align-self: flex-start;
+    text-align: left;
+  }
+  
+  /* 말풍선 + 시간 묶음 */
+  .chat-bubble-row {
+    display: flex;
+    align-items: flex-end; /* 시간과 말풍선을 아래쪽에 맞춤 */
+    gap: 6px;
+  }
+  
+  /* 내 메시지 스타일 */
+  .chat-bubble.mine {
+    background: white;
+    border: 1px solid black;
+    color: black;
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: inline-block;
+  }
+  
+  /* 상대방 메시지 스타일 */
+  .chat-bubble.opponent {
+    background: #b516ff;
+    color: white;
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: inline-block;
+  }
+  
+  /* 시간 */
+  .chat-time {
+    font-size: 11px;
+    color: gray;
+    white-space: nowrap;
+  }
+  
+  
 
 .chat-input {
     border-top: 1px solid #b516FF;
@@ -88,18 +144,6 @@
     flex-direction: row;
     align-items: center;
     box-sizing: border-box;
-}
-
-.chat-selected-box{
-
-}
-
-.selected-img-show{
-
-}
-
-.remove-img-button{
-
 }
 
 .chat-picture-label{
