@@ -94,7 +94,7 @@ const Chatlist = () => {
       <div className="chatlist-title">채팅방</div>
       <div className="chatlist-container">
         {(chatlist || []).map((room) => (
-          <Link to="/" key={room.roomId} className={"roomlist"}>
+          <Link to={`/chat/${room.roomId}`} key={room.roomId} className={"roomlist"}>
             <img className="list-img" src={room.img} alt="프로필 이미지" />
             <div className="list-middle">
               <div className="list-middle-top">

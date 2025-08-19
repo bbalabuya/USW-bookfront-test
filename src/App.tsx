@@ -42,7 +42,7 @@ function AppContent() {
         <Route path="/mypage/edit_my_info" element={<EditMyInfo />}/>    
         <Route path="/upload" element={<Upload/>} />
         <Route path="/chatlist" element={<Chatlist/>}/>
-        <Route path="/chat" element={<Chat />}/>
+        <Route path="/chat/:roomId" element={<Chat />}/>
       </Routes>
     </>
   );
