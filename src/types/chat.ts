@@ -7,4 +7,11 @@ export interface ChatMessage {
     sentAt: string;
   }
   
-  
+export interface EnterResponse{
+  roomId: string,
+  postId: string,
+  name: string | null,
+  userCount: number,
+  lastMessage: string,
+  lastTimestamp: string
+}
