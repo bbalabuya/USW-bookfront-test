@@ -15,6 +15,7 @@ import Upload from "./pages/upload/upload";
 import EditMyInfo from "./pages/mypage/editMyInfo";
 import Chatlist from "./pages/chat/chatlist";
 import Chat from "./pages/chat/chat";
+import ImageUploadPreview from "./pages/chat/test";
 
 // 실제 콘텐츠를 렌더링하는 컴포넌트
 function AppContent() {
@@ -43,6 +44,7 @@ function AppContent() {
         <Route path="/upload" element={<Upload/>} />
         <Route path="/chatlist" element={<Chatlist/>}/>
         <Route path="/chat/:roomId" element={<Chat />}/>
+        <Route path="/test" element={<ImageUploadPreview />}/>
       </Routes>
     </>
   );
