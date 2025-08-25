@@ -1,0 +1,71 @@
+.change_pw-whole-container{
+    position: absolute;
+    width: 500px;
+    height: calc(100vh - 103px);
+    left: 50%;    
+    transform: translateX(-50%);
+    border: 1px solid #b516ff;
+    padding: 20px 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.change_pw-header{
+    width: 100%;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.change_pw-title{
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 30px;
+}
+
+.change_pw-explain{
+    font-size: 12px;
+}
+
+.change_pw-content{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.change_pw-enter-set{
+    width: 100%;
+}
+
+.change_pw-enter-title{
+font-size: 18px;
+font-weight: bold;
+}
+
+.change_pw-enter{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px;
+}
+
+.change_pw-save {
+    margin-top: 20px;
+    background-color: #ccc; /* 기본은 회색 */
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    cursor: not-allowed;
+    transition: background-color 0.2s ease;
+}
+
+.change_pw-save.active {
+    background-color: #b516ff; /* 활성화 시 보라색 */
+    cursor: pointer;
+}

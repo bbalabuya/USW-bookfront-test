@@ -7,8 +7,6 @@ import { sampleChatList } from "../../mockData/chatlistexample";
 
 const URL = (import.meta as any).env.VITE_DOMAIN_URL;
 
-
-
 export function getTimeAgo(createdAt: string): string {
   const createdDate = new Date(createdAt);
   const now = new Date();
