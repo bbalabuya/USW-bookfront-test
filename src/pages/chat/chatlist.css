@@ -1,0 +1,88 @@
+.chatlist-whole-container{
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    border:1px solid #b516FF;
+    width: 500px;
+    height: calc(100vh - 103px);
+    box-sizing: border-box;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.chatlist-title {
+    width: 100%;
+    font-size: 26px;
+    font-weight: bold;   
+    border-bottom: 1px solid #b516FF;
+    text-align: center; /* 가운데 정렬 */
+}
+
+
+.chatlist-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column; /* 세로 배치 */
+    
+}
+  
+.roomlist{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid #b516FF;
+    padding: 10px 0;
+}
+
+.list-img{
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    min-height: 7 0px;
+    object-fit: contain;
+    border: 1px solid #b516FF;
+    border-radius: 50px;
+}
+
+.list-middle{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.list-middle-top{
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+}
+
+.purchaser-nickname{
+    font-weight: bold;
+    font-size: 18px;
+    color: black;
+}
+
+.list-middle-bottom{
+    display: flex;
+    flex: 1;
+}
+
+.board-title{
+    font-size: 13px;
+    color: gray;
+}
+
+.chatlist-lastMessage{
+    font-size: 15px;
+    color: black;
+}
+
+.chatlist-lastMessageTime{
+    font-size: 14px;
+    color: gray;
+}

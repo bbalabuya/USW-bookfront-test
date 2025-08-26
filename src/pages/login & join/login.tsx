@@ -55,7 +55,7 @@ const Login = () => {
       </div>
       <div className="join-find-wrapper">
         <div>비밀번호를 잊었어요!</div>
-        <Link to="/find-password">비밀번호 찾기</Link>
+        <Link to="/find_password">비밀번호 찾기</Link>
       </div>
 
       <div className="agree">약관동의</div>

@@ -5,35 +5,17 @@ import arrowImg from "../../assets/arrow.png";
 import sirenImg from "../../assets/siren.png";
 import hearts from "../../assets/hearts.png";
 import axios from "axios";
+import { Book } from "../../types/singleType";
 
 const URL = (import.meta as any).env.VITE_DOMAIN_URL;
 
-interface Book {
-  bookId: number;
-  title: string;
-  postPrice: number;
-  status: string;
-  content: string;
-  professor: string;
-  courseName: string;
-  grade: number;
-  semester: number;
-  postImage: string;
-  likeCount: number;
-  seller?: {
-    sellerId: number;
-    name: string;
-    profileImage: string;
-  };
-  createdAt: string;
-}
 
 const Single = () => {
   const [book, setBook] = useState<Book | null>(null);
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
 
-  // 단일 게시물 정보 불러오기
+  // 게시글 정보 불러오기
   const callBook = async () => {
     try {
       const response = await axios.get(`${URL}/api/posts/${postId}`, {
@@ -45,22 +27,21 @@ const Single = () => {
     }
   };
 
-  // 채팅방 생성 요청
+  // 버튼 클릭 시 채팅방 생성 요청
   const getRoomId = () => {
-    if (!book?.bookId) return;
-
+    if (!postId) return (alert("채팅방 이동 실패"))
     axios
       .post(
         `${URL}/api/posts/${postId}/chat-rooms`,
-        { postId: book.bookId },
+        { postId: postId },
         { withCredentials: true }
       )
       .then((res) => {
         const roomId = res.data.roomId;
         if (roomId) {
-          makeChatRoom(roomId);
+          navigate(`/chat/${roomId}`)
         } else {
-          console.error("roomId가 존재하지 않습니다.");
+          console.error("roomId를 받지 못했습니다.");
         }
       })
       .catch((err) => {
@@ -68,28 +49,8 @@ const Single = () => {
       });
   };
 
-  // 채팅방 입장 처리
-  const makeChatRoom = (roomId: string) => {
-    if (!book?.bookId || !book?.seller?.sellerId) return;
 
-    axios
-      .post(
-        `${URL}/api/chat/rooms/${roomId}`,
-        {
-          postId: book.bookId,
-          sellerId: book.seller.sellerId,
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        const newRoomId = res.data.roomId;
-        navigate(`/chat/${newRoomId}`); // 경로 수정해야 필요!!!
-      })
-      .catch((err) => {
-        console.error("채팅방 입장 실패:", err);
-      });
-  };
-
+  // 페이가 처음 로딩되고 게시글 정보 불러오기
   useEffect(() => {
     if (postId) {
       callBook();
@@ -142,9 +103,10 @@ const Single = () => {
         </div>
 
         <div className="price-likeCount">
-          <div className="price">
-            {book.postPrice.toLocaleString()}원
-          </div>
+        <div className="price">
+  {typeof book.postPrice === "number" ? `${book.postPrice.toLocaleString()}원` : "가격 미정"}
+</div>
+
           <img className="hearts" src={hearts} alt="찜 이미지" />
           <div className="likeCount">{book.likeCount}</div>
         </div>

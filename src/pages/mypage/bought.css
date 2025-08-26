@@ -1,30 +1,91 @@
-.whole-container{
-    width: 100%;
-    height: calc(100vh - 103px);
-    border: 1px solid #b516ff;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+.bought-whole-container {
+  width: 100%;
+  height: calc(100vh - 103px);
+  border: 1px solid #b516ff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
-.left-container{
-    display:flex;
-    position:relative;
-    flex: 0;
-    margin-left: 20px;
+.bought-left-container {
+  display: flex;
+  position: relative;
+  flex: 0;
+  margin-left: 20px;
 }
 
-.right-container{
-    width: 100%;
-    height: 100%;
-    display: flex;
-    position: relative;
-    color:black;
-    flex:3;
-    flex-direction: column;
-    justify-content:center ;
-    align-items: center;
+.bought-right-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+  color: black;
+  flex: 3;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
+.bought-book-list-container {
+  border: 1px solid black;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 1050px;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 한 줄에 4칸 */
+  gap: 20px;
+  box-sizing: border-box;
+  align-items: start; /* 각 셀의 위쪽 정렬 */
+  padding: 20px;
+}
+
+.bought-book-card {
+  width: 100%;
+  border: 1px solid #ccc;
+  max-height: 400px;
+}
+
+.bought-book-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.bought-book-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000000;
+  margin: 0px;
+}
+
+.bought-info-status-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bought-book-price {
+  font-size: 16px;
+  color: #000000;
+}
+
+.bought-book-status {
+  color: white;
+  background-color: #AE00FF;
+  padding: 3px 5px;
+  border-radius: 5px;
+  margin-right: 5px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.bought-book-date {
+  font-size: 12px;
+  color: #666;
+}
