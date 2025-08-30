@@ -71,71 +71,80 @@ const Join = () => {
   };
 
   // 회원가입 처리
-  const handleJoin = () => {
-    // 빈칸 없도록
-    if (
-      !name ||
-      !school ||
-      !grade ||
-      !semester ||
-      !major ||
-      !studentCode ||
-      !email ||
-      !emailCode ||
-      !password 
-    ) {
-      alert("모든 항목을 입력해주세요.");
-      return;
-    }
+const handleJoin = () => {
+  // 빈칸 없도록
+  if (
+    !name ||
+    !school ||
+    !grade ||
+    !semester ||
+    !major ||
+    !studentCode ||
+    !email ||
+    !emailCode ||
+    !password 
+  ) {
+    alert("모든 항목을 입력해주세요.");
+    return;
+  }
 
-    // 비밀번호 확인이 일치하지 않는 경우
-    if (password !== passwordCheck) {
-      alert("비밀번호가 일치하지 않습니다.");
-      return;
-    }
+  // 비밀번호 유효성 검사(정규식)
+  const passwordRegex =
+    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&^])[A-Za-z\d@$!%*?&^]{8,20}$/;
+  if (!passwordRegex.test(password)) {
+    alert("비밀번호는 영문, 숫자, 특수문자를 포함한 8~20자여야 합니다.");
+    return;
+  }
 
-    // 이메일 인증을 하지 않은 경우
-    if (!isEmailVerified) {
-      alert("이메일 인증을 완료해주세요.");
-      return;
-    }
+  // 비밀번호 확인이 일치하지 않는 경우
+  if (password !== passwordCheck) {
+    alert("비밀번호가 일치하지 않습니다.");
+    return;
+  }
 
-    // JSON 객체 생성
-    const userInfo = {
-      studentCode,
-      email,
-      password,
-      name,
-      majorName: major,
-      grade,
-      semester,
-    };
+  // 이메일 인증을 하지 않은 경우
+  if (!isEmailVerified) {
+    alert("이메일 인증을 완료해주세요.");
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append(
-      "requestDto",
-      new Blob([JSON.stringify(userInfo)], { type: "application/json" })
-    );
-
-    // 기본 프로필 이미지는 존재시 요청
-    if (profileFile) {
-      formData.append("profileImage", profileFile);
-    }
-
-    // 회원가입 요청 보내기
-    axios
-      .post(`${API_URL}/api/me/join`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((res) => {
-        console.log(res);
-        alert("회원가입이 완료되었습니다. 로그인 해주세요.");
-        navigate("/login");
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  // JSON 객체 생성
+  const userInfo = {
+    studentCode,
+    email,
+    password,
+    name,
+    majorName: major,
+    grade,
+    semester,
   };
+
+  const formData = new FormData();
+  formData.append(
+    "requestDto",
+    new Blob([JSON.stringify(userInfo)], { type: "application/json" })
+  );
+
+  // 이미지는 존재하는 경우만
+  if (profileFile) {
+    formData.append("profileImage", profileFile);
+  }
+
+  // 요청 전송
+  axios
+    .post(`${API_URL}/api/me/join`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((res) => {
+      console.log(res);
+      alert("회원가입이 완료되었습니다. 로그인 해주세요.");
+      navigate("/login");
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+
 
   return (
     <div className="join-container">

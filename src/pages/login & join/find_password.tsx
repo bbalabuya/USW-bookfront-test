@@ -38,11 +38,13 @@ const Find_password = () => {
 
   // 2. 인증코드 확인
   const verifyCode = () => {
+    //빈칸인 경우 반환
     if (!code) {
       alert("인증코드를 입력해주세요.");
       return;
     }
 
+    //인증코드 확인 API
     axios
       .post(
         `${URL}/api/emails/verify`,
@@ -63,8 +65,16 @@ const Find_password = () => {
       });
   };
 
-  // 3. 비밀번호 초기화
+  // 비밀번호 초기화 
   const sendNewPassword = () => {
+    // 비밀번호 유효성 검사
+    const passwordRegex =
+    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&^])[A-Za-z\d@$!%*?&^]{8,20}$/;
+    if (!passwordRegex.test(change_password)) {
+        alert("비밀번호는 영문, 숫자, 특수문자를 포함한 8~20자여야 합니다.");
+        return;
+    }
+    
     if (change_password !== confirm_password) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
