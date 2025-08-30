@@ -96,7 +96,7 @@ const Find_password = () => {
   return (
     <div className="find_password-whole-container">
       <div className="find_password-header">
-        <div className="find_password-title">비밀번호 찾기</div>
+        <div className="find_password-title">비밀번호 재설정</div>
       </div>
 
       <div className="find_password-content">
@@ -173,7 +173,7 @@ const Find_password = () => {
           onClick={sendNewPassword}
           disabled={!isVerified || !change_password || !confirm_password}
         >
-          비밀번호 초기화
+          비밀번호 재설정하기
         </button>
       </div>
     </div>
