@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./upload.css";
-import cameraIcon from "../../assets/cameraIcon.png"; // 카메라 아이콘
+import imgUpload from "../../assets/imgUpload.png"; // 카메라 아이콘
 import { useNavigate } from "react-router-dom";
 
 const URL = (import.meta as any).env.VITE_DOMAIN_URL;
@@ -81,7 +81,7 @@ const Upload = () => {
                   style={{ display: "none" }}
                   onChange={handleImageUpload}
                 />
-                <img src={cameraIcon} alt="카메라" className="upload-icon" />
+                <img src={imgUpload} alt="카메라" className="upload-icon" />
               </label>
             );
           }

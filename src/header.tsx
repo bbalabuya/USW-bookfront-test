@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import arrowImg from "./assets/arrow.png";
-import profile from "./assets/profile.png";
+import profile from "./assets/basic_profile.png";
 import reading_glass from "./assets/reading_glass.png";
 import axios from "axios";
 import { wrap } from "module";

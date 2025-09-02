@@ -9,10 +9,19 @@ const Change_pw = () => {
     const [new_password, setNew_password] = useState<string>("");
     const [confirm_password, setConfirm_password] = useState<string>("");
 
-    const allFilled = origin_password && new_password && confirm_password; // 세 칸 다 입력됐는지 여부
+    // 빈칸이 없는가 + 버튼 활성화
+    const allFilled = origin_password && new_password && confirm_password;
 
     const patch_password = () => {
-        if (!allFilled) return; // 혹시라도 빈 값이면 실행 안함
+        // 비밀번호 유효성 검사
+        const passwordRegex =
+        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&^])[A-Za-z\d@$!%*?&^]{8,20}$/;
+        if (!passwordRegex.test(new_password)) {
+            alert("비밀번호는 영문, 숫자, 특수문자를 포함한 8~20자여야 합니다.");
+            return;
+        }
+
+
         if (new_password !== confirm_password) {
             alert("변경할 비밀번호가 일치하지 않습니다.");
             return;
