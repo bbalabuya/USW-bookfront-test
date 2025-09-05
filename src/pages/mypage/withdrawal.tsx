@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import "./withdrawal.css";
+import axios from 'axios';
+
+const API_URL = (import.meta as any).env.VITE_DOMAIN_URL;
 
 const Withdrawal = () => {
     const [backup, setBackup] = useState<boolean>(false);
@@ -13,7 +16,17 @@ const Withdrawal = () => {
         setRestore(e.target.checked);
     };
 
-    const canWithdraw = backup && restore; // 둘 다 true여야만 true
+    const canWithdraw = backup && restore; //버튼 활성화 조건
+
+    const withDrawal = async() =>{
+        try{
+            const response = await axios.delete(`${API_URL}/api/me`);
+            console.log(response.data.message);
+        }catch(err){
+            console.error(err);
+        }
+        
+    }
 
     return (
         <div className="withdrawal-whole-container">
@@ -41,7 +54,6 @@ const Withdrawal = () => {
                         중요한 정보를 모두 백업하셨나요?
                     </div>
                 </label>
-
                 <label className='checkbox-set'>
                     <input
                         type="checkbox"
@@ -57,7 +69,8 @@ const Withdrawal = () => {
 
             <button
                 className='withdrawal-button'
-                disabled={!canWithdraw} // 둘 다 체크해야 활성화
+                disabled={!canWithdraw} // 체크박스 둘 다 클릭해야 활성화
+                onClick={withDrawal}
             >
                 회원탈퇴
             </button>
