@@ -9,17 +9,28 @@ import { useParams } from "react-router-dom";
 import { ChatMessage } from "../../types/chat";
 import { chatExampleMessages } from "../../mockData/chatMessage";
 
-const DOMAIN_URL = (import.meta as any).env.VITE_DOMAIN_URL;
+const API_URL = (import.meta as any).env.VITE_DOMAIN_URL;
 
 const Chat = () => {
   const { roomId } = useParams();
 
   const [dotButton, setDotButton] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>(chatExampleMessages || []);
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    chatExampleMessages || []
+  );
 
   const [reportOpen, setReportOpen] = useState(false);
-  const [reportReason, setReportReason] = useState("");
+  const [reportReason, setReportReason] = useState<number | null>(null);
+
+  // ✅ 신고 사유 enum 정의
+  const reportReasons = [
+    { id: 0, label: "욕설" },
+    { id: 1, label: "비방" },
+    { id: 2, label: "광고" },
+    { id: 3, label: "도배" },
+    { id: 4, label: "부적절한 내용" },
+  ];
 
   // ✅ 이미지 관련 state
   const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined);
@@ -39,24 +50,23 @@ const Chat = () => {
   // 신고 모달 닫기
   const closeReportModal = () => {
     setReportOpen(false);
-    setReportReason("");
+    setReportReason(null);
   };
 
   //////////////////////
   // 신고 API 호출
   const handleReportSubmit = () => {
-    if (!reportReason.trim()) {
-      alert("신고 사유를 입력해주세요.");
+    if (reportReason === null) {
+      alert("신고 사유를 선택해주세요.");
       return;
     }
 
-    const userId = messages[0]?.senderId;
+    const userId = messages[0]?.senderId; // 나인지 상대방인지 구분 필요(수정예정)
 
     axios
       .post(
-        `${DOMAIN_URL}/api/users/${userId}/report`,
+        `${API_URL}/api/users/${roomId}/report`,
         {
-          roomId,
           reason: reportReason,
         },
         { withCredentials: true }
@@ -93,7 +103,7 @@ const Chat = () => {
     // 텍스트 전송
     if (inputMessage.trim()) {
       axios.post(
-        `${DOMAIN_URL}/api/chat/rooms/${roomId}/messages`,
+        `${API_URL}/api/chat/rooms/${roomId}/messages`,
         {
           roomId,
           message: inputMessage,
@@ -109,17 +119,15 @@ const Chat = () => {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      axios.post(
-        `${DOMAIN_URL}/api/chat/rooms/${roomId}/images`,
-        formData,
-        {
+      axios
+        .post(`${API_URL}/api/chat/rooms/${roomId}/images`, formData, {
           withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
-        }
-      ).then(() => {
-        setSelectedImg(undefined); // 미리보기 제거
-        setSelectedFile(null);     // 파일 상태 초기화
-      });
+        })
+        .then(() => {
+          setSelectedImg(undefined); // 미리보기 제거
+          setSelectedFile(null); // 파일 상태 초기화
+        });
     }
   };
 
@@ -127,7 +135,7 @@ const Chat = () => {
     if (!roomId) return;
 
     axios
-      .get(`${DOMAIN_URL}/api/chat/rooms/${roomId}/message`, {
+      .get(`${API_URL}/api/chat/rooms/${roomId}/message`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -171,7 +179,7 @@ const Chat = () => {
           </div>
         )}
       </div>
-  
+
       {/* 🔽 중앙 채팅 화면 */}
       <div className="chat-message-screen">
         {messages.map((msg) => {
@@ -208,18 +216,23 @@ const Chat = () => {
           );
         })}
       </div>
-  
-      {/* 🔽 선택 이미지 미리보기 (하단 입력창 위에 모달처럼) */}
+
+      {/* 🔽 선택 이미지 미리보기 */}
       {selectedImg && (
         <div className="chat-selected-overlay">
-          <img src={selectedImg} alt="선택한 이미지" className="selected-img-show" />
-          <button className="remove-img-btn" onClick={handleRemoveImage}>✖</button>
+          <img
+            src={selectedImg}
+            alt="선택한 이미지"
+            className="selected-img-show"
+          />
+          <button className="remove-img-btn" onClick={handleRemoveImage}>
+            ✖
+          </button>
         </div>
       )}
-  
+
       {/* 🔽 하단 입력창 */}
       <div className="chat-input">
-        {/* 파일 선택 input (숨김) */}
         <input
           type="file"
           accept="image/*"
@@ -227,8 +240,7 @@ const Chat = () => {
           style={{ display: "none" }}
           onChange={handleImageSelect}
         />
-  
-        {/* 카메라 버튼 (라벨로 연결) */}
+
         <label htmlFor="imageInput" className="chat-picture-label">
           <img
             src={pictureImg}
@@ -236,16 +248,14 @@ const Chat = () => {
             className="chat-picture-img"
           />
         </label>
-  
-        {/* 메시지 입력 */}
+
         <input
           className="chat-input-field"
           placeholder="메시지를 입력하세요"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
         />
-  
-        {/* 전송 버튼 */}
+
         <img
           src={sendImg}
           alt="업로드 버튼"
@@ -253,18 +263,29 @@ const Chat = () => {
           onClick={sendMessage}
         />
       </div>
-  
+
       {/* 🔽 신고 모달 */}
       {reportOpen && (
         <div className="report-modal">
           <div className="report-content">
             <div>신고하기</div>
-            <textarea
-              className="report-textarea"
-              placeholder="신고 사유를 입력해주세요"
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-            />
+
+            {/* ✅ 라디오 버튼으로 신고 사유 선택 */}
+            <div className="report-options">
+              {reportReasons.map((reason) => (
+                <label key={reason.id} className="report-option">
+                  <input
+                    type="radio"
+                    name="reportReason"
+                    value={reason.id}
+                    checked={reportReason === reason.id}
+                    onChange={() => setReportReason(reason.id)}
+                  />
+                  {reason.label}
+                </label>
+              ))}
+            </div>
+
             <div className="report-buttons">
               <button onClick={handleReportSubmit}>제출</button>
               <button onClick={closeReportModal}>취소</button>
@@ -274,6 +295,6 @@ const Chat = () => {
       )}
     </div>
   );
-}  
+};
 
 export default Chat;

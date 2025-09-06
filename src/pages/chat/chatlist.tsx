@@ -30,6 +30,7 @@ const Chatlist = () => {
   const [chatlist, setChatlist] = useState<ChatRoom[]>([]);
 
   useEffect(() => {
+    setChatlist(sampleChatList);
     axios
       .get<{ code: number; message: string; data: ChatRoom[] }>(
         `${URL}/api/chat/rooms`,
@@ -37,13 +38,17 @@ const Chatlist = () => {
       )
       .then((res) => {
         console.log("API 응답:", res.data);
-        if (res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        if (
+          res.data &&
+          Array.isArray(res.data.data) &&
+          res.data.data.length > 0
+        ) {
           setChatlist(res.data.data);
         } else {
           console.warn("API 응답이 비었으므로 샘플 데이터 사용");
           setChatlist(sampleChatList);
         }
-      })      
+      });
   }, []);
 
   return (
@@ -51,7 +56,11 @@ const Chatlist = () => {
       <div className="chatlist-title">채팅방</div>
       <div className="chatlist-container">
         {(chatlist || []).map((room) => (
-          <Link to={`/chat/${room.roomId}`} key={room.roomId} className={"roomlist"}>
+          <Link
+            to={`/chat/${room.roomId}`}
+            key={room.roomId}
+            className={"roomlist"}
+          >
             <img className="list-img" src={room.img} alt="프로필 이미지" />
             <div className="list-middle">
               <div className="list-middle-top">
