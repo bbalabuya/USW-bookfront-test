@@ -19,3 +19,11 @@ declare module "*.jpg" {
     export default value;
   }
   
+//API_URL 타입 지정
+interface ImportMetaEnv {
+  readonly VITE_DOMAIN_URL: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
