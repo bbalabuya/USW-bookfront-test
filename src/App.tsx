@@ -16,6 +16,7 @@ import EditMyInfo from "./pages/mypage/editMyInfo";
 import Chatlist from "./pages/chat/chatlist";
 import Chat from "./pages/chat/chat";
 import Find_password from "./pages/login & join/find_password";
+import Withdrawal from "./pages/mypage/withdrawal";
 
 // 실제 콘텐츠를 렌더링하는 컴포넌트
 function AppContent() {
@@ -40,7 +41,8 @@ function AppContent() {
         <Route path="/mypage/selling_book" element={<Selling_book />} />
         <Route path="/mypage/my_info" element={<My_info />} />
         <Route path="/mypage/change_pw" element={<Change_pw />} />
-        <Route path="/mypage/edit_my_info" element={<EditMyInfo />}/>    
+        <Route path="/mypage/edit_my_info" element={<EditMyInfo />}/>   
+        <Route path="/mypage/withdrawal" element={<Withdrawal />}/>    
         <Route path="/upload" element={<Upload/>} />
         <Route path="/chatlist" element={<Chatlist/>}/>
         <Route path="/chat/:roomId" element={<Chat />}/>
