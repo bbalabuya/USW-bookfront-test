@@ -1,64 +1,62 @@
 import React, { useState } from "react";
-import "./join.css";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import imgUpload from "../../assets/imgUpload.png";
+import {
+  sendEmailVerification,
+  checkEmailVerification,
+  join,
+} from "../../API/joinAPI";
+import { JoinRequest } from "../../types/join";
+import "./join.css";
 
-const API_URL = (import.meta as any).env.VITE_DOMAIN_URL;
-
-const Join = () => {
+const Join: React.FC = () => {
   const navigate = useNavigate();
 
   // 회원가입 정보 상태
-  const [name, setName] = useState<string>("");
-  const [school, setSchool] = useState<string>("수원대학교");
+  const [name, setName] = useState("");
+  const [school] = useState("수원대학교"); // 고정
   const [grade, setGrade] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
-  const [major, setMajor] = useState<string>("");
-  const [studentCode, setStudentCode] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [emailCode, setEmailCode] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [passwordCheck, setPasswordCheck] = useState<string>("");
+  const [major, setMajor] = useState("");
+  const [studentCode, setStudentCode] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailCode, setEmailCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordCheck, setPasswordCheck] = useState("");
 
   // 이메일 인증 상태
-  const [isEmailSent, setIsEmailSent] = useState<boolean>(false); // 인증코드 발송됨
-  const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false); // 인증 완료됨
+  const [isEmailSent, setIsEmailSent] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   // 프로필 이미지 상태
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>(imgUpload);
 
   // 이메일 인증코드 발송
-  const handleEmailVerify = () => {
+  const handleEmailVerify = async () => {
     if (!email.endsWith("@suwon.ac.kr")) {
       alert("현재 수원대학교 이메일(@suwon.ac.kr)만 사용 가능합니다.");
       return;
     }
 
-    axios
-      .post(`${API_URL}/api/mail/send-verification`, { email })
-      .then((res) => {
-        console.log("확인 응답:", res);
-        alert("인증코드가 발송되었습니다. 이메일을 확인해주세요.");
-        setIsEmailSent(true); // 이메일 발송 완료 → 입력창 잠금
-      })
-      .catch((err) => {
-        console.error("❌ 에러:", err);
-      });
+    try {
+      await sendEmailVerification(email);
+      alert("인증코드가 발송되었습니다. 이메일을 확인해주세요.");
+      setIsEmailSent(true);
+    } catch (err) {
+      console.error("❌ 이메일 인증 요청 실패:", err);
+    }
   };
 
   // 이메일 인증코드 확인
-  const handleEmailVerifyCheck = () => {
-    axios
-      .post(`${API_URL}/api/me/emails/verify`, { email, authcode: emailCode })
-      .then((res) => {
-        alert(res.data.message);
-        setIsEmailVerified(true); // 인증 성공 → 인증코드 입력창 잠금
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  const handleEmailVerifyCheck = async () => {
+    try {
+      await checkEmailVerification(email, emailCode);
+      alert("이메일 인증이 완료되었습니다.");
+      setIsEmailVerified(true);
+    } catch (err) {
+      console.error("❌ 이메일 인증 확인 실패:", err);
+    }
   };
 
   // 파일 선택 핸들러
@@ -66,16 +64,15 @@ const Join = () => {
     const file = e.target.files?.[0];
     if (file) {
       setProfileFile(file);
-      setProfilePreview(window.URL.createObjectURL(file));
+      setProfilePreview(URL.createObjectURL(file));
     }
   };
 
   // 회원가입 처리
-  const handleJoin = () => {
-    // 빈칸 없도록
+  const handleJoin = async () => {
+    // 필수 입력값 확인
     if (
       !name ||
-      !school ||
       !grade ||
       !semester ||
       !major ||
@@ -88,7 +85,7 @@ const Join = () => {
       return;
     }
 
-    // 비밀번호 유효성 검사(정규식)
+    // 비밀번호 유효성 검사
     const passwordRegex =
       /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&^])[A-Za-z\d@$!%*?&^]{8,20}$/;
     if (!passwordRegex.test(password)) {
@@ -96,20 +93,17 @@ const Join = () => {
       return;
     }
 
-    // 비밀번호 확인이 일치하지 않는 경우
     if (password !== passwordCheck) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    // 이메일 인증을 하지 않은 경우
     if (!isEmailVerified) {
       alert("이메일 인증을 완료해주세요.");
       return;
     }
 
-    // JSON 객체 생성
-    const userInfo = {
+    const userInfo: JoinRequest = {
       studentCode,
       email,
       password,
@@ -119,37 +113,20 @@ const Join = () => {
       semester,
     };
 
-    const formData = new FormData();
-    formData.append(
-      "requestDto",
-      new Blob([JSON.stringify(userInfo)], { type: "application/json" })
-    );
-
-    // 이미지는 존재하는 경우만
-    if (profileFile) {
-      formData.append("profileImage", profileFile);
+    try {
+      await join(userInfo, profileFile || undefined);
+      alert("회원가입이 완료되었습니다. 로그인 해주세요.");
+      navigate("/login");
+    } catch (err) {
+      console.error("❌ 회원가입 실패:", err);
     }
-
-    // 요청 전송
-    axios
-      .post(`${API_URL}/api/me/join`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((res) => {
-        console.log(res);
-        alert("회원가입이 완료되었습니다. 로그인 해주세요.");
-        navigate("/login");
-      })
-      .catch((err) => {
-        console.error(err);
-      });
   };
 
   return (
     <div className="join-container">
       <div className="join-title">회원가입을 진행합니다</div>
 
-      {/* 이름, 소속 학교 */}
+      {/* 이름 + 학교 */}
       <div className="double-input-container">
         <div className="join-input-container">
           <div className="join-input-title">이름</div>
@@ -172,7 +149,7 @@ const Join = () => {
         </div>
       </div>
 
-      {/* 학년, 학기 */}
+      {/* 학년 + 학기 + 전공 */}
       <div className="double-input-container">
         <div className="join-input-container" style={{ width: "25%" }}>
           <div className="join-input-title">학년</div>
@@ -182,11 +159,11 @@ const Join = () => {
             onChange={(e) => setGrade(Number(e.target.value))}
           >
             <option value="">선택</option>
-            <option value="1">1학년</option>
-            <option value="2">2학년</option>
-            <option value="3">3학년</option>
-            <option value="4">4학년</option>
-            <option value="5">5학년 이상</option>
+            {[1, 2, 3, 4, 5].map((y) => (
+              <option key={y} value={y}>
+                {y}학년
+              </option>
+            ))}
           </select>
         </div>
         <div className="join-input-container" style={{ width: "25%" }}>
@@ -201,8 +178,6 @@ const Join = () => {
             <option value="2">2학기</option>
           </select>
         </div>
-
-        {/* 전공 */}
         <div className="join-input-container" style={{ width: "50%" }}>
           <div className="join-input-title">전공</div>
           <select
@@ -232,7 +207,7 @@ const Join = () => {
         />
       </div>
 
-      {/* 이메일, 인증 */}
+      {/* 이메일 + 인증 */}
       <div className="double-input-container">
         <div className="join-input-container" style={{ width: "75%" }}>
           <div className="join-input-title">학교 이메일</div>
@@ -242,19 +217,20 @@ const Join = () => {
             placeholder="학교 이메일을 입력해주세요"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={isEmailSent} // 발송 후 잠금
+            disabled={isEmailSent}
           />
         </div>
         <div className="join-input-container" style={{ width: "25%" }}>
           <button
             className="email-verify-button"
             onClick={handleEmailVerify}
-            disabled={isEmailSent} // 발송 후 잠금
+            disabled={isEmailSent}
           >
             인증코드 발송
           </button>
         </div>
       </div>
+
       <div className="double-input-container" style={{ marginBottom: "15px" }}>
         <div className="join-input-container" style={{ width: "85%" }}>
           <div className="join-input-title">인증코드 입력</div>
@@ -264,14 +240,14 @@ const Join = () => {
             placeholder="인증코드를 입력해주세요"
             value={emailCode}
             onChange={(e) => setEmailCode(e.target.value)}
-            disabled={isEmailVerified} // 인증 완료 후 잠금
+            disabled={isEmailVerified}
           />
         </div>
         <div className="join-input-container" style={{ width: "15%" }}>
           <button
             className="email-verify-button"
             onClick={handleEmailVerifyCheck}
-            disabled={isEmailVerified} // 인증 완료 후 잠금
+            disabled={isEmailVerified}
           >
             확인
           </button>

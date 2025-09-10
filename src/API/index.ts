@@ -62,6 +62,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (err) {
         // refreshToken도 만료라면 로그인 페이지로 강제 이동
+        alert("로그인이 필요합니다");
         window.location.href = "/login";
       }
     }
