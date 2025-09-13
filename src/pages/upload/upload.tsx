@@ -48,11 +48,13 @@ const Upload = () => {
     };
 
     try {
+      const token = localStorage.getItem("accessToken"); // 저장된 토큰 가져오기
+
       const res = await fetch(`${URL}/api/posts`, {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "", // Bearer 토큰 추가
         },
         body: JSON.stringify(payload),
       });
@@ -64,6 +66,7 @@ const Upload = () => {
       alert("업로드 중 오류가 발생했습니다.");
       console.error(err);
     }
+
   };
 
   return (

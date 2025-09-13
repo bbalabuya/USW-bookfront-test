@@ -29,27 +29,40 @@ export function getTimeAgo(createdAt: string): string {
 const Chatlist = () => {
   const [chatlist, setChatlist] = useState<ChatRoom[]>([]);
 
-  useEffect(() => {
-    setChatlist(sampleChatList);
-    axios
-      .get<{ code: number; message: string; data: ChatRoom[] }>(
-        `${URL}/api/chat/rooms`,
-        { withCredentials: true }
-      )
-      .then((res) => {
-        console.log("API 응답:", res.data);
-        if (
-          res.data &&
-          Array.isArray(res.data.data) &&
-          res.data.data.length > 0
-        ) {
-          setChatlist(res.data.data);
-        } else {
-          console.warn("API 응답이 비었으므로 샘플 데이터 사용");
-          setChatlist(sampleChatList);
-        }
-      });
-  }, []);
+ useEffect(() => {
+   setChatlist(sampleChatList);
+
+   const token = localStorage.getItem("accessToken"); // 저장된 토큰 가져오기
+
+   axios
+     .get<{ code: number; message: string; data: ChatRoom[] }>(
+       `${URL}/api/chat/rooms`,
+       {
+         headers: {
+           Authorization: token ? `Bearer ${token}` : "", // 토큰이 있으면 Bearer 붙여서 전송
+         },
+       }
+     )
+     .then((res) => {
+       console.log("API 응답:", res.data);
+       if (
+         res.data &&
+         Array.isArray(res.data.data) &&
+         res.data.data.length > 0
+       ) {
+         setChatlist(res.data.data);
+       } else {
+         console.warn("API 응답이 비었으므로 샘플 데이터 사용");
+         setChatlist(sampleChatList);
+       }
+     })
+     .catch((err) => {
+       console.error("채팅방 목록 불러오기 실패:", err);
+       // 필요시 fallback 데이터 유지
+       setChatlist(sampleChatList);
+     });
+ }, []);
+
 
   return (
     <div className="chatlist-whole-container">

@@ -8,9 +8,9 @@ import {
 } from "../../API/chatAPI";
 import { ChatMessage, ChatHistoryResponse } from "../../types/chat";
 import "./chat.css";
-import returnButton from "../../assets/returnButton.png";
-import dotButtonImg from "../../assets/dotButton.png";
-import pictureImg from "../../assets/picture.png";
+import return_button from "../../assets/return_button.png";
+import dotButtonImg from "../../assets/dot_button.png";
+import pictureImg from "../../assets/chat_picture.png";
 import sendImg from "../../assets/send.png";
 import { chatExampleMessages } from "../../mockData/chatMessage";
 
@@ -28,6 +28,7 @@ const Chat = () => {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [myID, setMyID] = useState<string>("");
 
+  // 신고 사유 목록
   const reportReasons = [
     { id: 0, label: "욕설" },
     { id: 1, label: "비방" },
@@ -156,7 +157,11 @@ const Chat = () => {
     <div className="chat-whole-container">
       {/* 🔼 상단 헤더 */}
       <div className="chat-header">
-        <img className="chat-return-button" src={returnButton} alt="돌아가기" />
+        <img
+          className="chat-return-button"
+          src={return_button}
+          alt="돌아가기"
+        />
         <div className="chat-info">
           <div className="opponentName">상대방 이름</div>
           <div className="chat-board-name">게시글 제목</div>
