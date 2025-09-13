@@ -33,6 +33,7 @@ const Chatlist = () => {
    setChatlist(sampleChatList);
 
    const token = localStorage.getItem("accessToken"); // 저장된 토큰 가져오기
+   console.log("요청에 사용할 토큰:", token);
 
    axios
      .get<{ code: number; message: string; data: ChatRoom[] }>(
@@ -52,6 +53,7 @@ const Chatlist = () => {
        ) {
          setChatlist(res.data.data);
        } else {
+          console.log(token);
          console.warn("API 응답이 비었으므로 샘플 데이터 사용");
          setChatlist(sampleChatList);
        }
