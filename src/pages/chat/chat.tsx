@@ -1,29 +1,33 @@
 import React, { useEffect, useState } from "react";
-import "./chat.css";
-import returnButton from "../../assets/return_button.png";
-import dotButtonImg from "../../assets/dot_button.png";
-import pictureImg from "../../assets/chat_picture.png";
-import sendImg from "../../assets/send.png";
-import axios from "axios";
 import { useParams } from "react-router-dom";
-import { ChatMessage } from "../../types/chat";
+import {
+  fetchMessages,
+  sendMessageApi,
+  sendImageApi,
+  reportUser,
+} from "../../API/chatAPI";
+import { ChatMessage, ChatHistoryResponse } from "../../types/chat";
+import "./chat.css";
+import returnButton from "../../assets/returnButton.png";
+import dotButtonImg from "../../assets/dotButton.png";
+import pictureImg from "../../assets/picture.png";
+import sendImg from "../../assets/send.png";
 import { chatExampleMessages } from "../../mockData/chatMessage";
 
-const API_URL = (import.meta as any).env.VITE_DOMAIN_URL;
-
 const Chat = () => {
-  const { roomId } = useParams();
-
-  const [dotButton, setDotButton] = useState(false);
+  const { roomId } = useParams<{ roomId: string }>();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>(
-    chatExampleMessages || []
-  );
-
+  const [dotButton, setDotButton] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState<number | null>(null);
 
-  // ✅ 신고 사유 enum 정의
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined);
+
+  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [myID, setMyID] = useState<string>("");
+
   const reportReasons = [
     { id: 0, label: "욕설" },
     { id: 1, label: "비방" },
@@ -32,123 +36,120 @@ const Chat = () => {
     { id: 4, label: "부적절한 내용" },
   ];
 
-  // ✅ 이미지 관련 state
-  const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
   // 점 3개 버튼 토글
-  const toggleDotButton = () => {
-    setDotButton((prev) => !prev);
-  };
-
-  // 신고 모달 열기
+  const toggleDotButton = () => setDotButton((prev) => !prev);
   const openReportModal = () => {
     setReportOpen(true);
     setDotButton(false);
   };
-
-  // 신고 모달 닫기
   const closeReportModal = () => {
     setReportOpen(false);
     setReportReason(null);
   };
 
-  //////////////////////
-  // 신고 API 호출
-  const handleReportSubmit = () => {
-    if (reportReason === null) {
-      alert("신고 사유를 선택해주세요.");
-      return;
+  // 신고 제출
+  const handleReportSubmit = async () => {
+    if (reportReason === null) return alert("신고 사유를 선택해주세요.");
+    try {
+      await reportUser(roomId!, reportReason);
+      alert("신고가 접수되었습니다.");
+      closeReportModal();
+    } catch {
+      alert("신고 전송 실패");
     }
-
-    const userId = messages[0]?.senderId; // 나인지 상대방인지 구분 필요(수정예정)
-
-    axios
-      .post(
-        `${API_URL}/api/users/${roomId}/report`,
-        {
-          reason: reportReason,
-        },
-        { withCredentials: true }
-      )
-      .then(() => {
-        alert("신고가 접수되었습니다.");
-        closeReportModal();
-      })
-      .catch(() => {
-        alert("신고 전송 실패");
-      });
   };
 
-  //////////////////////
-  // ✅ 파일(이미지) 선택 처리
+  // 이미지 선택 / 제거
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file); // 실제 전송용 파일 저장
-      const previewUrl = window.URL.createObjectURL(file); // 미리보기용 URL
-      setSelectedImg(previewUrl);
-    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
+    setSelectedImg(window.URL.createObjectURL(file));
   };
-
-  // ✅ 선택한 이미지 제거
   const handleRemoveImage = () => {
-    setSelectedImg(undefined);
     setSelectedFile(null);
+    setSelectedImg(undefined);
   };
 
-  //////////////////////
-  // 입력한 메시지 및 이미지 전송
-  const sendMessage = () => {
+  // 메시지 전송
+  const sendMessage = async () => {
+    if (!roomId) return;
+
     // 텍스트 전송
     if (inputMessage.trim()) {
-      axios.post(
-        `${API_URL}/api/chat/rooms/${roomId}/messages`,
-        {
-          roomId,
-          message: inputMessage,
-          senderId: "me",
-        },
-        { withCredentials: true }
-      );
-      setInputMessage(""); // 입력창 초기화
+      try {
+        const sent = await sendMessageApi(roomId, inputMessage, myID || "me");
+        if (sent) setMessages((prev) => [...prev, sent]);
+        setInputMessage("");
+      } catch (err) {
+        console.error("메시지 전송 실패", err);
+      }
     }
 
     // 이미지 전송
     if (selectedFile) {
-      const formData = new FormData();
-      formData.append("image", selectedFile);
+      try {
+        if (!myID) throw new Error("myID가 없습니다.");
 
-      axios
-        .post(`${API_URL}/api/chat/rooms/${roomId}/images`, formData, {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then(() => {
-          setSelectedImg(undefined); // 미리보기 제거
-          setSelectedFile(null); // 파일 상태 초기화
-        });
+        // 순서: roomId → file → senderId
+        const sentImg = await sendImageApi(roomId, selectedFile, myID);
+        if (sentImg) setMessages((prev) => [...prev, sentImg]);
+
+        setSelectedFile(null);
+        setSelectedImg(undefined);
+      } catch (err) {
+        console.error("이미지 전송 실패", err);
+      }
     }
   };
 
+  // 1️⃣ 초기 메시지 로드 (REST API)
   useEffect(() => {
     if (!roomId) return;
 
-    axios
-      .get(`${API_URL}/api/chat/rooms/${roomId}/message`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        if (!res || !res.data || !Array.isArray(res.data.data)) {
-          setMessages(chatExampleMessages);
-          return;
-        } else {
-          setMessages(res.data.data);
-        }
-      })
-      .catch(() => {
-        console.error("메시지 불러오기 실패");
-      });
+    const fetchHistory = async () => {
+      try {
+        const { myId, messages } = await fetchMessages(roomId);
+        setMyID(myId);
+        setMessages(messages);
+      } catch (err) {
+        console.error("❌ 메시지 불러오기 실패:", err);
+        setMessages(chatExampleMessages); // 예시 데이터로 fallback
+      }
+    };
+
+    fetchHistory();
+  }, [roomId]);
+
+  // 2️⃣ WebSocket 연결
+  useEffect(() => {
+    if (!roomId) return;
+
+    const socket = new WebSocket(`ws://localhost:8080/ws-chat`);
+    setWs(socket);
+
+    socket.onopen = () => {
+      console.log("✅ WebSocket 연결 성공");
+      // 방 구독
+      const subscribeMsg = {
+        command: "SUBSCRIBE",
+        headers: { id: "sub-0", destination: `/sub/chat/${roomId}` },
+      };
+      socket.send(JSON.stringify(subscribeMsg));
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const newMessage: ChatMessage = JSON.parse(event.data);
+        setMessages((prev) => [...prev, newMessage]);
+      } catch (err) {
+        console.error("메시지 파싱 실패", err);
+      }
+    };
+
+    socket.onclose = () => console.log("❌ WebSocket 종료");
+
+    return () => socket.close();
   }, [roomId]);
 
   return (
@@ -183,7 +184,7 @@ const Chat = () => {
       {/* 🔽 중앙 채팅 화면 */}
       <div className="chat-message-screen">
         {messages.map((msg) => {
-          const isMine = msg.senderId === "me";
+          const isMine = msg.senderId === myID;
           return (
             <div
               key={msg.messageId}
@@ -270,7 +271,6 @@ const Chat = () => {
           <div className="report-content">
             <div>신고하기</div>
 
-            {/* ✅ 라디오 버튼으로 신고 사유 선택 */}
             <div className="report-options">
               {reportReasons.map((reason) => (
                 <label key={reason.id} className="report-option">
