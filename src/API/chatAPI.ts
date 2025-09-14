@@ -1,55 +1,72 @@
 import api from "./index";
 import { ChatMessage, ChatHistoryResponse } from "../types/chat";
 
-// 📌 채팅 메시지 불러오기
-export const fetchMessages = async (roomId: string): Promise<ChatMessage[]> => {
+// 처음 입장하고 내역 불러오기
+export const fetchMessages = async (
+  roomId: string
+): Promise<{ myId: string; messages: ChatMessage[] }> => {
   try {
     const res = await api.get<ChatHistoryResponse>(
       `/api/chat/rooms/${roomId}/message`
     );
-    return res.data.data.messages; // 서버 구조에 맞춰 messages 반환
+    return {
+      myId: res.data.data.myId,
+      messages: res.data.data.messages,
+    };
   } catch (err) {
-    console.error("메시지 불러오기 실패:", err);
-    return [];
+    console.error("❌ 메시지 불러오기 실패:", err);
+    return { myId: "", messages: [] };
   }
 };
 
-// 📌 채팅 메시지 전송
+// 메시지 전송
 export const sendMessageApi = async (
   roomId: string,
   message: string,
   senderId: string // 로그인한 사용자 ID
 ): Promise<ChatMessage | null> => {
   try {
-    const res = await api.post(`/api/chat/rooms/${roomId}/messages`, {
+    const res = await api.post<ChatMessage>(`/api/chat/rooms/${roomId}/messages`, {
       roomId,
       message,
       senderId,
     });
-    return res.data; // 서버가 보내주는 메시지 객체 반환
+    return res.data;
   } catch (err) {
-    console.error("메시지 전송 실패:", err);
+    console.error("❌ 메시지 전송 실패:", err);
     return null;
   }
 };
 
-// 📌 이미지 전송
+
+// 이미지 전송 
 export const sendImageApi = async (
   roomId: string,
-  file: File
+  file: File,
+  senderId: string
 ): Promise<ChatMessage | null> => {
   try {
     const formData = new FormData();
     formData.append("image", file);
-    const res = await api.post(`/api/chat/rooms/${roomId}/images`, formData);
-    return res.data; // 서버가 보내주는 이미지 메시지 객체 반환
+    formData.append("senderId", senderId);
+
+    const res = await api.post<ChatMessage>(
+      `/api/chat/rooms/${roomId}/images`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return res.data;
   } catch (err) {
-    console.error("이미지 전송 실패:", err);
+    console.error("❌ 이미지 전송 실패:", err);
     return null;
   }
 };
 
-// 📌 신고하기
+/**
+ * 📌 신고하기
+ */
 export const reportUser = async (
   roomId: string,
   reason: number
@@ -58,7 +75,7 @@ export const reportUser = async (
     await api.post(`/api/users/${roomId}/report`, { reason });
     return true;
   } catch (err) {
-    console.error("신고 실패:", err);
+    console.error("❌ 신고 실패:", err);
     return false;
   }
 };

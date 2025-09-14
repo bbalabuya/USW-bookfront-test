@@ -140,12 +140,7 @@ const Join: React.FC = () => {
         </div>
         <div className="join-input-container">
           <div className="join-input-title">소속 학교</div>
-          <input
-            type="text"
-            className="join-input input-disabled"
-            value={school}
-            disabled
-          />
+          <input type="text" className="join-input input-disabled" value={school} disabled />
         </div>
       </div>
 
