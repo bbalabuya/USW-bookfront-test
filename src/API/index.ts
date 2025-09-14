@@ -9,6 +9,12 @@ const API_URL = import.meta.env.VITE_DOMAIN_URL;
 // 메모리에 저장할 accessToken
 let accessToken: string | null = null;
 
+// 앱이 시작될 때 localStorage에서 토큰을 불러옵니다.
+const initialToken = localStorage.getItem("accessToken");
+if (initialToken) {
+  accessToken = initialToken;
+}
+
 export const setAccessToken = (token: string) => {
   accessToken = token;
 };
