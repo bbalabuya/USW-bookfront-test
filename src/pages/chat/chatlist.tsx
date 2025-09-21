@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./chatlist.css";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { ChatRoom } from "../../types/chatlist";
 import { sampleChatList } from "../../mockData/chatlistexample";
-
-const URL = (import.meta as any).env.VITE_DOMAIN_URL;
+import { fetchChatRooms } from "../../API/chatlistAPI";
 
 export function getTimeAgo(createdAt: string): string {
   const createdDate = new Date(createdAt);
@@ -29,42 +27,19 @@ export function getTimeAgo(createdAt: string): string {
 const Chatlist = () => {
   const [chatlist, setChatlist] = useState<ChatRoom[]>([]);
 
- useEffect(() => {
-   setChatlist(sampleChatList);
+  useEffect(() => {
+    const loadChatRooms = async () => {
+      const rooms = await fetchChatRooms();
+      if (rooms.length > 0) {
+        setChatlist(rooms);
+      } else {
+        console.warn("⚠️ 서버에서 데이터를 못 받아서 샘플 데이터 사용");
+        setChatlist(sampleChatList);
+      }
+    };
 
-   const token = localStorage.getItem("accessToken"); // 저장된 토큰 가져오기
-   console.log("요청에 사용할 토큰:", token);
-
-   axios
-     .get<{ code: number; message: string; data: ChatRoom[] }>(
-       `${URL}/api/chat/rooms`,
-       {
-         headers: {
-           Authorization: token ? `Bearer ${token}` : "", // 토큰이 있으면 Bearer 붙여서 전송
-         },
-       }
-     )
-     .then((res) => {
-       console.log("API 응답:", res.data);
-       if (
-         res.data &&
-         Array.isArray(res.data.data) &&
-         res.data.data.length > 0
-       ) {
-         setChatlist(res.data.data);
-       } else {
-          console.log(token);
-         console.warn("API 응답이 비었으므로 샘플 데이터 사용");
-         setChatlist(sampleChatList);
-       }
-     })
-     .catch((err) => {
-       console.error("채팅방 목록 불러오기 실패:", err);
-       // 필요시 fallback 데이터 유지
-       setChatlist(sampleChatList);
-     });
- }, []);
-
+    loadChatRooms();
+  }, []);
 
   return (
     <div className="chatlist-whole-container">
@@ -74,7 +49,7 @@ const Chatlist = () => {
           <Link
             to={`/chat/${room.roomId}`}
             key={room.roomId}
-            className={"roomlist"}
+            className="roomlist"
           >
             <img className="list-img" src={room.img} alt="프로필 이미지" />
             <div className="list-middle">

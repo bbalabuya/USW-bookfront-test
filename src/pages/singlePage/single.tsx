@@ -4,58 +4,37 @@ import { useParams, useNavigate } from "react-router-dom";
 import arrowImg from "../../assets/arrow.png";
 import sirenImg from "../../assets/siren.png";
 import hearts from "../../assets/hearts.png";
-import axios from "axios";
 import { Book } from "../../types/singleType";
-
-const URL = (import.meta as any).env.VITE_DOMAIN_URL;
-
+import { fetchBookDetail, createChatRoom } from "../../API/single"; // 📌 API 모듈 불러오기
 
 const Single = () => {
   const [book, setBook] = useState<Book | null>(null);
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
 
-  // 게시글 정보 불러오기
-  const callBook = async () => {
-    try {
-      const response = await axios.get(`${URL}/api/posts/${postId}`, {
-        withCredentials: true,
-      });
-      setBook(response.data);
-    } catch (err) {
-      console.error("책 정보를 불러오는 중 에러 발생:", err);
-    }
-  };
-
-  // 버튼 클릭 시 채팅방 생성 요청
-  const getRoomId = () => {
-    if (!postId) return (alert("채팅방 이동 실패"))
-    axios
-      .post(
-        `${URL}/api/posts/${postId}/chat-rooms`,
-        { postId: postId },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        const roomId = res.data.roomId;
-        if (roomId) {
-          navigate(`/chat/${roomId}`)
-        } else {
-          console.error("roomId를 받지 못했습니다.");
-        }
-      })
-      .catch((err) => {
-        console.error("채팅방 생성 실패:", err);
-      });
-  };
-
-
-  // 페이가 처음 로딩되고 게시글 정보 불러오기
+  // 게시글 불러오기
   useEffect(() => {
-    if (postId) {
-      callBook();
-    }
+    const loadBook = async () => {
+      if (!postId) return;
+      const data = await fetchBookDetail(postId);
+      if (data) {
+        setBook(data);
+      }
+    };
+    loadBook();
   }, [postId]);
+
+  // 채팅방 생성 후 이동
+  const handleCreateChatRoom = async () => {
+    if (!postId) return alert("채팅방 이동 실패");
+
+    const roomId = await createChatRoom(postId);
+    if (roomId) {
+      navigate(`/chat/${roomId}`);
+    } else {
+      console.error("roomId를 받지 못했습니다.");
+    }
+  };
 
   if (!book) return <div>로딩 중...</div>;
 
@@ -77,7 +56,9 @@ const Single = () => {
           <div className="seller-info">
             <img
               className="seller-img"
-              src={book?.seller?.profileImage || "https://via.placeholder.com/150"}
+              src={
+                book?.seller?.profileImage || "https://via.placeholder.com/150"
+              }
               alt="판매자 사진"
             />
             <div>{book?.seller?.name || "이름 없음"}</div>
@@ -103,9 +84,11 @@ const Single = () => {
         </div>
 
         <div className="price-likeCount">
-        <div className="price">
-  {typeof book.postPrice === "number" ? `${book.postPrice.toLocaleString()}원` : "가격 미정"}
-</div>
+          <div className="price">
+            {typeof book.postPrice === "number"
+              ? `${book.postPrice.toLocaleString()}원`
+              : "가격 미정"}
+          </div>
 
           <img className="hearts" src={hearts} alt="찜 이미지" />
           <div className="likeCount">{book.likeCount}</div>
@@ -113,7 +96,7 @@ const Single = () => {
 
         <div className="content">{book.content}</div>
 
-        <button className="buy-button" onClick={getRoomId}>
+        <button className="buy-button" onClick={handleCreateChatRoom}>
           구매요청하기
         </button>
       </div>

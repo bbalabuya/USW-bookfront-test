@@ -9,6 +9,7 @@ export const fetchMessages = async (
     const res = await api.get<ChatHistoryResponse>(
       `/api/chat/rooms/${roomId}/message`
     );
+    console.log("✅ 메시지 불러오기 성공:", res.data);
     return {
       myId: res.data.data.myId,
       messages: res.data.data.messages,
@@ -26,11 +27,15 @@ export const sendMessageApi = async (
   senderId: string // 로그인한 사용자 ID
 ): Promise<ChatMessage | null> => {
   try {
-    const res = await api.post<ChatMessage>(`/api/chat/rooms/${roomId}/messages`, {
-      roomId,
-      message,
-      senderId,
-    });
+    const res = await api.post<ChatMessage>(
+      `/api/chat/rooms/${roomId}/messages`,
+      {
+        roomId,
+        message,
+        senderId,
+      }
+    );
+    console.log("✅ 메시지 전송 성공:", res.data);
     return res.data;
   } catch (err) {
     console.error("❌ 메시지 전송 실패:", err);
@@ -38,8 +43,7 @@ export const sendMessageApi = async (
   }
 };
 
-
-// 이미지 전송 
+// 이미지 전송
 export const sendImageApi = async (
   roomId: string,
   file: File,
@@ -57,6 +61,7 @@ export const sendImageApi = async (
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
+    console.log("✅ 이미지 전송 성공:", res.data);
     return res.data;
   } catch (err) {
     console.error("❌ 이미지 전송 실패:", err);
@@ -73,6 +78,7 @@ export const reportUser = async (
 ): Promise<boolean> => {
   try {
     await api.post(`/api/users/${roomId}/report`, { reason });
+    console.log("✅ 신고 성공");
     return true;
   } catch (err) {
     console.error("❌ 신고 실패:", err);
