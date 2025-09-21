@@ -40,10 +40,12 @@ const Chat = () => {
   // 점 3개 버튼 토글
   const toggleDotButton = () => setDotButton((prev) => !prev);
   const openReportModal = () => {
+    console.log("📌 신고 모달 열기");
     setReportOpen(true);
     setDotButton(false);
   };
   const closeReportModal = () => {
+    console.log("📌 신고 모달 닫기");
     setReportOpen(false);
     setReportReason(null);
   };
@@ -51,55 +53,71 @@ const Chat = () => {
   // 신고 제출
   const handleReportSubmit = async () => {
     if (reportReason === null) return alert("신고 사유를 선택해주세요.");
+    console.log("🚨 신고 제출 시작", { roomId, reportReason });
     try {
       await reportUser(roomId!, reportReason);
+      console.log("✅ 신고 전송 성공");
       alert("신고가 접수되었습니다.");
       closeReportModal();
-    } catch {
+    } catch (err) {
+      console.error("❌ 신고 전송 실패", err);
       alert("신고 전송 실패");
     }
   };
 
   // 이미지 선택 / 제거
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("📷 이미지 선택 시도");
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log("❌ 파일 없음");
+      return;
+    }
+    console.log("✅ 이미지 선택됨:", file.name);
     setSelectedFile(file);
     setSelectedImg(window.URL.createObjectURL(file));
   };
   const handleRemoveImage = () => {
+    console.log("🗑️ 선택한 이미지 제거");
     setSelectedFile(null);
     setSelectedImg(undefined);
   };
 
   // 메시지 전송
   const sendMessage = async () => {
-    if (!roomId) return;
+    if (!roomId) return console.log("❌ roomId 없음");
 
     // 텍스트 전송
     if (inputMessage.trim()) {
+      console.log("💬 텍스트 메시지 전송 시도:", inputMessage);
       try {
         const sent = await sendMessageApi(roomId, inputMessage, myID || "me");
-        if (sent) setMessages((prev) => [...prev, sent]);
+        if (sent) {
+          console.log("✅ 텍스트 메시지 전송 성공:", sent);
+          setMessages((prev) => [...prev, sent]);
+        }
         setInputMessage("");
       } catch (err) {
-        console.error("메시지 전송 실패", err);
+        console.error("❌ 메시지 전송 실패", err);
       }
     }
 
     // 이미지 전송
     if (selectedFile) {
+      console.log("🖼️ 이미지 메시지 전송 시도:", selectedFile.name);
       try {
-        if (!myID) throw new Error("myID가 없습니다.");
+        if (!myID) throw new Error("❌ myID 없음");
 
-        // 순서: roomId → file → senderId
         const sentImg = await sendImageApi(roomId, selectedFile, myID);
-        if (sentImg) setMessages((prev) => [...prev, sentImg]);
+        if (sentImg) {
+          console.log("✅ 이미지 전송 성공:", sentImg);
+          setMessages((prev) => [...prev, sentImg]);
+        }
 
         setSelectedFile(null);
         setSelectedImg(undefined);
       } catch (err) {
-        console.error("이미지 전송 실패", err);
+        console.error("❌ 이미지 전송 실패", err);
       }
     }
   };
@@ -108,14 +126,20 @@ const Chat = () => {
   useEffect(() => {
     if (!roomId) return;
 
+    console.log("📥 메시지 불러오기 시작", roomId);
     const fetchHistory = async () => {
       try {
+        console.log("⏳ 메시지 불러오는 중...");
         const { myId, messages } = await fetchMessages(roomId);
+        console.log("✅ 메시지 불러오기 성공:", {
+          myId,
+          count: messages.length,
+        });
         setMyID(myId);
         setMessages(messages);
       } catch (err) {
         console.error("❌ 메시지 불러오기 실패:", err);
-        setMessages(chatExampleMessages); // 예시 데이터로 fallback
+        setMessages(chatExampleMessages);
       }
     };
 
@@ -126,31 +150,40 @@ const Chat = () => {
   useEffect(() => {
     if (!roomId) return;
 
+    console.log("🔌 WebSocket 연결 시도...");
     const socket = new WebSocket(`ws://localhost:8080/ws-chat`);
     setWs(socket);
 
     socket.onopen = () => {
       console.log("✅ WebSocket 연결 성공");
-      // 방 구독
       const subscribeMsg = {
         command: "SUBSCRIBE",
         headers: { id: "sub-0", destination: `/sub/chat/${roomId}` },
       };
+      console.log("📡 구독 메시지 전송:", subscribeMsg);
       socket.send(JSON.stringify(subscribeMsg));
     };
 
     socket.onmessage = (event) => {
+      console.log("📩 WebSocket 메시지 수신:", event.data);
       try {
         const newMessage: ChatMessage = JSON.parse(event.data);
         setMessages((prev) => [...prev, newMessage]);
       } catch (err) {
-        console.error("메시지 파싱 실패", err);
+        console.error("❌ 메시지 파싱 실패", err);
       }
+    };
+
+    socket.onerror = (err) => {
+      console.error("❌ WebSocket 에러 발생:", err);
     };
 
     socket.onclose = () => console.log("❌ WebSocket 종료");
 
-    return () => socket.close();
+    return () => {
+      console.log("🔌 WebSocket 연결 해제");
+      socket.close();
+    };
   }, [roomId]);
 
   return (
