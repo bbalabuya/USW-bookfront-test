@@ -3,7 +3,7 @@ import "./upload.css";
 import imgUpload from "../../assets/imgUpload.png"; // 카메라 아이콘
 import { useNavigate } from "react-router-dom";
 
-const URL = (import.meta as any).env.VITE_DOMAIN_URL;
+const API_URL = import.meta.env.VITE_DOMAIN_URL;
 
 const Upload = () => {
   const [year, setYear] = useState<number>(1);
@@ -20,7 +20,7 @@ const Upload = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    const newImages = files.map((file) => URL.createObjectURL(file));
+    const newImages = files.map((file) => window.URL.createObjectURL(file));
     setImages((prev) => [...prev, ...newImages].slice(0, 3)); // 최대 3장
   };
 
@@ -50,7 +50,7 @@ const Upload = () => {
     try {
       const token = localStorage.getItem("accessToken"); // 저장된 토큰 가져오기
 
-      const res = await fetch(`${URL}/api/posts`, {
+      const res = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +66,6 @@ const Upload = () => {
       alert("업로드 중 오류가 발생했습니다.");
       console.error(err);
     }
-
   };
 
   return (
@@ -104,9 +103,7 @@ const Upload = () => {
                   <button
                     className="delete-btn"
                     onClick={() => handleDeleteImage(index - 1)}
-                  >
-                    
-                  </button>
+                  ></button>
                 </div>
               ) : (
                 <div className="empty-slot"></div>
