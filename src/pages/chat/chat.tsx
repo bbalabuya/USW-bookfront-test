@@ -151,7 +151,7 @@ const Chat = () => {
     if (!roomId) return;
 
     console.log("🔌 WebSocket 연결 시도...");
-    const socket = new WebSocket(`ws://stg.subook.shop/ws-chat`);
+    const socket = new WebSocket(`wss://stg.subook.shop/ws-chat`);
     setWs(socket);
 
     socket.onopen = () => {
