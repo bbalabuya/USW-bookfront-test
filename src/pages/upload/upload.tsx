@@ -20,20 +20,30 @@ const Upload = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    const newImages = files.map((file) => window.URL.createObjectURL(file));
-    setImages((prev) => [...prev, ...newImages].slice(0, 3)); // 최대 3장
-  };
+    console.log("📷 업로드된 파일:", files);
 
-  // 이미지 삭제
-  const handleDeleteImage = (index: number) => {
+    const newImages = files.map((file) => window.URL.createObjectURL(file));
+    console.log("🖼️ 미리보기용 URL:", newImages);
+
     setImages((prev) => {
-      const updated = [...prev];
-      updated.splice(index, 1);
+      const updated = [...prev, ...newImages].slice(0, 3); // 최대 3장
+      console.log("✅ 현재 이미지 상태:", updated);
       return updated;
     });
   };
 
-  // 타입스크립트 버전에 맞게 수정 필요
+  // 이미지 삭제
+  const handleDeleteImage = (index: number) => {
+    console.log(`🗑️ 이미지 ${index} 삭제 시도`);
+    setImages((prev) => {
+      const updated = [...prev];
+      updated.splice(index, 1);
+      console.log("✅ 삭제 후 이미지 상태:", updated);
+      return updated;
+    });
+  };
+
+  // 게시글 업로드
   const handleSubmit = async () => {
     const payload = {
       title,
@@ -47,8 +57,11 @@ const Upload = () => {
       majorId: "UUID",
     };
 
+    console.log("📦 업로드 요청 payload:", payload);
+
     try {
       const token = localStorage.getItem("accessToken"); // 저장된 토큰 가져오기
+      console.log("🔑 로컬스토리지 accessToken:", token);
 
       const res = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
@@ -59,12 +72,25 @@ const Upload = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("업로드 실패");
+      console.log("📡 요청 URL:", `${API_URL}/api/posts`);
+      console.log("📨 요청 헤더:", {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "",
+      });
+
+      if (!res.ok) {
+        console.error("❌ 업로드 실패, 상태 코드:", res.status);
+        throw new Error("업로드 실패");
+      }
+
+      const result = await res.json();
+      console.log("✅ 업로드 성공, 서버 응답:", result);
+
       alert("게시글이 성공적으로 업로드되었습니다.");
       navigate("/");
     } catch (err) {
       alert("업로드 중 오류가 발생했습니다.");
-      console.error(err);
+      console.error("❌ 업로드 중 에러:", err);
     }
   };
 
@@ -120,7 +146,10 @@ const Upload = () => {
           className="enter-box"
           placeholder="판매하려는 책 이름을 넣어주세요"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            console.log("✏️ 제목 입력:", e.target.value);
+            setTitle(e.target.value);
+          }}
         />
       </div>
 
@@ -129,7 +158,10 @@ const Upload = () => {
         <input
           className="enter-info-box"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => {
+            console.log("✏️ 설명 입력:", e.target.value);
+            setDescription(e.target.value);
+          }}
         />
       </div>
 
@@ -138,7 +170,10 @@ const Upload = () => {
         <input
           className="enter-professor"
           value={professor}
-          onChange={(e) => setProfessor(e.target.value)}
+          onChange={(e) => {
+            console.log("✏️ 교수명 입력:", e.target.value);
+            setProfessor(e.target.value);
+          }}
         />
       </div>
 
@@ -147,7 +182,10 @@ const Upload = () => {
         <input
           className="enter-box"
           value={courseName}
-          onChange={(e) => setCourseName(e.target.value)}
+          onChange={(e) => {
+            console.log("✏️ 강의명 입력:", e.target.value);
+            setCourseName(e.target.value);
+          }}
         />
       </div>
 
@@ -156,7 +194,10 @@ const Upload = () => {
         <div className="upload-select-set">
           <select
             value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+            onChange={(e) => {
+              console.log("📚 학년 선택:", e.target.value);
+              setYear(Number(e.target.value));
+            }}
           >
             {[1, 2, 3, 4].map((y) => (
               <option key={y} value={y}>
@@ -166,7 +207,10 @@ const Upload = () => {
           </select>
           <select
             value={semester}
-            onChange={(e) => setSemester(Number(e.target.value))}
+            onChange={(e) => {
+              console.log("📚 학기 선택:", e.target.value);
+              setSemester(Number(e.target.value));
+            }}
           >
             {[1, 2, 3, 4].map((s) => (
               <option key={s} value={s}>
@@ -184,11 +228,20 @@ const Upload = () => {
           className="enter-box"
           style={{ width: "200px" }}
           value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          onChange={(e) => {
+            console.log("💰 가격 입력:", e.target.value);
+            setPrice(e.target.value);
+          }}
         />
       </div>
 
-      <button className="save-upload-button" onClick={handleSubmit}>
+      <button
+        className="save-upload-button"
+        onClick={() => {
+          console.log("📤 업로드 버튼 클릭");
+          handleSubmit();
+        }}
+      >
         업로드하기
       </button>
     </div>
