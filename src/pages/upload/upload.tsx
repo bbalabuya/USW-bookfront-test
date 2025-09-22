@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_DOMAIN_URL;
 const Upload = () => {
   const [year, setYear] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<File[]>([]); // File 객체 저장
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [professor, setProfessor] = useState("");
@@ -20,14 +20,11 @@ const Upload = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    console.log("📷 업로드된 파일:", files);
-
-    const newImages = files.map((file) => window.URL.createObjectURL(file));
-    console.log("🖼️ 미리보기용 URL:", newImages);
+    console.log("📷 업로드된 원본 파일:", files);
 
     setImages((prev) => {
-      const updated = [...prev, ...newImages].slice(0, 3); // 최대 3장
-      console.log("✅ 현재 이미지 상태:", updated);
+      const updated = [...prev, ...files].slice(0, 3); // 최대 3장
+      console.log("✅ 현재 이미지 상태 (File):", updated);
       return updated;
     });
   };
@@ -45,19 +42,30 @@ const Upload = () => {
 
   // 게시글 업로드
   const handleSubmit = async () => {
-    const payload = {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("postPrice", price);
+    formData.append("content", description);
+    formData.append("professor", professor);
+    formData.append("courseName", courseName);
+    formData.append("grade", String(year));
+    formData.append("semester", String(semester));
+    formData.append("majorId", "UUID");
+
+    images.forEach((file, index) => {
+      formData.append("postImages", file); // 여러 장 업로드 가능
+    });
+
+    console.log("📦 업로드 요청 FormData:", {
       title,
-      postPrice: Number(price),
-      content: description,
+      price,
+      description,
       professor,
       courseName,
-      grade: year,
+      year,
       semester,
-      postImage: images[0] || "", // 서버에서 여러 장 업로드 가능하면 수정
-      majorId: "UUID",
-    };
-
-    console.log("📦 업로드 요청 payload:", payload);
+      images,
+    });
 
     try {
       const token = localStorage.getItem("accessToken"); // 저장된 토큰 가져오기
@@ -66,17 +74,12 @@ const Upload = () => {
       const res = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "", // Bearer 토큰 추가
+          Authorization: token ? `Bearer ${token}` : "",
         },
-        body: JSON.stringify(payload),
+        body: formData, // FormData 그대로 전송 (JSON.stringify ❌)
       });
 
       console.log("📡 요청 URL:", `${API_URL}/api/posts`);
-      console.log("📨 요청 헤더:", {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : "",
-      });
 
       if (!res.ok) {
         console.error("❌ 업로드 실패, 상태 코드:", res.status);
@@ -113,16 +116,16 @@ const Upload = () => {
               </label>
             );
           }
-          const imgSrc = images[index - 1];
+          const file = images[index - 1];
           return (
             <div
               key={index}
-              className={`img-slot ${imgSrc ? "has-image" : "empty"}`}
+              className={`img-slot ${file ? "has-image" : "empty"}`}
             >
-              {imgSrc ? (
+              {file ? (
                 <div className="img-wrapper">
                   <img
-                    src={imgSrc}
+                    src={URL.createObjectURL(file)} // 미리보기용
                     alt={`업로드 이미지 ${index}`}
                     className="uploaded-img"
                   />
