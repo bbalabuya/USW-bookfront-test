@@ -34,8 +34,7 @@ const Join: React.FC = () => {
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>(imgUpload);
 
-  // 컴포넌트 마운트 시 전공 리스트 가져오기. 서버 데이터 없어서 주석처리
-  /*
+  // 컴포넌트 마운트 시 전공 리스트 가져오기
   useEffect(() => {
     const fetchMajorList = async () => {
       try {
@@ -47,7 +46,6 @@ const Join: React.FC = () => {
     };
     fetchMajorList();
   }, []);
-  */
 
   // 이메일 인증코드 발송
   const handleEmailVerify = async () => {
@@ -92,7 +90,6 @@ const Join: React.FC = () => {
       !name ||
       !grade ||
       !semester ||
-      !major ||
       !studentCode ||
       !email ||
       !emailCode ||
@@ -120,12 +117,15 @@ const Join: React.FC = () => {
       return;
     }
 
+    // major가 선택되지 않았다면 기본값 '컴퓨터공학과' 설정
+    const selectedMajor = major || "컴퓨터공학과";
+
     const userInfo: JoinRequest = {
       studentCode,
       email,
       password,
       name,
-      majorName: major,
+      majorName: selectedMajor,
       grade,
       semester,
     };
