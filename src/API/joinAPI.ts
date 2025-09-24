@@ -24,7 +24,7 @@ export const join = async (userInfo: JoinRequest, profileFile?: File) => {
     formData.append("profileImage", profileFile);
   }
 
-  return api.post("/api/me/join", formData, {
+  return api.post("/api/auth/signup", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
