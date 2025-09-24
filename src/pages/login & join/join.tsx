@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import imgUpload from "../../assets/imgUpload.png";
 import {
   sendEmailVerification,
   checkEmailVerification,
   join,
-  // getMojorList, // 서버 준비 안 되어 주석 처리
 } from "../../API/joinAPI";
 import { JoinRequest } from "../../types/join";
 import "./join.css";
@@ -19,7 +18,6 @@ const Join: React.FC = () => {
   const [grade, setGrade] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
   const [major, setMajor] = useState("");
-  const [majorList, setMajorList] = useState<string[]>([]); // 서버 준비 안 되어 있음
   const [studentCode, setStudentCode] = useState("");
   const [email, setEmail] = useState("");
   const [emailCode, setEmailCode] = useState("");
@@ -33,21 +31,6 @@ const Join: React.FC = () => {
   // 프로필 이미지 상태
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>(imgUpload);
-
-  // 컴포넌트 마운트 시 전공 리스트 가져오기 (서버 준비 안 되어 주석 처리)
-  /*
-  useEffect(() => {
-    const fetchMajorList = async () => {
-      try {
-        const majors = await getMojorList();
-        setMajorList(majors);
-      } catch (err) {
-        console.error("❌ 전공 리스트 불러오기 실패:", err);
-      }
-    };
-    fetchMajorList();
-  }, []);
-  */
 
   // 이메일 인증코드 발송
   const handleEmailVerify = async () => {
@@ -76,7 +59,7 @@ const Join: React.FC = () => {
     }
   };
 
-  // 이미지 선택 핸들러
+  // 파일 선택 핸들러
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -87,11 +70,12 @@ const Join: React.FC = () => {
 
   // 회원가입 처리
   const handleJoin = async () => {
-    // 필수 입력값 확인(이미지는 필수 아님)
+    // 필수 입력값 확인
     if (
       !name ||
       !grade ||
       !semester ||
+      !major ||
       !studentCode ||
       !email ||
       !emailCode ||
@@ -119,15 +103,12 @@ const Join: React.FC = () => {
       return;
     }
 
-    // 전공 선택 안 되어 있으면 기본값 '컴퓨터공학과'
-    const selectedMajor = major || "컴퓨터공학과";
-
     const userInfo: JoinRequest = {
       studentCode,
       email,
       password,
       name,
-      majorName: selectedMajor,
+      majorName: major,
       grade,
       semester,
     };
@@ -178,7 +159,7 @@ const Join: React.FC = () => {
             onChange={(e) => setGrade(Number(e.target.value))}
           >
             <option value="">선택</option>
-            {[1, 2, 3, 4].map((y) => (
+            {[1, 2, 3, 4, 5].map((y) => (
               <option key={y} value={y}>
                 {y}학년
               </option>
@@ -205,11 +186,11 @@ const Join: React.FC = () => {
             onChange={(e) => setMajor(e.target.value)}
           >
             <option value="">선택</option>
-            {majorList.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
+            <option value="컴퓨터공학과">컴퓨터공학과</option>
+            <option value="전자공학과">전자공학과</option>
+            <option value="기계공학과">기계공학과</option>
+            <option value="화학공학과">화학공학과</option>
+            <option value="생명공학과">생명공학과</option>
           </select>
         </div>
       </div>
