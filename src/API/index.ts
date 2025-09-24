@@ -72,6 +72,17 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
+    // 로그인/회원가입 요청은 401이 발생해도 토큰 재발급, 리다이렉트 하지 않음
+    if (
+      originalRequest.url?.includes("/login") ||
+      originalRequest.url?.includes("/join")
+    ) {
+      console.warn(
+        "⚠️ [응답 인터셉터] login/join 요청에서 401 발생 → 재발급/리다이렉트 안 함"
+      );
+      return Promise.reject(error);
+    }
+
     // 401 에러 → 토큰 재발급 시도
     if (error.response?.status === 401 && !originalRequest._retry) {
       console.warn("⚠️ [응답 인터셉터] 401 Unauthorized → 토큰 재발급 시도");
@@ -108,7 +119,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (err) {
         console.error("❌ [토큰 재발급] 실패:", err);
-        window.location.href = "/login"; // 강제 로그아웃
+        // 로그인/회원가입 요청이 아닐 때만 강제 로그아웃
+        window.location.href = "/login";
       }
     }
 
