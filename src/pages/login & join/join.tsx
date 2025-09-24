@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import imgUpload from "../../assets/imgUpload.png";
 import {
@@ -20,7 +20,7 @@ const Join: React.FC = () => {
   const [semester, setSemester] = useState<number>(1);
   const [major, setMajor] = useState("");
   const [majorList, setMajorList] = useState<string[]>([]); // 서버 준비 안 되어 있음
-  const [studentCode, setStudentCode] = useState("");
+  const [studentId, setStudentId] = useState("");
   const [email, setEmail] = useState("");
   const [authCode, setAuthCode] = useState("");
   const [password, setPassword] = useState("");
@@ -33,21 +33,6 @@ const Join: React.FC = () => {
   // 프로필 이미지 상태
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>(imgUpload);
-
-  // 컴포넌트 마운트 시 전공 리스트 가져오기 (서버 준비 안 되어 주석 처리)
-  /*
-  useEffect(() => {
-    const fetchMajorList = async () => {
-      try {
-        const majors = await getMajorList();
-        setMajorList(majors);
-      } catch (err) {
-        console.error("❌ 전공 리스트 불러오기 실패:", err);
-      }
-    };
-    fetchMajorList();
-  }, []);
-  */
 
   // 이메일 인증코드 발송
   const handleEmailVerify = async () => {
@@ -87,17 +72,23 @@ const Join: React.FC = () => {
 
   // 회원가입 처리
   const handleJoin = async () => {
-    // 필수 입력값 확인(이미지는 필수 아님)
+    // 필수 입력값 확인
     if (
       !name ||
       !grade ||
       !semester ||
-      !studentCode ||
+      !studentId ||
       !email ||
       !authCode ||
       !password
     ) {
       alert("모든 항목을 입력해주세요.");
+      return;
+    }
+
+    // 학번 검증: 8자리 숫자
+    if (!/^\d{8}$/.test(studentId)) {
+      alert("학번은 8자리 숫자여야 합니다.");
       return;
     }
 
@@ -123,7 +114,7 @@ const Join: React.FC = () => {
     const selectedMajor = major || "컴퓨터공학과";
 
     const userInfo: JoinRequest = {
-      studentCode,
+      studentId: studentId.trim(), // 앞뒤 공백 제거
       email,
       password,
       name,
@@ -131,6 +122,8 @@ const Join: React.FC = () => {
       grade,
       semester,
     };
+
+    console.log("가입 전 userInfo:", userInfo);
 
     try {
       await join(userInfo, profileFile || undefined);
@@ -220,9 +213,9 @@ const Join: React.FC = () => {
         <input
           type="text"
           className="join-input"
-          placeholder="학번을 입력해주세요"
-          value={studentCode}
-          onChange={(e) => setStudentCode(e.target.value)}
+          placeholder="8자리 학번을 입력해주세요"
+          value={studentId}
+          onChange={(e) => setStudentId(e.target.value.trim())}
         />
       </div>
 

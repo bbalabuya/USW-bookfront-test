@@ -1,5 +1,5 @@
 export interface JoinRequest {
-  studentCode: string;
+  studentId: string;
   email: string;
   password: string;
   name: string;
