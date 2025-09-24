@@ -5,7 +5,7 @@ import {
   sendEmailVerification,
   checkEmailVerification,
   join,
-  getMojorList,
+  // getMojorList, // 서버 준비 안 되어 주석 처리
 } from "../../API/joinAPI";
 import { JoinRequest } from "../../types/join";
 import "./join.css";
@@ -19,7 +19,7 @@ const Join: React.FC = () => {
   const [grade, setGrade] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
   const [major, setMajor] = useState("");
-  const [majorList, setMajorList] = useState<string[]>([]);
+  const [majorList, setMajorList] = useState<string[]>([]); // 서버 준비 안 되어 있음
   const [studentCode, setStudentCode] = useState("");
   const [email, setEmail] = useState("");
   const [emailCode, setEmailCode] = useState("");
@@ -34,18 +34,20 @@ const Join: React.FC = () => {
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>(imgUpload);
 
-  // 컴포넌트 마운트 시 전공 리스트 가져오기
+  // 컴포넌트 마운트 시 전공 리스트 가져오기 (서버 준비 안 되어 주석 처리)
+  /*
   useEffect(() => {
     const fetchMajorList = async () => {
       try {
         const majors = await getMojorList();
-        setMajorList(majors); // API에서 받아온 리스트 저장
+        setMajorList(majors);
       } catch (err) {
         console.error("❌ 전공 리스트 불러오기 실패:", err);
       }
     };
     fetchMajorList();
   }, []);
+  */
 
   // 이메일 인증코드 발송
   const handleEmailVerify = async () => {
@@ -117,7 +119,7 @@ const Join: React.FC = () => {
       return;
     }
 
-    // major가 선택되지 않았다면 기본값 '컴퓨터공학과' 설정
+    // 전공 선택 안 되어 있으면 기본값 '컴퓨터공학과'
     const selectedMajor = major || "컴퓨터공학과";
 
     const userInfo: JoinRequest = {
