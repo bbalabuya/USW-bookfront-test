@@ -5,7 +5,7 @@ import {
   sendEmailVerification,
   checkEmailVerification,
   join,
-  // getMojorList, // 서버 준비 안 되어 주석 처리
+  // getMajorList, // 서버 준비 안 되어 주석 처리
 } from "../../API/joinAPI";
 import { JoinRequest } from "../../types/join";
 import "./join.css";
@@ -22,7 +22,7 @@ const Join: React.FC = () => {
   const [majorList, setMajorList] = useState<string[]>([]); // 서버 준비 안 되어 있음
   const [studentCode, setStudentCode] = useState("");
   const [email, setEmail] = useState("");
-  const [emailCode, setEmailCode] = useState("");
+  const [authCode, setAuthCode] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
 
@@ -39,7 +39,7 @@ const Join: React.FC = () => {
   useEffect(() => {
     const fetchMajorList = async () => {
       try {
-        const majors = await getMojorList();
+        const majors = await getMajorList();
         setMajorList(majors);
       } catch (err) {
         console.error("❌ 전공 리스트 불러오기 실패:", err);
@@ -68,7 +68,7 @@ const Join: React.FC = () => {
   // 이메일 인증코드 확인
   const handleEmailVerifyCheck = async () => {
     try {
-      await checkEmailVerification(email, emailCode);
+      await checkEmailVerification(email, authCode);
       alert("이메일 인증이 완료되었습니다.");
       setIsEmailVerified(true);
     } catch (err) {
@@ -94,7 +94,7 @@ const Join: React.FC = () => {
       !semester ||
       !studentCode ||
       !email ||
-      !emailCode ||
+      !authCode ||
       !password
     ) {
       alert("모든 항목을 입력해주세요.");
@@ -257,8 +257,8 @@ const Join: React.FC = () => {
             type="text"
             className="join-input"
             placeholder="인증코드를 입력해주세요"
-            value={emailCode}
-            onChange={(e) => setEmailCode(e.target.value)}
+            value={authCode}
+            onChange={(e) => setAuthCode(e.target.value)}
             disabled={isEmailVerified}
           />
         </div>

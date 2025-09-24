@@ -29,8 +29,12 @@ export const join = async (userInfo: JoinRequest, profileFile?: File) => {
   });
 };
 
+// 전공 리스트 가져오기
+// (서버 준비 안 되어 있음) 
+/*
 export const getMajorList = async () => {
   const res = await api.get("/api/major/list");
   // data 배열에서 name만 뽑아서 반환
   return res.data.data.map((m: { name: string }) => m.name);
-};
+}; 
+*/
