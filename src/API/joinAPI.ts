@@ -8,11 +8,8 @@ export const sendEmailVerification = async (email: string) => {
 };
 
 //이메일 인증코드 검증
-export const checkEmailVerification = async (
-  email: string,
-  authcode: string
-) => {
-  return api.post("/api/me/emails/verify", { email, authcode });
+export const checkEmailVerification = async (email: string, authCode: string) => {
+  return api.post("/api/mail/verify", { email, authCode });
 };
 
 // 마지막 회원가입 버튼 누르면 가입
