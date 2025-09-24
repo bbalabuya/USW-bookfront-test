@@ -29,7 +29,7 @@ export const join = async (userInfo: JoinRequest, profileFile?: File) => {
   });
 };
 
-export const getMojorList = async () => {
+export const getMajorList = async () => {
   const res = await api.get("/api/major/list");
   // data 배열에서 name만 뽑아서 반환
   return res.data.data.map((m: { name: string }) => m.name);
