@@ -37,7 +37,7 @@ const PUBLIC_APIS = [
   "/api/mail/",
   "/api/auth/login",
   "/api/auth/reissue",
-  "/api/auth/join",
+  "/api/auth/signup",
 ];
 
 // 요청 인터셉터
