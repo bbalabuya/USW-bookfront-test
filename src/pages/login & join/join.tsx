@@ -15,8 +15,8 @@ const Join: React.FC = () => {
   // 회원가입 정보 상태
   const [name, setName] = useState("");
   const [school] = useState("수원대학교"); // 고정
-  const [grade, setGrade] = useState<string>(""); // string으로 변경
-  const [semester, setSemester] = useState<string>(""); // string으로 변경
+  const [grade, setGrade] = useState<number | "">(""); // number 상태
+  const [semester, setSemester] = useState<number | "">(""); // number 상태
   const [majorId, setMajorId] = useState("");
 
   // 전공 목록 (임시 하드코딩 예시)
@@ -79,8 +79,8 @@ const Join: React.FC = () => {
   const handleJoin = async () => {
     if (
       !name ||
-      !grade ||
-      !semester ||
+      grade === "" ||
+      semester === "" ||
       !majorId ||
       !studentId ||
       !email ||
@@ -119,14 +119,15 @@ const Join: React.FC = () => {
       password,
       name,
       majorId,
-      grade, // string 그대로 전달
-      semester, // string 그대로 전달
+      grade: Number(grade),
+      semester: Number(semester),
     };
 
     console.log("가입 전 userInfo:", userInfo);
 
     try {
-      await join(userInfo, profileFile || undefined);
+      await join(userInfo);
+      //await join(userInfo, profileFile || undefined);
       alert("회원가입이 완료되었습니다. 로그인 해주세요.");
       navigate("/login");
     } catch (err) {
@@ -168,11 +169,11 @@ const Join: React.FC = () => {
           <select
             className="join-input select"
             value={grade}
-            onChange={(e) => setGrade(e.target.value)} // string 그대로
+            onChange={(e) => setGrade(Number(e.target.value))}
           >
             <option value="">학년을 선택하세요</option>
             {[1, 2, 3, 4].map((y) => (
-              <option key={y} value={String(y)}>
+              <option key={y} value={y}>
                 {y}학년
               </option>
             ))}
@@ -183,11 +184,11 @@ const Join: React.FC = () => {
           <select
             className="join-input select"
             value={semester}
-            onChange={(e) => setSemester(e.target.value)} // string 그대로
+            onChange={(e) => setSemester(Number(e.target.value))}
           >
             <option value="">학기를 선택하세요</option>
-            <option value="1">1학기</option>
-            <option value="2">2학기</option>
+            <option value={1}>1학기</option>
+            <option value={2}>2학기</option>
           </select>
         </div>
 
