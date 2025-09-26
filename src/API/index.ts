@@ -48,7 +48,7 @@ api.interceptors.request.use(
     const url = config.url || "";
     console.log("➡️ [요청 인터셉터] 요청 URL:", url);
 
-    // 로그인/회원가입/토큰 재발급 등 → 토큰 미부착
+    // 퍼블릭 API는 토큰 미부착
     if (PUBLIC_APIS.some((p) => url === p)) {
       console.log("⏩ [퍼블릭 API] 토큰 추가 안 함:", url);
       return config;
@@ -88,21 +88,20 @@ api.interceptors.response.use(
     const isPublicScreen = PUBLIC_SCREENS.some((p) => here.startsWith(p));
     const isPublicApi = PUBLIC_APIS.some((p) => url === p);
 
-    // 퍼블릭 API/화면에서 발생한 401 → 무시 (로그인 리다이렉트 X)
-    if (status === 401 && (isPublicScreen || isPublicApi)) {
-      console.warn("⚠️ [401] 퍼블릭 화면/퍼블릭 API → 재발급/리다이렉트 안 함");
+    // 퍼블릭 API/화면에서 발생한 401 → 무시
+    if (status === 401 && isPublicApi) {
+      console.warn("⚠️ [401] 퍼블릭 API → 리다이렉트하지 않음");
       return Promise.reject(error);
     }
 
-    // 🔄 401 Unauthorized → 토큰 재발급 시도 (한 번만 실행)
+    // 🔄 401 → 토큰 재발급 시도 (한 번만)
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       console.group("🔄 [401 처리 로직 시작]");
       console.log("📌 originalRequest URL:", originalRequest.url);
       console.log("📌 현재 accessToken:", getAccessToken());
-
-      console.log("➡️ [재발급 요청 전] refreshToken 기반으로 요청 시도");
+      console.log("➡️ [재발급 요청 전] refreshToken 기반 요청 시도");
 
       try {
         // 🔑 RefreshToken은 서버 쿠키에 저장 → withCredentials 필요
@@ -145,8 +144,14 @@ api.interceptors.response.use(
       console.groupEnd();
     }
 
-    // 그 외 에러는 그대로 반환
-    console.warn("⛔ [응답 인터셉터 종료] 토큰 재발급 로직 불발");
+    // 401인데 재발급 실패 → 명확히 로그 출력
+    if (status === 401) {
+      console.error(
+        "❌ [401 처리 실패] accessToken 재발급 불가, 요청 실패:",
+        url
+      );
+    }
+
     return Promise.reject(error);
   }
 );
