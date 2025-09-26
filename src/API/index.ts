@@ -34,12 +34,7 @@ const api = axios.create({
 
 // ✅ 퍼블릭 화면/엔드포인트 목록
 const PUBLIC_SCREENS = ["/", "/join", "/email-verify"];
-const PUBLIC_APIS = [
-  "/api/mail/",
-  "/api/auth/login",
-  "/api/auth/reissue",
-  "/api/auth/signup",
-];
+const PUBLIC_APIS = ["/api/mail/", "/api/auth/login", "/api/auth/signup"];
 
 // 📡 요청 인터셉터
 api.interceptors.request.use(
