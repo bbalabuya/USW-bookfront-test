@@ -21,8 +21,8 @@ const Join: React.FC = () => {
 
   // 전공 목록 (임시 하드코딩 예시)
   const MAJOR_LIST = [
-    { id: "0x715999E8E0494CF5909F5111F565913A", name: "컴퓨터공학부" },
-    { id: "0x012481DB0B86412B8B73CD1F4045BBCC", name: "기계공학부" },
+    { id: "715999e8-e049-4cf5-909f-5111f565913a", name: "컴퓨터공학부" },
+    { id: "012481db-0b86-412b-8b73-cd1f4045bbcc", name: "기계공학부" },
   ];
 
   const [studentId, setStudentId] = useState("");
