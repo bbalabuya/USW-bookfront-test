@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import imgUpload from "../../assets/imgUpload.png";
 import {
   sendEmailVerification,
   checkEmailVerification,
   join,
+  getMajorList,
 } from "../../API/joinAPI";
 import { JoinRequest } from "../../types/join";
 import "./join.css";
@@ -15,15 +16,12 @@ const Join: React.FC = () => {
   // 회원가입 정보 상태
   const [name, setName] = useState("");
   const [school] = useState("수원대학교"); // 고정
-  const [grade, setGrade] = useState<number | "">(""); // number 상태
-  const [semester, setSemester] = useState<number | "">(""); // number 상태
+  const [grade, setGrade] = useState<number | "">("");
+  const [semester, setSemester] = useState<number | "">("");
   const [majorId, setMajorId] = useState("");
-
-  // 전공 목록 (임시 하드코딩 예시)
-  const MAJOR_LIST = [
-    { id: "715999e8-e049-4cf5-909f-5111f565913a", name: "컴퓨터공학부" },
-    { id: "012481db-0b86-412b-8b73-cd1f4045bbcc", name: "기계공학부" },
-  ];
+  const [majorList, setMajorList] = useState<{ id: string; name: string }[]>(
+    []
+  );
 
   const [studentId, setStudentId] = useState("");
   const [email, setEmail] = useState("");
@@ -38,6 +36,19 @@ const Join: React.FC = () => {
   // 프로필 이미지 상태
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>(imgUpload);
+
+  // 전공 리스트 서버에서 가져오기
+  useEffect(() => {
+    const fetchMajors = async () => {
+      try {
+        const majors = await getMajorList();
+        setMajorList(majors);
+      } catch (err) {
+        console.error("❌ 전공 리스트 가져오기 실패:", err);
+      }
+    };
+    fetchMajors();
+  }, []);
 
   // 이메일 인증코드 발송
   const handleEmailVerify = async () => {
@@ -127,7 +138,7 @@ const Join: React.FC = () => {
 
     try {
       await join(userInfo);
-      //await join(userInfo, profileFile || undefined);
+      // 나중에 이미지 업로드 구현 시: await join(userInfo, profileFile || undefined);
       alert("회원가입이 완료되었습니다. 로그인 해주세요.");
       navigate("/login");
     } catch (err) {
@@ -201,7 +212,7 @@ const Join: React.FC = () => {
             onChange={(e) => setMajorId(e.target.value)}
           >
             <option value="">학과를 선택하세요</option>
-            {MAJOR_LIST.map((m) => (
+            {majorList.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.name}
               </option>
