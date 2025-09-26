@@ -6,7 +6,7 @@ import axios, {
 
 const API_URL = import.meta.env.VITE_DOMAIN_URL;
 
-// 메모리에 저장할 accessToken
+// 🔑 메모리에 저장할 accessToken
 let accessToken: string | null = null;
 
 // getter
@@ -16,19 +16,20 @@ export const getAccessToken = () => accessToken;
 export const setAccessToken = (token: string) => {
   accessToken = token;
   localStorage.setItem("accessToken", token);
-  console.log("📦 setAccessToken 호출됨, 저장된 토큰:", token);
+  console.log("📦 [setAccessToken] 저장된 토큰:", token);
 };
 
-// 앱 시작 시 localStorage에서 불러오기
+// 🚀 앱 시작 시 localStorage에서 불러오기
 const initialToken = localStorage.getItem("accessToken");
 if (initialToken) {
   accessToken = initialToken;
   console.log("🚀 초기 accessToken 불러옴:", initialToken);
 }
 
+// 🌐 Axios 인스턴스 생성 (쿠키 포함)
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: true, // ✅ 항상 쿠키 전송
 });
 
 // ✅ 퍼블릭 화면/엔드포인트 목록
@@ -40,24 +41,25 @@ const PUBLIC_APIS = [
   "/api/auth/signup",
 ];
 
-// 요청 인터셉터
+// 📡 요청 인터셉터
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const url = config.url || "";
     console.log("➡️ [요청 인터셉터] 요청 URL:", url);
 
-    // 로그인/회원가입 등 퍼블릭 API는 토큰 미부착
+    // 로그인/회원가입/토큰 재발급 등 → 토큰 미부착
     if (PUBLIC_APIS.some((p) => url.includes(p))) {
-      console.log("⏩ 퍼블릭 API 요청 → 토큰 추가 안 함");
+      console.log("⏩ [퍼블릭 API] 토큰 추가 안 함:", url);
       return config;
     }
 
+    // 그 외 API → Authorization 헤더 추가
     const token = getAccessToken();
     if (token && config.headers) {
       config.headers["Authorization"] = `Bearer ${token}`;
       console.log("🔑 [요청 인터셉터] Authorization 헤더 추가:", token);
     } else {
-      console.log("⚠️ [요청 인터셉터] accessToken 없음, 헤더 추가 실패");
+      console.warn("⚠️ [요청 인터셉터] accessToken 없음, 헤더 추가 실패");
     }
 
     return config;
@@ -68,7 +70,7 @@ api.interceptors.request.use(
   }
 );
 
-// 응답 인터셉터
+// 📡 응답 인터셉터
 api.interceptors.response.use(
   (response: AxiosResponse) => {
     console.log("✅ [응답 성공]", response.config.url, response.status);
@@ -85,38 +87,55 @@ api.interceptors.response.use(
     const isPublicScreen = PUBLIC_SCREENS.some((p) => here.startsWith(p));
     const isPublicApi = PUBLIC_APIS.some((p) => url.includes(p));
 
-    // 퍼블릭 화면/API에서 401 발생해도 로그인 리다이렉트 안 함
+    // 퍼블릭 API/화면에서 발생한 401 → 무시 (로그인 리다이렉트 X)
     if (status === 401 && (isPublicScreen || isPublicApi)) {
-      console.warn("⚠️ 퍼블릭 화면/퍼블릭 API 401 → 리다이렉트하지 않음");
+      console.warn("⚠️ [401] 퍼블릭 화면/퍼블릭 API → 리다이렉트하지 않음");
       return Promise.reject(error);
     }
 
-    // 401 → 토큰 재발급 시도 (한 번만)
+    // 🔄 401 Unauthorized → 토큰 재발급 시도 (한 번만 실행)
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+      console.log("🔄 [401] accessToken 만료 → refreshToken으로 재발급 요청");
+
       try {
+        // 🔑 RefreshToken은 서버 쿠키에 저장 → withCredentials 필요
         const res = await axios.post(
           `${API_URL}/api/auth/reissue`,
           {},
           { withCredentials: true }
         );
+
+        // 서버가 내려준 새 accessToken 추출
         const newTokenHeader =
           res.headers["authorization"] || res.headers["Authorization"];
+
         if (newTokenHeader) {
           const tokenValue = newTokenHeader.replace("Bearer ", "");
           setAccessToken(tokenValue);
+          console.log(
+            "✅ [토큰 재발급 성공] 새로운 accessToken 저장:",
+            tokenValue
+          );
+
+          // 실패했던 원래 요청에 새 토큰 추가 후 재시도
           if (originalRequest.headers) {
             originalRequest.headers["Authorization"] = `Bearer ${tokenValue}`;
           }
+          return api(originalRequest);
+        } else {
+          console.error("❌ [토큰 재발급 실패] Authorization 헤더 없음");
         }
-        return api(originalRequest);
       } catch (e) {
+        console.error("💥 [토큰 재발급 실패] refreshToken 요청 에러:", e);
         if (!isPublicScreen) {
+          console.warn("🚨 [리다이렉트] 로그인 화면으로 이동");
           window.location.href = "/login";
         }
       }
     }
 
+    // 그 외 에러는 그대로 반환
     return Promise.reject(error);
   }
 );
