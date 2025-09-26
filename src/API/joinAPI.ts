@@ -15,11 +15,22 @@ export const checkEmailVerification = async (
 };
 
 // 마지막 회원가입 버튼 누르면 가입 (현재는 JSON만 전송)
-export const join = async (userInfo: JoinRequest) => {
-  return api.post("/api/auth/signup", userInfo, {
-    headers: { "Content-Type": "application/json" },
+export const join = async (userInfo: JoinRequest, profileFile?: File) => {
+  const formData = new FormData();
+  formData.append(
+    "requestDto",
+    new Blob([JSON.stringify(userInfo)], { type: "application/json" })
+  );
+
+  if (profileFile) {
+    formData.append("profileImage", profileFile);
+  }
+
+  return api.post("/api/auth/signup", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
 };
+
 
 /* 
 // ✅ 나중에 서버에서 이미지 업로드 구현이 되면 이 코드로 교체

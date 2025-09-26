@@ -5,7 +5,6 @@ import {
   sendEmailVerification,
   checkEmailVerification,
   join,
-  // getMajorList, // 서버 준비 안 되어 주석 처리
 } from "../../API/joinAPI";
 import { JoinRequest } from "../../types/join";
 import "./join.css";
@@ -16,10 +15,16 @@ const Join: React.FC = () => {
   // 회원가입 정보 상태
   const [name, setName] = useState("");
   const [school] = useState("수원대학교"); // 고정
-  const [grade, setGrade] = useState<number>(1);
-  const [semester, setSemester] = useState<number>(1);
-  const [major, setMajor] = useState("");
-  const [majorList, setMajorList] = useState<string[]>([]); // 서버 준비 안 되어 있음
+  const [grade, setGrade] = useState<number | "">("");
+  const [semester, setSemester] = useState<number | "">("");
+  const [majorId, setMajorId] = useState("");
+
+  // 전공 목록 (임시 하드코딩 예시)
+  const MAJOR_LIST = [
+    { id: "0x715999E8E0494CF5909F5111F565913A", name: "컴퓨터공학부" },
+    { id: "0x012481DB0B86412B8B73CD1F4045BBCC", name: "기계공학부" },
+  ];
+
   const [studentId, setStudentId] = useState("");
   const [email, setEmail] = useState("");
   const [authCode, setAuthCode] = useState("");
@@ -72,11 +77,11 @@ const Join: React.FC = () => {
 
   // 회원가입 처리
   const handleJoin = async () => {
-    // 필수 입력값 확인
     if (
       !name ||
       !grade ||
       !semester ||
+      !majorId ||
       !studentId ||
       !email ||
       !authCode ||
@@ -86,13 +91,11 @@ const Join: React.FC = () => {
       return;
     }
 
-    // 학번 검증: 8자리 숫자
     if (!/^\d{8}$/.test(studentId)) {
       alert("학번은 8자리 숫자여야 합니다.");
       return;
     }
 
-    // 비밀번호 유효성 검사
     const passwordRegex =
       /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&^])[A-Za-z\d@$!%*?&^]{8,20}$/;
     if (!passwordRegex.test(password)) {
@@ -110,17 +113,14 @@ const Join: React.FC = () => {
       return;
     }
 
-    // 전공 선택 안 되어 있으면 기본값 '컴퓨터공학과'
-    const selectedMajor = major || "컴퓨터공학과";
-
     const userInfo: JoinRequest = {
-      studentId: studentId.trim(), // 앞뒤 공백 제거
+      studentId: studentId.trim(),
       email,
       password,
       name,
-      majorName: selectedMajor,
-      grade,
-      semester,
+      majorId,
+      grade: Number(grade),
+      semester: Number(semester),
     };
 
     console.log("가입 전 userInfo:", userInfo);
@@ -170,7 +170,7 @@ const Join: React.FC = () => {
             value={grade}
             onChange={(e) => setGrade(Number(e.target.value))}
           >
-            <option value="">선택</option>
+            <option value="">학년을 선택하세요</option>
             {[1, 2, 3, 4].map((y) => (
               <option key={y} value={y}>
                 {y}학년
@@ -185,22 +185,24 @@ const Join: React.FC = () => {
             value={semester}
             onChange={(e) => setSemester(Number(e.target.value))}
           >
-            <option value="">선택</option>
+            <option value="">학기를 선택하세요</option>
             <option value="1">1학기</option>
             <option value="2">2학기</option>
           </select>
         </div>
+
+        {/* 전공 */}
         <div className="join-input-container" style={{ width: "50%" }}>
           <div className="join-input-title">전공</div>
           <select
             className="join-input"
-            value={major}
-            onChange={(e) => setMajor(e.target.value)}
+            value={majorId}
+            onChange={(e) => setMajorId(e.target.value)}
           >
-            <option value="">선택</option>
-            {majorList.map((m) => (
-              <option key={m} value={m}>
-                {m}
+            <option value="">학과를 선택하세요</option>
+            {MAJOR_LIST.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
               </option>
             ))}
           </select>
