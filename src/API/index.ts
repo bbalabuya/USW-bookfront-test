@@ -34,7 +34,13 @@ const api = axios.create({
 
 // ✅ 퍼블릭 화면/엔드포인트 목록
 const PUBLIC_SCREENS = ["/", "/join", "/email-verify"];
-const PUBLIC_APIS = ["/api/mail/", "/api/auth/login", "/api/auth/signup"];
+const PUBLIC_APIS = [
+  "/api/mail/send-verification",
+  "/api/mail/verify",
+  "/api/auth/login",
+  "/api/auth/signup",
+  "/api/auth/reissue",
+];
 
 // 📡 요청 인터셉터
 api.interceptors.request.use(
@@ -43,7 +49,7 @@ api.interceptors.request.use(
     console.log("➡️ [요청 인터셉터] 요청 URL:", url);
 
     // 로그인/회원가입/토큰 재발급 등 → 토큰 미부착
-    if (PUBLIC_APIS.some((p) => url.includes(p))) {
+    if (PUBLIC_APIS.some((p) => url === p)) {
       console.log("⏩ [퍼블릭 API] 토큰 추가 안 함:", url);
       return config;
     }
@@ -80,11 +86,11 @@ api.interceptors.response.use(
     const here = window.location.pathname;
 
     const isPublicScreen = PUBLIC_SCREENS.some((p) => here.startsWith(p));
-    const isPublicApi = PUBLIC_APIS.some((p) => url.includes(p));
+    const isPublicApi = PUBLIC_APIS.some((p) => url === p);
 
     // 퍼블릭 API/화면에서 발생한 401 → 무시 (로그인 리다이렉트 X)
     if (status === 401 && (isPublicScreen || isPublicApi)) {
-      console.warn("⚠️ [401] 퍼블릭 화면/퍼블릭 API → 리다이렉트하지 않음");
+      console.warn("⚠️ [401] 퍼블릭 화면/퍼블릭 API → 재발급/리다이렉트 안 함");
       return Promise.reject(error);
     }
 
