@@ -91,7 +91,12 @@ api.interceptors.response.use(
     // 🔄 401 Unauthorized → 토큰 재발급 시도 (한 번만 실행)
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      console.log("🔄 [401] accessToken 만료 → refreshToken으로 재발급 요청");
+
+      console.group("🔄 [401 처리 로직 시작]");
+      console.log("📌 originalRequest URL:", originalRequest.url);
+      console.log("📌 현재 accessToken:", getAccessToken());
+
+      console.log("➡️ [재발급 요청 전] refreshToken 기반으로 요청 시도");
 
       try {
         // 🔑 RefreshToken은 서버 쿠키에 저장 → withCredentials 필요
@@ -101,6 +106,8 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
+        console.log("✅ [reissue 응답 수신]", res);
+
         // 서버가 내려준 새 accessToken 추출
         const newTokenHeader =
           res.headers["authorization"] || res.headers["Authorization"];
@@ -108,15 +115,15 @@ api.interceptors.response.use(
         if (newTokenHeader) {
           const tokenValue = newTokenHeader.replace("Bearer ", "");
           setAccessToken(tokenValue);
-          console.log(
-            "✅ [토큰 재발급 성공] 새로운 accessToken 저장:",
-            tokenValue
-          );
+          console.log("🎉 [토큰 재발급 성공] 새로운 accessToken:", tokenValue);
 
           // 실패했던 원래 요청에 새 토큰 추가 후 재시도
           if (originalRequest.headers) {
             originalRequest.headers["Authorization"] = `Bearer ${tokenValue}`;
+            console.log("🔁 [재시도 요청] Authorization 헤더 교체 완료");
           }
+
+          console.groupEnd();
           return api(originalRequest);
         } else {
           console.error("❌ [토큰 재발급 실패] Authorization 헤더 없음");
@@ -128,9 +135,12 @@ api.interceptors.response.use(
           window.location.href = "/login";
         }
       }
+
+      console.groupEnd();
     }
 
     // 그 외 에러는 그대로 반환
+    console.warn("⛔ [응답 인터셉터 종료] 토큰 재발급 로직 불발");
     return Promise.reject(error);
   }
 );
