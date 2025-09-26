@@ -5,7 +5,7 @@ import { ChatRoom } from "../types/chatlist";
 // 채팅방 목록 불러오기
 export const fetchChatRooms = async (): Promise<ChatRoom[]> => {
   try {
-    console.groupCollapsed("📡 채팅방 목록 요청 시작");
+    console.log("📡 채팅방 목록 요청 시작");
     const res = await api.get<{
       code: number;
       message: string;
