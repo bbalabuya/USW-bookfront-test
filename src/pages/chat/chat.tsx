@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  enterChatRoom,
   fetchMessages,
   sendMessageApi,
   sendImageApi,
   reportUser,
 } from "../../API/chatAPI";
-import { ChatMessage } from "../../types/chat";
+import { ChatMessage, ChatHistoryResponse } from "../../types/chat";
 import "./chat.css";
 import return_button from "../../assets/return_button.png";
 import dotButtonImg from "../../assets/dot_button.png";
@@ -128,30 +127,16 @@ const Chat = () => {
     if (!roomId) return;
 
     console.log("📥 메시지 불러오기 시작", roomId);
-    const enterChatRoomAPI = async () => {
-      try {
-        const postId = await enterChatRoom(roomId);
-        if (postId) {
-          console.log("✅ 채팅방 입장 성공, postId:", postId);
-        } else {
-          console.warn("⚠️ 채팅방 입장 실패");
-        }
-      } catch (err) {
-        console.error("❌ 채팅방 입장 중 에러:", err);
-      }
-    };
-    enterChatRoomAPI();
-
     const fetchHistory = async () => {
       try {
         console.log("⏳ 메시지 불러오는 중...");
         const { myId, messages } = await fetchMessages(roomId);
         console.log("✅ 메시지 불러오기 성공:", {
           myId,
-          count: messages ? messages.length : 0,
+          count: messages.length,
         });
         setMyID(myId);
-        setMessages(messages || []);
+        setMessages(messages);
       } catch (err) {
         console.error("❌ 메시지 불러오기 실패:", err);
         setMessages(chatExampleMessages);
@@ -166,7 +151,7 @@ const Chat = () => {
     if (!roomId) return;
 
     console.log("🔌 WebSocket 연결 시도...");
-    const socket = new WebSocket(`wss://stg.subook.shop/ws-chat`); // ✅ wss로 수정
+    const socket = new WebSocket(`wss://stg.subook.shop/ws-chat`);
     setWs(socket);
 
     socket.onopen = () => {
