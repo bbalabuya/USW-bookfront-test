@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
+  enterChatRoom,
   fetchMessages,
   sendMessageApi,
   sendImageApi,
@@ -127,6 +128,20 @@ const Chat = () => {
     if (!roomId) return;
 
     console.log("📥 메시지 불러오기 시작", roomId);
+    const enterChatRoomAPI = async () => {
+      try {
+        const postId = await enterChatRoom(roomId);
+        if (postId) {
+          console.log("✅ 채팅방 입장 성공, postId:", postId);
+        } else {
+          console.warn("⚠️ 채팅방 입장 실패");
+        }
+      } catch (err) {
+        console.error("❌ 채팅방 입장 중 에러:", err);
+      }
+    };
+    enterChatRoomAPI();
+
     const fetchHistory = async () => {
       try {
         console.log("⏳ 메시지 불러오는 중...");

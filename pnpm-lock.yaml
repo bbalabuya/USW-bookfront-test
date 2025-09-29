@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@stomp/stompjs':
+        specifier: ^7.2.0
+        version: 7.2.0
       axios:
         specifier: ^1.10.0
         version: 1.10.0
@@ -498,6 +501,9 @@ packages:
     resolution: {integrity: sha512-3+QZROYfJ25PDcxFF66UEk8jGWigHJeecZILvkPkyQN7oc5BvFo4YEXFkOs154j3FTMp9mn9Ky8RCOwastduEA==}
     cpu: [x64]
     os: [win32]
+
+  '@stomp/stompjs@7.2.0':
+    resolution: {integrity: sha512-+Waf/wdSxgRmXHWg7HXUt51YNK/Cp2pMhW+OELwX5fzbO6pd+O2bLrWqGmyFNC/RyeUQIMGESP7oE3L1dXXm0Q==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -1605,6 +1611,8 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.44.2':
     optional: true
+
+  '@stomp/stompjs@7.2.0': {}
 
   '@types/babel__core@7.20.5':
     dependencies:
