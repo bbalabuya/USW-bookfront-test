@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
+  enterChatRoom,
   fetchMessages,
   sendMessageApi,
   sendImageApi,
   reportUser,
 } from "../../API/chatAPI";
-import { ChatMessage, ChatHistoryResponse } from "../../types/chat";
+import { ChatMessage } from "../../types/chat";
 import "./chat.css";
 import return_button from "../../assets/return_button.png";
 import dotButtonImg from "../../assets/dot_button.png";
 import pictureImg from "../../assets/chat_picture.png";
 import sendImg from "../../assets/send.png";
 import { chatExampleMessages } from "../../mockData/chatMessage";
+import { Client } from "@stomp/stompjs";
 
 const Chat = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -25,7 +27,6 @@ const Chat = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined);
 
-  const [ws, setWs] = useState<WebSocket | null>(null);
   const [myID, setMyID] = useState<string>("");
 
   // 신고 사유 목록
@@ -127,16 +128,30 @@ const Chat = () => {
     if (!roomId) return;
 
     console.log("📥 메시지 불러오기 시작", roomId);
+    const enterChatRoomAPI = async () => {
+      try {
+        const postId = await enterChatRoom(roomId);
+        if (postId) {
+          console.log("✅ 채팅방 입장 성공, postId:", postId);
+        } else {
+          console.warn("⚠️ 채팅방 입장 실패");
+        }
+      } catch (err) {
+        console.error("❌ 채팅방 입장 중 에러:", err);
+      }
+    };
+    enterChatRoomAPI();
+
     const fetchHistory = async () => {
       try {
         console.log("⏳ 메시지 불러오는 중...");
         const { myId, messages } = await fetchMessages(roomId);
         console.log("✅ 메시지 불러오기 성공:", {
           myId,
-          count: messages.length,
+          count: messages ? messages.length : 0,
         });
         setMyID(myId);
-        setMessages(messages);
+        setMessages(messages || []);
       } catch (err) {
         console.error("❌ 메시지 불러오기 실패:", err);
         setMessages(chatExampleMessages);
@@ -146,43 +161,50 @@ const Chat = () => {
     fetchHistory();
   }, [roomId]);
 
-  // 2️⃣ WebSocket 연결
+  // 2️⃣ STOMP WebSocket 연결
   useEffect(() => {
     if (!roomId) return;
 
-    console.log("🔌 WebSocket 연결 시도...");
-    const socket = new WebSocket(`wss://stg.subook.shop/ws-chat`);
-    setWs(socket);
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("❌ accessToken 없음");
+      return;
+    }
 
-    socket.onopen = () => {
-      console.log("✅ WebSocket 연결 성공");
-      const subscribeMsg = {
-        command: "SUBSCRIBE",
-        headers: { id: "sub-0", destination: `/sub/chat/${roomId}` },
-      };
-      console.log("📡 구독 메시지 전송:", subscribeMsg);
-      socket.send(JSON.stringify(subscribeMsg));
+    console.log("🔌 STOMP WebSocket 연결 시도...");
+    const client = new Client({
+      brokerURL: "wss://stg.subook.shop/ws-chat",
+      connectHeaders: {
+        Authorization: `Bearer ${token}`, // ✅ 토큰 추가
+      },
+      debug: (str) => console.log("STOMP Debug:", str),
+      reconnectDelay: 5000,
+    });
+
+    client.onConnect = () => {
+      console.log("✅ STOMP 연결 성공");
+
+      client.subscribe(`/sub/chat/${roomId}`, (message) => {
+        console.log("📩 STOMP 메시지 수신:", message.body);
+        try {
+          const newMessage: ChatMessage = JSON.parse(message.body);
+          setMessages((prev) => [...prev, newMessage]);
+        } catch (err) {
+          console.error("❌ 메시지 파싱 실패", err);
+        }
+      });
     };
 
-    socket.onmessage = (event) => {
-      console.log("📩 WebSocket 메시지 수신:", event.data);
-      try {
-        const newMessage: ChatMessage = JSON.parse(event.data);
-        setMessages((prev) => [...prev, newMessage]);
-      } catch (err) {
-        console.error("❌ 메시지 파싱 실패", err);
-      }
+    client.onStompError = (frame) => {
+      console.error("❌ STOMP 에러:", frame.headers["message"]);
+      console.error("상세:", frame.body);
     };
 
-    socket.onerror = (err) => {
-      console.error("❌ WebSocket 에러 발생:", err);
-    };
-
-    socket.onclose = () => console.log("❌ WebSocket 종료");
+    client.activate();
 
     return () => {
-      console.log("🔌 WebSocket 연결 해제");
-      socket.close();
+      console.log("🔌 STOMP 연결 해제");
+      client.deactivate();
     };
   }, [roomId]);
 
