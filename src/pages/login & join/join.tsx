@@ -52,10 +52,10 @@ const Join: React.FC = () => {
 
   // 이메일 인증코드 발송
   const handleEmailVerify = async () => {
-    if (!email.endsWith("@suwon.ac.kr")) {
+    /*if (!email.endsWith("@suwon.ac.kr")) {
       alert("현재 수원대학교 이메일(@suwon.ac.kr)만 사용 가능합니다.");
       return;
-    }
+    }*/
 
     try {
       await sendEmailVerification(email);

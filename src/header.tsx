@@ -161,6 +161,14 @@ const Header = () => {
     navigate("/login");
   };
 
+  const handleLogout = () => {
+    // 로그아웃 처리 로직 (예: 토큰 삭제, 상태 업데이트 등)
+    localStorage.removeItem("accessToken");
+    setLoggedIn(false);
+    navigate("/");
+  };
+
+
   return (
     <HeaderContainer>
       <Logo onClick={() => navigate("/")}>중고책 판매(로고)</Logo>
@@ -190,26 +198,34 @@ const Header = () => {
       </SearchBox>
 
       <Nav>
-        <Link to="/chatlist" style={{whiteSpace: "nowrap"}}>채팅방</Link>
-        <Link to="/mypage/my_info" style={{whiteSpace: "nowrap"}}>마이페이지</Link>
-        <Link to="/upload" style={{whiteSpace:"nowrap"}}>책 팔기</Link>
+        <Link to="/chatlist" style={{ whiteSpace: "nowrap" }}>
+          채팅방
+        </Link>
+        <Link to="/mypage/my_info" style={{ whiteSpace: "nowrap" }}>
+          마이페이지
+        </Link>
+        <Link to="/upload" style={{ whiteSpace: "nowrap" }}>
+          책 팔기
+        </Link>
       </Nav>
-        <div
-          style={{
-            width: "80px",
-            padding: "0px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {loggedIn ? (
-            <Profile src={profile} alt="프로필" />
-          ) : (
+      <div
+        style={{
+          width: "80px",
+          padding: "0px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {loggedIn ? (
+          <Profile src={profile} alt="프로필" />
+        ) : (
+          <div>
             <LoginButton onClick={handleLogin}>로그인</LoginButton>
-          )}
-        </div>
-      
+            <LoginButton onClick={handleLogout}>로그아웃</LoginButton>
+          </div>
+        )}
+      </div>
     </HeaderContainer>
   );
 };
