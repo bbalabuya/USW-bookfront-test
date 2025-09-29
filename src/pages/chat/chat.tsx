@@ -6,7 +6,7 @@ import {
   sendImageApi,
   reportUser,
 } from "../../API/chatAPI";
-import { ChatMessage, ChatHistoryResponse } from "../../types/chat";
+import { ChatMessage } from "../../types/chat";
 import "./chat.css";
 import return_button from "../../assets/return_button.png";
 import dotButtonImg from "../../assets/dot_button.png";
@@ -133,10 +133,10 @@ const Chat = () => {
         const { myId, messages } = await fetchMessages(roomId);
         console.log("✅ 메시지 불러오기 성공:", {
           myId,
-          count: messages.length,
+          count: messages ? messages.length : 0,
         });
         setMyID(myId);
-        setMessages(messages);
+        setMessages(messages || []);
       } catch (err) {
         console.error("❌ 메시지 불러오기 실패:", err);
         setMessages(chatExampleMessages);
@@ -151,7 +151,7 @@ const Chat = () => {
     if (!roomId) return;
 
     console.log("🔌 WebSocket 연결 시도...");
-    const socket = new WebSocket(`ws://stg.subook.shop/ws-chat`);
+    const socket = new WebSocket(`wss://stg.subook.shop/ws-chat`); // ✅ wss로 수정
     setWs(socket);
 
     socket.onopen = () => {
