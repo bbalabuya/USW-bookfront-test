@@ -1,22 +1,6 @@
 import api from "./index";
 import { ChatMessage, ChatHistoryResponse } from "../types/chat";
 
-export const enterChatRoom = async (
-  roomId: string
-): Promise<string | false> => {
-  try {
-    const res = await api.post(`/api/chat/room/${roomId}`);
-    const postId: string = res.data.data.postId;
-    console.log("✅ 채팅방 입장 성공");
-    console.log("post ID : ", postId);
-    return postId;
-  } catch (err) {
-    console.error("❌ 채팅방 입장 실패:", err);
-    return false;
-  }
-};
-
-
 // 처음 입장하고 내역 불러오기
 export const fetchMessages = async (
   roomId: string
