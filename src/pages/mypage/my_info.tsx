@@ -23,7 +23,7 @@ const My_info = () => {
 
   const getInfo = async () => {
     try {
-      const response = await axios.get(`${URL}/api/me`, {
+      const response = await axios.get(`${URL}/api/user/infomation`, {
         withCredentials: true,
       });
       setUser(response.data); // 서버에서 받아온 유저 정보 저장

@@ -6,9 +6,7 @@ export const fetchMessages = async (
   roomId: string
 ): Promise<{ myId: string; messages: ChatMessage[] }> => {
   try {
-    const res = await api.get<ChatHistoryResponse>(
-      `/api/chat/rooms/${roomId}/message`
-    );
+    const res = await api.get<ChatHistoryResponse>(`/api/chat/room/${roomId}`);
     console.log("✅ 메시지 불러오기 성공:", res.data);
     return {
       myId: res.data.data.myId,
