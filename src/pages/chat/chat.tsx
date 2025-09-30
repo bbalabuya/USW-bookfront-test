@@ -174,14 +174,7 @@ const Chat = () => {
     console.log("🔌 STOMP WebSocket 연결 시도...");
 
     const client = new Client({
-      // ✅ 토큰을 URL에서 제거 (스크린샷의 WSS URL만 남김)
-      brokerURL: `wss://stg.subook.shop/ws-chat`,
-
-      // 🚀 connectHeaders를 사용하여 인증 토큰을 HTTP 헤더로 전달
-      connectHeaders: {
-        Authorization: `Bearer ${token}`, // <--- 스크린샷과 동일한 형식
-      },
-
+      brokerURL: `wss://stg.subook.shop/ws-chat?token=${token}`, // ✅ 토큰을 URL 뒤에 붙임
       reconnectDelay: 5000,
       debug: (str) => console.log("STOMP Debug:", str),
     });
@@ -189,7 +182,6 @@ const Chat = () => {
     client.onConnect = () => {
       console.log("✅ STOMP 연결 성공");
 
-      // 구독 로직은 동일
       client.subscribe(`/sub/chat/${roomId}`, (message) => {
         console.log("📩 STOMP 메시지 수신:", message.body);
         try {
