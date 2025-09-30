@@ -161,7 +161,7 @@ const Chat = () => {
     fetchHistory();
   }, [roomId]);
 
-  // 2️⃣ STOMP WebSocket 연결 (👉 WebSocketFactory 사용)
+  // 2️⃣ STOMP WebSocket 연결
   useEffect(() => {
     if (!roomId) return;
 
@@ -171,23 +171,25 @@ const Chat = () => {
       return;
     }
 
-    console.log("🔌 STOMP WebSocket 연결 시도 (WebSocketFactory)...");
+    console.log("🔌 STOMP WebSocket 연결 시도 (Authorization Header 사용)...");
+
     const client = new Client({
-      webSocketFactory: () =>
-        new WebSocket(`wss://stg.subook.shop/ws-chat`, [
-          "v10.stomp",
-          "v11.stomp",
-        ]),
+      // 서버의 WebSocketConfig.registerStompEndpoints(/ws-chat)와 일치
+      brokerURL: `wss://stg.subook.shop/ws-chat`,
+
+      // 💡 핵심: 서버의 WebSocketChatHandler가 요구하는 Authorization 헤더를 설정합니다.
       connectHeaders: {
-        Authorization: `Bearer ${token}`, // ✅ 여기서 토큰 전달
+        Authorization: `Bearer ${token}`,
       },
-      debug: (str) => console.log("STOMP Debug:", str),
+
       reconnectDelay: 5000,
+      debug: (str) => console.log("STOMP Debug:", str),
     });
 
     client.onConnect = () => {
       console.log("✅ STOMP 연결 성공");
 
+      // 서버의 configureMessageBroker(/sub)와 일치하는 구독 주소
       client.subscribe(`/sub/chat/${roomId}`, (message) => {
         console.log("📩 STOMP 메시지 수신:", message.body);
         try {
@@ -200,6 +202,7 @@ const Chat = () => {
     };
 
     client.onStompError = (frame) => {
+      // 인증 실패 시, 여기서 UNAUTHORIZED 에러 로그를 확인할 수 있습니다.
       console.error("❌ STOMP 에러:", frame.headers["message"]);
       console.error("상세:", frame.body);
     };
@@ -208,6 +211,7 @@ const Chat = () => {
 
     return () => {
       console.log("🔌 STOMP 연결 해제");
+      // 컴포넌트 언마운트 시 연결 해제
       client.deactivate();
     };
   }, [roomId]);
