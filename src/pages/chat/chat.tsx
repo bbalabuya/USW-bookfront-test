@@ -172,11 +172,13 @@ const Chat = () => {
     }
 
     console.log("🔌 STOMP WebSocket 연결 시도...");
-
     const client = new Client({
-      brokerURL: `wss://stg.subook.shop/ws-chat?token=${token}`, // ✅ 토큰을 URL 뒤에 붙임
-      reconnectDelay: 5000,
+      brokerURL: "wss://stg.subook.shop/ws-chat",
+      connectHeaders: {
+        Authorization: `Bearer ${token}`, // ✅ 토큰 추가
+      },
       debug: (str) => console.log("STOMP Debug:", str),
+      reconnectDelay: 5000,
     });
 
     client.onConnect = () => {
