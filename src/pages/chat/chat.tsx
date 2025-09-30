@@ -161,7 +161,7 @@ const Chat = () => {
     fetchHistory();
   }, [roomId]);
 
-  // 2️⃣ STOMP WebSocket 연결 (👉 WebSocketFactory 사용)
+  // 2️⃣ STOMP WebSocket 연결
   useEffect(() => {
     if (!roomId) return;
 
@@ -171,18 +171,12 @@ const Chat = () => {
       return;
     }
 
-    console.log("🔌 STOMP WebSocket 연결 시도 (WebSocketFactory)...");
+    console.log("🔌 STOMP WebSocket 연결 시도...");
+
     const client = new Client({
-      webSocketFactory: () =>
-        new WebSocket(`wss://stg.subook.shop/ws-chat`, [
-          "v10.stomp",
-          "v11.stomp",
-        ]),
-      connectHeaders: {
-        Authorization: `Bearer ${token}`, // ✅ 여기서 토큰 전달
-      },
-      debug: (str) => console.log("STOMP Debug:", str),
+      brokerURL: `wss://stg.subook.shop/ws-chat?token=${token}`, // ✅ 토큰을 URL 뒤에 붙임
       reconnectDelay: 5000,
+      debug: (str) => console.log("STOMP Debug:", str),
     });
 
     client.onConnect = () => {
