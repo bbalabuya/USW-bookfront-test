@@ -23,7 +23,7 @@ export const fetchMessages = async (
 ): Promise<{ myId: string; messages: ChatMessage[] }> => {
   try {
     const res = await api.get<ChatHistoryResponse>(
-      `/api/chat/rooms/${roomId}/message`
+      `/api/chat/rooms/${roomId}/messages`
     );
     console.log("✅ 메시지 불러오기 성공:", res.data);
     return {
