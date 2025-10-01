@@ -175,7 +175,7 @@ const Chat = () => {
 
     const client = new Client({
       // 서버의 WebSocketConfig.registerStompEndpoints(/ws-chat)와 일치
-      brokerURL: `wss://stg.subook.shop/ws-chat`,
+      brokerURL: `wss://api.stg.subook.shop/ws-chat`,
 
       // 💡 핵심: 서버의 WebSocketChatHandler가 요구하는 Authorization 헤더를 설정합니다.
       connectHeaders: {

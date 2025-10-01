@@ -88,12 +88,9 @@ export const sendImageApi = async (
 /**
  * 📌 신고하기
  */
-export const reportUser = async (
-  roomId: string,
-  reason: number
-): Promise<boolean> => {
+export const reportUser = async (roomId: string, reason: number): Promise<boolean> => {
   try {
-    await api.post(`/api/users/${roomId}/report`, { reason });
+    await api.post(`/api/chat/${roomId}/report`, { reason });
     console.log("✅ 신고 성공");
     return true;
   } catch (err) {
