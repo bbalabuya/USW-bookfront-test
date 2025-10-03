@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import {
   enterChatRoom,
   fetchMessages,
-  sendMessageApi,
   sendImageApi,
   reportUser,
 } from "../../API/chatAPI";
@@ -28,6 +27,7 @@ const Chat = () => {
   const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined);
 
   const [myID, setMyID] = useState<string>("");
+  const [stompClient, setStompClient] = useState<Client | null>(null); // STOMP client 상태 저장
 
   // 신고 사유 목록
   const reportReasons = [
@@ -88,22 +88,25 @@ const Chat = () => {
   const sendMessage = async () => {
     if (!roomId) return console.log("❌ roomId 없음");
 
-    // 텍스트 전송
-    if (inputMessage.trim()) {
-      console.log("💬 텍스트 메시지 전송 시도:", inputMessage);
+    // 텍스트 전송 (STOMP)
+    if (inputMessage.trim() && stompClient) {
+      console.log("💬 STOMP 텍스트 메시지 전송 시도:", inputMessage);
       try {
-        const sent = await sendMessageApi(roomId, inputMessage, myID || "me");
-        if (sent) {
-          console.log("✅ 텍스트 메시지 전송 성공:", sent);
-          setMessages((prev) => [...prev, sent]);
-        }
-        setInputMessage("");
+        stompClient.publish({
+          destination: "/pub/chat.send",
+          body: JSON.stringify({
+            roomId,
+            message: inputMessage,
+            senderId: myID || "me",
+          }),
+        });
+        setInputMessage(""); // 입력창 초기화
       } catch (err) {
-        console.error("❌ 메시지 전송 실패", err);
+        console.error("❌ STOMP 텍스트 메시지 전송 실패", err);
       }
     }
 
-    // 이미지 전송
+    // 이미지 전송 (REST 그대로 유지)
     if (selectedFile) {
       console.log("🖼️ 이미지 메시지 전송 시도:", selectedFile.name);
       try {
@@ -174,22 +177,19 @@ const Chat = () => {
     console.log("🔌 STOMP WebSocket 연결 시도 (Authorization Header 사용)...");
 
     const client = new Client({
-      // 서버의 WebSocketConfig.registerStompEndpoints(/ws-chat)와 일치
       brokerURL: `wss://api.stg.subook.shop/ws-chat`,
-
-      // 💡 핵심: 서버의 WebSocketChatHandler가 요구하는 Authorization 헤더를 설정합니다.
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
-
       reconnectDelay: 5000,
       debug: (str) => console.log("STOMP Debug:", str),
     });
 
     client.onConnect = () => {
       console.log("✅ STOMP 연결 성공");
+      setStompClient(client); // 전역 상태에 저장
 
-      // 서버의 configureMessageBroker(/sub)와 일치하는 구독 주소
+      // 구독
       client.subscribe(`/sub/chat/${roomId}`, (message) => {
         console.log("📩 STOMP 메시지 수신:", message.body);
         try {
@@ -202,7 +202,6 @@ const Chat = () => {
     };
 
     client.onStompError = (frame) => {
-      // 인증 실패 시, 여기서 UNAUTHORIZED 에러 로그를 확인할 수 있습니다.
       console.error("❌ STOMP 에러:", frame.headers["message"]);
       console.error("상세:", frame.body);
     };
@@ -211,7 +210,6 @@ const Chat = () => {
 
     return () => {
       console.log("🔌 STOMP 연결 해제");
-      // 컴포넌트 언마운트 시 연결 해제
       client.deactivate();
     };
   }, [roomId]);
