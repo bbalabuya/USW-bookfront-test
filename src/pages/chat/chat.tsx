@@ -91,6 +91,11 @@ const Chat = () => {
     // 텍스트 전송 (STOMP)
     if (inputMessage.trim() && stompClient) {
       console.log("💬 STOMP 텍스트 메시지 전송 시도:", inputMessage);
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("❌ accessToken 없음");
+        return;
+      }
       try {
         stompClient.publish({
           destination: "/pub/chat.send",
@@ -98,6 +103,7 @@ const Chat = () => {
             roomId,
             message: inputMessage,
             senderId: myID || "me",
+            token
           }),
         });
         setInputMessage(""); // 입력창 초기화
