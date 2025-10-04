@@ -215,7 +215,7 @@ const Upload = () => {
               setSemester(Number(e.target.value));
             }}
           >
-            {[1, 2, 3, 4].map((s) => (
+            {[1, 2].map((s) => (
               <option key={s} value={s}>
                 {s}학기
               </option>
