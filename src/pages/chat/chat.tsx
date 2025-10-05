@@ -103,7 +103,6 @@ const Chat = () => {
             roomId,
             message: inputMessage,
             senderId: myID || "me",
-            token
           }),
         });
         setInputMessage(""); // 입력창 초기화
