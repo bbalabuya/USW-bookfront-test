@@ -143,9 +143,11 @@ const Chat = () => {
           console.log("✅ 채팅방 입장 성공, postId:", postId);
         } else {
           console.warn("⚠️ 채팅방 입장 실패");
+          alert("⚠️ 채팅방 입장에 실패했습니다.");
         }
       } catch (err) {
         console.error("❌ 채팅방 입장 중 에러:", err);
+        alert("⚠️ 채팅방 입장 중 오류가 발생했습니다.");
       }
     };
     enterChatRoomAPI();
@@ -163,6 +165,7 @@ const Chat = () => {
       } catch (err) {
         console.error("❌ 메시지 불러오기 실패:", err);
         setMessages(chatExampleMessages);
+        alert("⚠️ 채팅방 메시지 불러오기 실패");
       }
     };
 

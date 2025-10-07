@@ -35,6 +35,7 @@ const Chatlist = () => {
       } else {
         console.warn("⚠️ 서버에서 데이터를 못 받아서 샘플 데이터 사용");
         setChatlist(sampleChatList);
+        // alert("⚠️ 서버에서 채팅방 데이터를 받아오지 못했습니다.");
       }
     };
 
