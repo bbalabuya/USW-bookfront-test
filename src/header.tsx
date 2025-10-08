@@ -1,36 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import arrowImg from "./assets/arrow.png";
 import profile from "./assets/basic_profile.png";
 import reading_glass from "./assets/reading_glass.png";
-import axios from "axios";
-import { wrap } from "module";
 
-const URL = (import.meta as any).env.VITE_DOMAIN_URL;
-
-// 헤더 전체 컨테이너
+// 🔹 스타일 정의
 const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 250px;
   height: 70px;
-  max-height: 70px;
   background-color: #f8f8f8;
   border-bottom: 3px solid #b516ff;
 `;
 
-// 로고
 const Logo = styled.div`
   font-size: 24px;
   font-weight: bold;
-
   color: black;
   cursor: pointer;
 `;
 
-// 네비게이션
 const Nav = styled.nav`
   display: flex;
   align-items: center;
@@ -41,26 +33,22 @@ const Nav = styled.nav`
   a {
     color: #b516ff;
     text-decoration: none;
-
     &:hover {
       text-decoration: underline;
     }
   }
 `;
 
-// 드롭다운 + 검색창을 감싸는 박스
 const SearchBox = styled.div`
   display: flex;
   align-items: center;
   width: 750px;
-  max-width: 1000px;
   background-color: white;
   border: 1px solid #b516ff;
   border-radius: 999px;
   overflow: hidden;
 `;
 
-// 드롭다운 전체 컨테이너
 const SelectWrapper = styled.div`
   position: relative;
   display: flex;
@@ -69,7 +57,6 @@ const SelectWrapper = styled.div`
   border-right: 1px solid #ddd;
 `;
 
-// 드롭다운
 const Select = styled.select`
   padding: 5px 1px 5px 15px;
   border: none;
@@ -77,11 +64,10 @@ const Select = styled.select`
   font-size: 15px;
   color: #333;
   outline: none;
-  appearance: none; /* 기본 화살표 제거 */
+  appearance: none;
   cursor: pointer;
 `;
 
-// 화살표 (↓)
 const Arrow = styled.img.attrs({ src: arrowImg, alt: "화살표" })`
   position: relative;
   width: 15px;
@@ -91,7 +77,6 @@ const Arrow = styled.img.attrs({ src: arrowImg, alt: "화살표" })`
   margin-right: 7px;
 `;
 
-// 검색 입력창
 const SearchInput = styled.input`
   flex: 1;
   padding: 15px 12px;
@@ -102,7 +87,6 @@ const SearchInput = styled.input`
   color: black;
 `;
 
-// 프로필 이미지
 const Profile = styled.img`
   width: 45px;
   height: 45px;
@@ -110,7 +94,6 @@ const Profile = styled.img`
   cursor: pointer;
 `;
 
-// 인증 버튼 (로그인 버튼 포함)
 const LoginButton = styled.button`
   padding: 8px 16px;
   background-color: #b516ff;
@@ -119,7 +102,7 @@ const LoginButton = styled.button`
   border-radius: 20px;
   font-size: 15px;
   cursor: pointer;
-  white-space: nowrap; // ✅ 줄바꿈 방지
+  white-space: nowrap;
   font-weight: bold;
 
   &:hover {
@@ -134,27 +117,24 @@ const Reading_glass = styled.img`
   margin-right: 13px;
 `;
 
+// 🔹 Header 컴포넌트
 const Header = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
   const [searchType, setSearchType] = useState("bookName");
   const [keyword, setKeyword] = useState("");
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    setLoggedIn(!!token);
+  }, []);
+
+  // ✅ 검색 버튼 클릭 시 "/"로 이동하면서 쿼리 전달
   const handleSearch = () => {
-    axios
-      .get(`${URL}/search`, {
-        params: {
-          keyword,
-          type: searchType,
-        },
-      })
-      .then((response) => {
-        console.log("검색결과: ", response.data);
-        navigate("/boardlist");
-      })
-      .catch((error) => {
-        console.log("검색 error", error);
-      });
+    if (!keyword.trim()) return;
+    navigate(
+      `/?type=${searchType}&keyword=${encodeURIComponent(keyword)}&pageNumber=0`
+    );
   };
 
   const handleLogin = () => {
@@ -162,17 +142,16 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    // 로그아웃 처리 로직 (예: 토큰 삭제, 상태 업데이트 등)
     localStorage.removeItem("accessToken");
     setLoggedIn(false);
     navigate("/");
   };
 
-
   return (
     <HeaderContainer>
       <Logo onClick={() => navigate("/")}>중고책 판매(로고)</Logo>
 
+      {/* 검색창 */}
       <SearchBox>
         <SelectWrapper>
           <Select
@@ -180,16 +159,18 @@ const Header = () => {
             onChange={(e) => setSearchType(e.target.value)}
           >
             <option value="bookName">책이름</option>
-            <option value="professor">교수님</option>
             <option value="className">강의명</option>
           </Select>
           <Arrow />
         </SelectWrapper>
+
         <SearchInput
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="책 이름, 강의명, 교수님 이름을 입력해주세요"
+          placeholder="책 이름 또는 강의명을 입력하세요"
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()} // Enter 검색
         />
+
         <Reading_glass
           src={reading_glass}
           alt="돋보기 버튼"
@@ -197,33 +178,22 @@ const Header = () => {
         />
       </SearchBox>
 
+      {/* 네비게이션 */}
       <Nav>
-        <Link to="/chatlist" style={{ whiteSpace: "nowrap" }}>
-          채팅방
-        </Link>
-        <Link to="/mypage/my_info" style={{ whiteSpace: "nowrap" }}>
-          마이페이지
-        </Link>
-        <Link to="/upload" style={{ whiteSpace: "nowrap" }}>
-          책 팔기
-        </Link>
+        <a href="/chatlist">채팅방</a>
+        <a href="/mypage/my_info">마이페이지</a>
+        <a href="/upload">책 팔기</a>
       </Nav>
-      <div
-        style={{
-          width: "80px",
-          padding: "0px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+
+      {/* 로그인 상태 */}
+      <div style={{ width: "80px", display: "flex", alignItems: "center" }}>
         {loggedIn ? (
           <Profile src={profile} alt="프로필" />
         ) : (
-          <div>
+          <>
             <LoginButton onClick={handleLogin}>로그인</LoginButton>
             <LoginButton onClick={handleLogout}>로그아웃</LoginButton>
-          </div>
+          </>
         )}
       </div>
     </HeaderContainer>
