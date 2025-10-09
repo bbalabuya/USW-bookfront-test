@@ -7,7 +7,7 @@ import { Book } from "./types/homeType";
 
 const URL = import.meta.env.VITE_DOMAIN_URL;
 
-// 🔹 시간 표시 함수
+// 🔹 시간 변환 함수
 export function getTimeAgo(createdAt: string): string {
   const createdDate = new Date(createdAt);
   const now = new Date();
@@ -27,48 +27,45 @@ export function getTimeAgo(createdAt: string): string {
   return `${Math.floor(diff / year)}년 전`;
 }
 
-// 🔹 Home 컴포넌트
 export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
-  const [pageNumber, setPageNumber] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [pageNumber, setPageNumber] = useState(0);
 
   const [searchParams] = useSearchParams();
   const searchType = searchParams.get("type") || "bookName";
   const keyword = searchParams.get("keyword") || "";
 
   // 🔹 필터 상태
-  const [onlyAvailable, setOnlyAvailable] = useState(false);
-  const [grades, setGrades] = useState<string[]>([]);
-  const [isLiberalArts, setIsLiberalArts] = useState(false);
+  const [grade, setGrade] = useState<number | null>(null);
+  const [semester, setSemester] = useState<number | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [priceMin, setPriceMin] = useState<number | null>(null);
+  const [priceMax, setPriceMax] = useState<number | null>(null);
 
-  // 🔹 필터 변경 시 데이터 다시 가져오기
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        let res;
+        const params: any = {
+          pageNumber,
+        };
 
-        // 기본 URL 구성
-        let endpoint = `${URL}/api/posts`;
-        let params: any = { page: pageNumber, size: 8, sort: "createdAt,desc" };
-
-        // 검색어 존재 시
+        // ✅ 검색어와 타입
         if (keyword.trim()) {
-          endpoint =
-            searchType === "bookName"
-              ? `${URL}/api/posts/book/${encodeURIComponent(keyword)}`
-              : `${URL}/api/posts/class/${encodeURIComponent(keyword)}`;
-          params = { pageNumber };
+          if (searchType === "bookName") params.bookName = keyword;
+          else if (searchType === "className") params.className = keyword;
         }
 
-        // 🔹 필터 조건 추가
-        if (onlyAvailable) params.status = "판매중";
-        if (grades.length > 0) params.grades = grades.join(",");
-        if (isLiberalArts) params.category = "교양";
+        // ✅ 필터 조건 추가
+        if (grade) params.grade = grade;
+        if (semester) params.semester = semester;
+        if (status) params.status = status;
+        if (priceMin) params.priceMin = priceMin;
+        if (priceMax) params.priceMax = priceMax;
 
-        res = await axios.get(endpoint, { params });
+        const res = await axios.get(`${URL}/api/posts/search`, { params });
 
         console.log("📦 서버 응답:", res.data);
 
@@ -79,7 +76,7 @@ export default function Home() {
           setBooks([]);
         }
       } catch (err) {
-        console.error("❌ API 요청 에러:", err);
+        console.error("API 요청 에러:", err);
         setBooks([]);
       } finally {
         setLoading(false);
@@ -87,77 +84,134 @@ export default function Home() {
     };
 
     fetchData();
-  }, [keyword, searchType, pageNumber, onlyAvailable, grades, isLiberalArts]);
-
-  // 🔹 필터 조작 핸들러
-  const toggleGrade = (grade: string) => {
-    setGrades((prev) =>
-      prev.includes(grade) ? prev.filter((g) => g !== grade) : [...prev, grade]
-    );
-  };
+  }, [
+    keyword,
+    searchType,
+    grade,
+    semester,
+    status,
+    priceMin,
+    priceMax,
+    pageNumber,
+  ]);
 
   return (
     <div className="home-container">
-      {/* 🔹 왼쪽 필터 */}
+      {/* 왼쪽 필터 */}
       <div className="filter-container">
         <div className="filter-title">필터</div>
 
-        {/* 거래가능 필터 */}
-        <label className="checkbox-wrapper">
-          <input
-            type="checkbox"
-            checked={onlyAvailable}
-            onChange={(e) => setOnlyAvailable(e.target.checked)}
-          />
-          <span className="custom-checkbox"></span>
-          거래가능만 보기
-        </label>
+        {/* ✅ 판매 상태 */}
+        <div>
+          <div className="filter-subtitle">판매 상태</div>
+          {["판매중", "거래완료"].map((s) => (
+            <label key={s} className="checkbox-wrapper">
+              <input
+                type="radio"
+                name="status"
+                checked={status === s}
+                onChange={() => setStatus(s)}
+              />
+              {s}
+            </label>
+          ))}
+          <button
+            style={{ marginTop: "5px" }}
+            onClick={() => setStatus(null)}
+            className="reset-button"
+          >
+            상태 초기화
+          </button>
+        </div>
 
         <span className="divider" />
 
-        {/* 학년 필터 */}
-        <div
-          className="filter-title"
-          style={{ fontSize: "22px", fontWeight: "bold" }}
-        >
-          학년
-        </div>
-        {["1학년", "2학년", "3학년", "4학년"].map((grade, idx) => (
-          <label className="checkbox-wrapper" key={idx}>
+        {/* ✅ 학년 선택 */}
+        <div className="filter-subtitle">학년</div>
+        {[1, 2, 3, 4].map((g) => (
+          <label key={g} className="checkbox-wrapper">
             <input
-              type="checkbox"
-              checked={grades.includes(grade)}
-              onChange={() => toggleGrade(grade)}
+              type="radio"
+              name="grade"
+              checked={grade === g}
+              onChange={() => setGrade(g)}
             />
-            <span className="custom-checkbox"></span>
-            {grade}
+            {g}학년
           </label>
         ))}
+        <button
+          style={{ marginTop: "5px" }}
+          onClick={() => setGrade(null)}
+          className="reset-button"
+        >
+          학년 초기화
+        </button>
 
         <span className="divider" />
 
-        {/* 교양 필터 */}
-        <label className="checkbox-wrapper">
+        {/* ✅ 학기 선택 */}
+        <div className="filter-subtitle">학기</div>
+        {[1, 2].map((s) => (
+          <label key={s} className="checkbox-wrapper">
+            <input
+              type="radio"
+              name="semester"
+              checked={semester === s}
+              onChange={() => setSemester(s)}
+            />
+            {s}학기
+          </label>
+        ))}
+        <button
+          style={{ marginTop: "5px" }}
+          onClick={() => setSemester(null)}
+          className="reset-button"
+        >
+          학기 초기화
+        </button>
+
+        <span className="divider" />
+
+        {/* ✅ 가격 입력 */}
+        <div className="filter-subtitle">가격 범위</div>
+        <div style={{ display: "flex", gap: "5px" }}>
           <input
-            type="checkbox"
-            checked={isLiberalArts}
-            onChange={(e) => setIsLiberalArts(e.target.checked)}
+            type="number"
+            placeholder="최소"
+            value={priceMin ?? ""}
+            onChange={(e) =>
+              setPriceMin(e.target.value ? Number(e.target.value) : null)
+            }
+            className="price-input"
           />
-          <span className="custom-checkbox"></span>
-          교양
-        </label>
+          <span>~</span>
+          <input
+            type="number"
+            placeholder="최대"
+            value={priceMax ?? ""}
+            onChange={(e) =>
+              setPriceMax(e.target.value ? Number(e.target.value) : null)
+            }
+            className="price-input"
+          />
+        </div>
+        <button
+          style={{ marginTop: "5px" }}
+          onClick={() => {
+            setPriceMin(null);
+            setPriceMax(null);
+          }}
+          className="reset-button"
+        >
+          가격 초기화
+        </button>
       </div>
 
-      {/* 🔹 오른쪽 책 목록 */}
+      {/* 오른쪽 책 목록 */}
       <div className="book-list-container">
         {loading ? (
           <div
-            style={{
-              textAlign: "center",
-              color: "#888",
-              fontWeight: "bold",
-              marginTop: "50px",
-            }}
+            style={{ textAlign: "center", color: "#888", fontWeight: "bold" }}
           >
             🔍 검색 중입니다...
           </div>
@@ -168,7 +222,6 @@ export default function Home() {
               fontSize: "20px",
               fontWeight: "bold",
               color: "gray",
-              marginTop: "50px",
             }}
           >
             책이 없습니다.

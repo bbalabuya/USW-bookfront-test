@@ -106,7 +106,10 @@ const Upload = () => {
             }
             const file = postImage[index - 1];
             return (
-              <div key={index} className={`img-slot ${file ? "has-image" : "empty"}`}>
+              <div
+                key={index}
+                className={`img-slot ${file ? "has-image" : "empty"}`}
+              >
                 {file ? (
                   <div className="img-wrapper">
                     <img
@@ -164,38 +167,46 @@ const Upload = () => {
           />
         </div>
 
-        {/* 교수명 */}
-        <div className="enter-title-set">
-          <div className="enter-title">교수명</div>
-          <input
-            className="enter-professor"
-            value={professor}
-            onChange={(e) => setProfessor(e.target.value)}
-          />
-        </div>
+        <div className="course-professor-container">
+          {/* 교수명 */}
+          <div className="enter-title-set">
+            <div className="enter-title">교수명</div>
+            <input
+              className="enter-professor"
+              value={professor}
+              onChange={(e) => setProfessor(e.target.value)}
+            />
+          </div>
 
-        {/* 강의명 */}
-        <div className="enter-title-set">
-          <div className="enter-title">강의명</div>
-          <input
-            className="enter-box"
-            value={courseName}
-            onChange={(e) => setCourseName(e.target.value)}
-          />
+          {/* 강의명 */}
+          <div className="enter-title-set">
+            <div className="enter-title">강의명</div>
+            <input
+              className="enter-box"
+              value={courseName}
+              onChange={(e) => setCourseName(e.target.value)}
+            />
+          </div>
         </div>
 
         {/* 학년 / 학기 */}
         <div className="enter-title-set">
           <div className="enter-title">학년 / 학기</div>
           <div className="upload-select-set">
-            <select value={grade} onChange={(e) => setGrade(Number(e.target.value))}>
+            <select
+              value={grade}
+              onChange={(e) => setGrade(Number(e.target.value))}
+            >
               {[1, 2, 3, 4].map((y) => (
                 <option key={y} value={y}>
                   {y}학년
                 </option>
               ))}
             </select>
-            <select value={semester} onChange={(e) => setSemester(Number(e.target.value))}>
+            <select
+              value={semester}
+              onChange={(e) => setSemester(Number(e.target.value))}
+            >
               {[1, 2].map((s) => (
                 <option key={s} value={s}>
                   {s}학기

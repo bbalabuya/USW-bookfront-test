@@ -8,7 +8,7 @@
   align-items: flex-start;
   gap: 40px; /* 좌우 간격 */
   width: 60%;
-  min-height: calc(100vh - 110px);
+  min-height: calc(100vh - 103px);
   padding: 30px;
   border: 1px solid #b516ff;
   box-sizing: border-box;
@@ -84,6 +84,7 @@
 .enter-title-set {
   display: flex;
   flex-direction: column;
+  width: 100%;
   gap: 5px;
 }
 
@@ -126,4 +127,14 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+
+.course-professor-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* 세로 중앙 정렬 (선택사항) */
+  gap: 10px;
+  justify-content: space-between; /* 좌우 끝 정렬 */
 }
