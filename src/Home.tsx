@@ -7,6 +7,7 @@ import { Book } from "./types/homeType";
 
 const URL = import.meta.env.VITE_DOMAIN_URL;
 
+// 🔹 시간 표시 함수
 export function getTimeAgo(createdAt: string): string {
   const createdDate = new Date(createdAt);
   const now = new Date();
@@ -26,40 +27,50 @@ export function getTimeAgo(createdAt: string): string {
   return `${Math.floor(diff / year)}년 전`;
 }
 
+// 🔹 Home 컴포넌트
 export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
-  const [totalPages, setTotalPages] = useState(1);
   const [pageNumber, setPageNumber] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [searchParams] = useSearchParams();
   const searchType = searchParams.get("type") || "bookName";
   const keyword = searchParams.get("keyword") || "";
 
+  // 🔹 필터 상태
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [grades, setGrades] = useState<string[]>([]);
+  const [isLiberalArts, setIsLiberalArts] = useState(false);
+
+  // 🔹 필터 변경 시 데이터 다시 가져오기
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         let res;
+
+        // 기본 URL 구성
+        let endpoint = `${URL}/api/posts`;
+        let params: any = { page: pageNumber, size: 8, sort: "createdAt,desc" };
+
+        // 검색어 존재 시
         if (keyword.trim()) {
-          // ✅ 검색 시: bookName/className 검색 API 사용
-          const endpoint =
+          endpoint =
             searchType === "bookName"
-              ? `${URL}/api/posts/book/${encodeURIComponent(
-                  keyword
-                )}?pageNumber=${pageNumber}`
-              : `${URL}/api/posts/class/${encodeURIComponent(
-                  keyword
-                )}?pageNumber=${pageNumber}`;
-          res = await axios.get(endpoint);
-        } else {
-          // ✅ 검색어가 없을 때: 기본 게시글 API 사용
-          res = await axios.get(`${URL}/api/posts`, {
-            params: { page: pageNumber, size: 8, sort: "createdAt,desc" },
-          });
+              ? `${URL}/api/posts/book/${encodeURIComponent(keyword)}`
+              : `${URL}/api/posts/class/${encodeURIComponent(keyword)}`;
+          params = { pageNumber };
         }
 
-        console.log("서버 응답:", res.data);
+        // 🔹 필터 조건 추가
+        if (onlyAvailable) params.status = "판매중";
+        if (grades.length > 0) params.grades = grades.join(",");
+        if (isLiberalArts) params.category = "교양";
+
+        res = await axios.get(endpoint, { params });
+
+        console.log("📦 서버 응답:", res.data);
 
         if (res.data?.data?.content && Array.isArray(res.data.data.content)) {
           setBooks(res.data.data.content);
@@ -68,7 +79,7 @@ export default function Home() {
           setBooks([]);
         }
       } catch (err) {
-        console.error("API 요청 에러:", err);
+        console.error("❌ API 요청 에러:", err);
         setBooks([]);
       } finally {
         setLoading(false);
@@ -76,55 +87,77 @@ export default function Home() {
     };
 
     fetchData();
-  }, [keyword, searchType, pageNumber]);
+  }, [keyword, searchType, pageNumber, onlyAvailable, grades, isLiberalArts]);
 
-  /*  페이지를 따로 구분하는 경우에 사용
-  const handlePrevPage = () => {
-    if (pageNumber > 0) setPageNumber(pageNumber - 1);
+  // 🔹 필터 조작 핸들러
+  const toggleGrade = (grade: string) => {
+    setGrades((prev) =>
+      prev.includes(grade) ? prev.filter((g) => g !== grade) : [...prev, grade]
+    );
   };
-
-  const handleNextPage = () => {
-    if (pageNumber < totalPages - 1) setPageNumber(pageNumber + 1);
-  };
-*/
 
   return (
     <div className="home-container">
-      {/* 왼쪽 필터 */}
+      {/* 🔹 왼쪽 필터 */}
       <div className="filter-container">
         <div className="filter-title">필터</div>
+
+        {/* 거래가능 필터 */}
         <label className="checkbox-wrapper">
-          <input type="checkbox" />
+          <input
+            type="checkbox"
+            checked={onlyAvailable}
+            onChange={(e) => setOnlyAvailable(e.target.checked)}
+          />
           <span className="custom-checkbox"></span>
           거래가능만 보기
         </label>
+
         <span className="divider" />
+
+        {/* 학년 필터 */}
         <div
           className="filter-title"
-          style={{ fontSize: "25px", fontWeight: "bold" }}
+          style={{ fontSize: "22px", fontWeight: "bold" }}
         >
           학년
         </div>
-        {["1학년", "2학년", "3학년", "4학년"].map((grade, index) => (
-          <label className="checkbox-wrapper" key={index}>
-            <input type="checkbox" />
+        {["1학년", "2학년", "3학년", "4학년"].map((grade, idx) => (
+          <label className="checkbox-wrapper" key={idx}>
+            <input
+              type="checkbox"
+              checked={grades.includes(grade)}
+              onChange={() => toggleGrade(grade)}
+            />
             <span className="custom-checkbox"></span>
             {grade}
           </label>
         ))}
+
         <span className="divider" />
+
+        {/* 교양 필터 */}
         <label className="checkbox-wrapper">
-          <input type="checkbox" />
+          <input
+            type="checkbox"
+            checked={isLiberalArts}
+            onChange={(e) => setIsLiberalArts(e.target.checked)}
+          />
           <span className="custom-checkbox"></span>
           교양
         </label>
       </div>
 
-      {/* 오른쪽 책 목록 */}
+      {/* 🔹 오른쪽 책 목록 */}
       <div className="book-list-container">
         {loading ? (
           <div
-            style={{ textAlign: "center", color: "#888", fontWeight: "bold" }}
+            style={{
+              textAlign: "center",
+              color: "#888",
+              fontWeight: "bold",
+              marginTop: "50px",
+            }}
           >
             🔍 검색 중입니다...
           </div>
@@ -135,6 +168,7 @@ export default function Home() {
               fontSize: "20px",
               fontWeight: "bold",
               color: "gray",
+              marginTop: "50px",
             }}
           >
             책이 없습니다.

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import arrowImg from "./assets/arrow.png";
-import profile from "./assets/basic_profile.png";
-import reading_glass from "./assets/reading_glass.png";
+import profileImg from "./assets/basic_profile.png";
+import readingGlass from "./assets/reading_glass.png";
 
 // 🔹 스타일 정의
 const HeaderContainer = styled.header`
@@ -14,6 +14,9 @@ const HeaderContainer = styled.header`
   height: 70px;
   background-color: #f8f8f8;
   border-bottom: 3px solid #b516ff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 `;
 
 const Logo = styled.div`
@@ -92,9 +95,10 @@ const Profile = styled.img`
   height: 45px;
   align-items: center;
   cursor: pointer;
+  border-radius: 50%;
 `;
 
-const LoginButton = styled.button`
+const Button = styled.button`
   padding: 8px 16px;
   background-color: #b516ff;
   color: white;
@@ -110,7 +114,7 @@ const LoginButton = styled.button`
   }
 `;
 
-const Reading_glass = styled.img`
+const ReadingGlass = styled.img`
   width: 30px;
   height: 30px;
   cursor: pointer;
@@ -118,12 +122,13 @@ const Reading_glass = styled.img`
 `;
 
 // 🔹 Header 컴포넌트
-const Header = () => {
+const Header: React.FC = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
   const [searchType, setSearchType] = useState("bookName");
   const [keyword, setKeyword] = useState("");
 
+  // ✅ 로그인 상태 확인
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     setLoggedIn(!!token);
@@ -137,6 +142,7 @@ const Header = () => {
     );
   };
 
+  // ✅ 로그인 / 로그아웃 로직
   const handleLogin = () => {
     navigate("/login");
   };
@@ -149,7 +155,8 @@ const Header = () => {
 
   return (
     <HeaderContainer>
-      <Logo onClick={() => navigate("/")}>중고책 판매(로고)</Logo>
+      {/* 로고 클릭 시 홈으로 이동 */}
+      <Logo onClick={() => navigate("/")}>📚 중고책 판매</Logo>
 
       {/* 검색창 */}
       <SearchBox>
@@ -168,11 +175,11 @@ const Header = () => {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           placeholder="책 이름 또는 강의명을 입력하세요"
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()} // Enter 검색
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
 
-        <Reading_glass
-          src={reading_glass}
+        <ReadingGlass
+          src={readingGlass}
           alt="돋보기 버튼"
           onClick={handleSearch}
         />
@@ -186,14 +193,17 @@ const Header = () => {
       </Nav>
 
       {/* 로그인 상태 */}
-      <div style={{ width: "80px", display: "flex", alignItems: "center" }}>
+      <div
+        style={{ width: "100px", display: "flex", justifyContent: "center" }}
+      >
         {loggedIn ? (
-          <Profile src={profile} alt="프로필" />
+          <Profile
+            src={profileImg}
+            alt="프로필"
+            onClick={() => navigate("/mypage/my_info")}
+          />
         ) : (
-          <>
-            <LoginButton onClick={handleLogin}>로그인</LoginButton>
-            <LoginButton onClick={handleLogout}>로그아웃</LoginButton>
-          </>
+          <Button onClick={handleLogin}>로그인</Button>
         )}
       </div>
     </HeaderContainer>

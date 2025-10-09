@@ -33,7 +33,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/join" element={<Join />} />
+        <Route path="/join" eleme nt={<Join />} />
         <Route path="/boardlist" element={<BoardList />} />
         <Route path="/single/:postId" element={<Single />} />
         <Route path="/mypage/like" element={<Like />} />
