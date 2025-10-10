@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import axios from "axios";
 import arrowImg from "./assets/arrow.png";
 import profileImg from "./assets/basic_profile.png";
 import readingGlass from "./assets/reading_glass.png";
@@ -121,31 +122,61 @@ const ReadingGlass = styled.img`
   margin-right: 13px;
 `;
 
-// 🔹 Header 컴포넌트
+const API_URL = import.meta.env.VITE_DOMAIN_URL;
+
+// ✅ Header 컴포넌트
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
   const [searchType, setSearchType] = useState("bookName");
   const [keyword, setKeyword] = useState("");
 
-  // ✅ 로그인 상태 확인
-  useEffect(() => {
+  // ✅ 로그인 상태 확인 및 토큰 재발급
+  const loginCheck = async () => {
     const token = localStorage.getItem("accessToken");
-    setLoggedIn(!!token);
+
+    // 토큰이 아예 없으면 비로그인 처리
+    if (!token) {
+      setLoggedIn(false);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API_URL}/api/auth/reissue`, {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // 서버가 새 토큰을 내려줬다면 저장
+      if (response.data?.accessToken) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+        console.log("✅ [Header] 토큰 재발급 성공");
+        setLoggedIn(true);
+      } else {
+        console.warn("⚠️ [Header] 재발급 응답에 accessToken 없음");
+        localStorage.removeItem("accessToken");
+        setLoggedIn(false);
+      }
+    } catch (error) {
+      console.error("❌ [Header] 토큰 재발급 실패:", error);
+      localStorage.removeItem("accessToken");
+      setLoggedIn(false);
+    }
+  };
+
+  // ✅ 페이지 로드 시 로그인 상태 확인
+  useEffect(() => {
+    loginCheck();
   }, []);
 
-  // ✅ 검색 버튼 클릭 시 "/"로 이동하면서 쿼리 전달
+  // ✅ 검색 버튼 클릭 시 "/"로 이동
   const handleSearch = () => {
     if (!keyword.trim()) return;
-    navigate(
-      `/?type=${searchType}&keyword=${encodeURIComponent(keyword)}&pageNumber=0`
-    );
+    navigate(`/?type=${searchType}&keyword=${keyword}`);
   };
 
   // ✅ 로그인 / 로그아웃 로직
-  const handleLogin = () => {
-    navigate("/login");
-  };
+  const handleLogin = () => navigate("/login");
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -192,16 +223,12 @@ const Header: React.FC = () => {
         <a href="/upload">책 팔기</a>
       </Nav>
 
-      {/* 로그인 상태 */}
+      {/* 로그인 / 로그아웃 상태 */}
       <div
         style={{ width: "100px", display: "flex", justifyContent: "center" }}
       >
         {loggedIn ? (
-          <Profile
-            src={profileImg}
-            alt="프로필"
-            onClick={() => navigate("/mypage/my_info")}
-          />
+          <Button onClick={handleLogout}>로그아웃</Button>
         ) : (
           <Button onClick={handleLogin}>로그인</Button>
         )}

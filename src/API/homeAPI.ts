@@ -1,28 +1,18 @@
 import api from "./index";
 
-export const fetchPosts = async (params: {
-  pageNumber?: number;
-  grade?: number;
-  semester?: number;
-  status?: string;
-  bookName?: string;
-  className?: string;
-  priceMin?: number;
-  priceMax?: number;
-}) => {
+// 🔹 게시글 목록 조회 (인코딩 없이 순수 URL 쿼리 형태로 요청)
+export const fetchPosts = async (params: any) => {
   try {
     const response = await api.get("/api/posts", {
-      params: {
-        pageNumber: params.pageNumber ?? 0,
-        ...(params.grade ? { grade: params.grade } : {}),
-        ...(params.semester ? { semester: params.semester } : {}),
-        ...(params.status ? { status: params.status } : {}),
-        ...(params.bookName ? { bookName: params.bookName } : {}),
-        ...(params.className ? { className: params.className } : {}),
-        ...(params.priceMin ? { priceMin: params.priceMin } : {}),
-        ...(params.priceMax ? { priceMax: params.priceMax } : {}),
+      params,
+      // ⚙️ 인코딩 없이 key=value 형태로 직접 직렬화
+      paramsSerializer: (params) => {
+        return Object.entries(params)
+          .map(([key, value]) => `${key}=${value}`)
+          .join("&");
       },
     });
+
     return response.data;
   } catch (error) {
     console.error("❌ [fetchPosts] 게시글 불러오기 실패:", error);
@@ -30,7 +20,8 @@ export const fetchPosts = async (params: {
   }
 };
 
-// 로그인 확인
+/*
+// 로그인 상태 확인
 export const loginCheck = async () => {
   try {
     const response = await api.get("/api/auth/reissue", {
@@ -42,3 +33,4 @@ export const loginCheck = async () => {
     throw error;
   }
 };
+*/

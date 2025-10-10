@@ -45,28 +45,29 @@ export default function Home() {
   const [priceMin, setPriceMin] = useState<number | null>(null);
   const [priceMax, setPriceMax] = useState<number | null>(null);
 
+  // 🔹 게시글 불러오기
   useEffect(() => {
     const loadBooks = async () => {
       setLoading(true);
       try {
-        const params: any = {
-          pageNumber,
-          grade,
-          semester,
-          status,
-          priceMin,
-          priceMax,
-        };
+        const params: any = { pageNumber };
 
+        // 검색어가 있을 때만 추가
         if (keyword.trim()) {
           if (searchType === "bookName") params.bookName = keyword;
-          if (searchType === "className") params.className = keyword;
+          else if (searchType === "className") params.className = keyword;
         }
 
-        const res = await fetchPosts(params);
-        console.log("📦 서버 응답:", res);
+        // 필터가 선택되어 있다면 추가
+        if (grade) params.grade = grade;
+        if (semester) params.semester = semester;
+        if (status) params.status = status;
+        if (priceMin) params.priceMin = priceMin;
+        if (priceMax) params.priceMax = priceMax;
 
+        const res = await fetchPosts(params);
         const data = res?.data;
+
         if (data?.content && Array.isArray(data.content)) {
           setBooks(data.content);
           setTotalPages(data.totalPages || 1);
@@ -93,6 +94,7 @@ export default function Home() {
     pageNumber,
   ]);
 
+  // 🔹 로그인 확인
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
