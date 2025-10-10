@@ -27,3 +27,15 @@ export const fetchPosts = async (params?: {
     throw error;
   }
 };
+
+export const loginCheck = async () => {
+  try {
+    const response = await api.get("/api/auth/reissue", {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("❌ [loginCheck] 로그인 상태 확인 실패:", error);
+    throw error;
+  }
+};

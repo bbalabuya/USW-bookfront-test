@@ -4,6 +4,7 @@ import axios from "axios";
 import heartImg from "./assets/hearts.png";
 import { Link, useSearchParams } from "react-router-dom";
 import { Book } from "./types/homeType";
+import { loginCheck } from "./API/homeAPI";
 
 const URL = import.meta.env.VITE_DOMAIN_URL;
 
@@ -94,6 +95,19 @@ export default function Home() {
     priceMax,
     pageNumber,
   ]);
+
+  //로그인 상태 확인
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await loginCheck();
+        console.log("✅ 로그인 상태:", response);
+      } catch (error) {
+        console.log("❌ 비로그인 상태 또는 로그인 확인 실패:", error);
+      }
+    };
+    checkLoginStatus();
+  });
 
   return (
     <div className="home-container">
