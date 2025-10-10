@@ -4,7 +4,7 @@ import axios from "axios";
 import heartImg from "./assets/hearts.png";
 import { Link, useSearchParams } from "react-router-dom";
 import { Book } from "./types/homeType";
-import { loginCheck } from "./API/homeAPI";
+import { fetchPosts, loginCheck } from "./API/homeAPI";
 
 const URL = import.meta.env.VITE_DOMAIN_URL;
 
@@ -46,33 +46,30 @@ export default function Home() {
   const [priceMax, setPriceMax] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadBooks = async () => {
       setLoading(true);
       try {
         const params: any = {
           pageNumber,
+          grade,
+          semester,
+          status,
+          priceMin,
+          priceMax,
         };
 
-        // ✅ 검색어와 타입
         if (keyword.trim()) {
           if (searchType === "bookName") params.bookName = keyword;
-          else if (searchType === "className") params.className = keyword;
+          if (searchType === "className") params.className = keyword;
         }
 
-        // ✅ 필터 조건 추가
-        if (grade) params.grade = grade;
-        if (semester) params.semester = semester;
-        if (status) params.status = status;
-        if (priceMin) params.priceMin = priceMin;
-        if (priceMax) params.priceMax = priceMax;
+        const res = await fetchPosts(params);
+        console.log("📦 서버 응답:", res);
 
-        const res = await axios.get(`${URL}/api/posts/search`, { params });
-
-        console.log("📦 서버 응답:", res.data);
-
-        if (res.data?.data?.content && Array.isArray(res.data.data.content)) {
-          setBooks(res.data.data.content);
-          setTotalPages(res.data.data.totalPages || 1);
+        const data = res?.data;
+        if (data?.content && Array.isArray(data.content)) {
+          setBooks(data.content);
+          setTotalPages(data.totalPages || 1);
         } else {
           setBooks([]);
         }
@@ -84,7 +81,7 @@ export default function Home() {
       }
     };
 
-    fetchData();
+    loadBooks();
   }, [
     keyword,
     searchType,
@@ -96,18 +93,17 @@ export default function Home() {
     pageNumber,
   ]);
 
-  //로그인 상태 확인
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
         const response = await loginCheck();
         console.log("✅ 로그인 상태:", response);
       } catch (error) {
-        console.log("❌ 비로그인 상태 또는 로그인 확인 실패:", error);
+        console.log("❌ 비로그인 상태:", error);
       }
     };
     checkLoginStatus();
-  });
+  }, []);
 
   return (
     <div className="home-container">
@@ -280,3 +276,6 @@ export default function Home() {
     </div>
   );
 }
+
+  
+
