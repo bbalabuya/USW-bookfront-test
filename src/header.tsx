@@ -1,39 +1,34 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import arrowImg from "./assets/arrow.png";
-import profile from "./assets/basic_profile.png";
-import reading_glass from "./assets/reading_glass.png";
 import axios from "axios";
-import { wrap } from "module";
+import arrowImg from "./assets/arrow.png";
+import profileImg from "./assets/basic_profile.png";
+import readingGlass from "./assets/reading_glass.png";
 
-const URL = (import.meta as any).env.VITE_DOMAIN_URL;
-
-// 헤더 전체 컨테이너
+// =======================
+// 🔹 스타일 정의
+// =======================
 const HeaderContainer = styled.header`
   display: flex;
-  width: 100%;
   justify-content: space-between;
   align-items: center;
-  box-sizing: border-box;
-  padding: 50px;
+  padding: 15px 250px;
   height: 70px;
-  max-height: 70px;
-  gap: 20px;
   background-color: #f8f8f8;
   border-bottom: 3px solid #b516ff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 `;
 
-// 로고
 const Logo = styled.div`
   font-size: 24px;
   font-weight: bold;
-  white-space: nowrap; 
   color: black;
   cursor: pointer;
 `;
 
-// 네비게이션
 const Nav = styled.nav`
   display: flex;
   align-items: center;
@@ -44,26 +39,22 @@ const Nav = styled.nav`
   a {
     color: #b516ff;
     text-decoration: none;
-
     &:hover {
       text-decoration: underline;
     }
   }
 `;
 
-// 드롭다운 + 검색창을 감싸는 박스
 const SearchBox = styled.div`
   display: flex;
   align-items: center;
   width: 750px;
-  max-width: 1000px;
   background-color: white;
   border: 1px solid #b516ff;
   border-radius: 999px;
   overflow: hidden;
 `;
 
-// 드롭다운 전체 컨테이너
 const SelectWrapper = styled.div`
   position: relative;
   display: flex;
@@ -72,7 +63,6 @@ const SelectWrapper = styled.div`
   border-right: 1px solid #ddd;
 `;
 
-// 드롭다운
 const Select = styled.select`
   padding: 5px 1px 5px 15px;
   border: none;
@@ -80,11 +70,10 @@ const Select = styled.select`
   font-size: 15px;
   color: #333;
   outline: none;
-  appearance: none; /* 기본 화살표 제거 */
+  appearance: none;
   cursor: pointer;
 `;
 
-// 화살표 (↓)
 const Arrow = styled.img.attrs({ src: arrowImg, alt: "화살표" })`
   position: relative;
   width: 15px;
@@ -94,7 +83,6 @@ const Arrow = styled.img.attrs({ src: arrowImg, alt: "화살표" })`
   margin-right: 7px;
 `;
 
-// 검색 입력창
 const SearchInput = styled.input`
   flex: 1;
   padding: 15px 12px;
@@ -105,16 +93,15 @@ const SearchInput = styled.input`
   color: black;
 `;
 
-// 프로필 이미지
 const Profile = styled.img`
   width: 45px;
   height: 45px;
   align-items: center;
   cursor: pointer;
+  border-radius: 50%;
 `;
 
-// 인증 버튼 (로그인 버튼 포함)
-const LoginButton = styled.button`
+const Button = styled.button`
   padding: 8px 16px;
   background-color: #b516ff;
   color: white;
@@ -122,7 +109,7 @@ const LoginButton = styled.button`
   border-radius: 20px;
   font-size: 15px;
   cursor: pointer;
-  white-space: nowrap; // ✅ 줄바꿈 방지
+  white-space: nowrap;
   font-weight: bold;
 
   &:hover {
@@ -130,76 +117,110 @@ const LoginButton = styled.button`
   }
 `;
 
-const Reading_glass = styled.img`
+const ReadingGlass = styled.img`
   width: 30px;
   height: 30px;
   cursor: pointer;
   margin-right: 13px;
 `;
 
-const Header = () => {
+const API_URL = import.meta.env.VITE_DOMAIN_URL;
+
+// =======================
+// 🔹 Header 컴포넌트
+// =======================
+const Header: React.FC = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
   const [searchType, setSearchType] = useState("bookName");
   const [keyword, setKeyword] = useState("");
 
-  const handleSearch = () => {
-    axios
-      .get(`${URL}/search`, {
-        params: {
-          keyword,
-          type: searchType,
-        },
-      })
-      .then((response) => {
-        console.log("검색결과: ", response.data);
-        navigate("/boardlist");
-      })
-      .catch((error) => {
-        console.log("검색 error", error);
+  // ✅ 로그인 상태 확인 및 토큰 재발급
+  const loginCheck = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+      setLoggedIn(false);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API_URL}/api/auth/reissue`, {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (response.data?.accessToken) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+        console.log("✅ [Header] 토큰 재발급 성공");
+        setLoggedIn(true);
+      } else {
+        console.warn("⚠️ [Header] 재발급 응답에 accessToken 없음");
+        localStorage.removeItem("accessToken");
+        setLoggedIn(false);
+      }
+    } catch (error) {
+      console.error("❌ [Header] 토큰 재발급 실패:", error);
+      localStorage.removeItem("accessToken");
+      setLoggedIn(false);
+    }
   };
 
+  // ✅ 페이지 로드 시 로그인 상태 확인
+  useEffect(() => {
+    loginCheck();
+  }, []);
+
+  // ✅ 검색 버튼 클릭 시 "/"로 이동하면서 쿼리 전달
+  const handleSearch = () => {
+    if (!keyword.trim()) return;
+    navigate(`/?type=${searchType}&keyword=${keyword}`);
+  };
+
+  // ✅ 로그인 페이지 이동
   const handleLogin = () => {
     navigate("/login");
   };
 
-const handleLogout = async () => {
-  try {
-    const token = localStorage.getItem("accessToken"); // 토큰 가져오기
+  // ✅ 로그아웃 처리
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
 
-    // 로그아웃 요청
-    const response = await axios.post(
-      `${URL}/api/auth/logout`,
-      {}, 
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // 헤더에 토큰 추가
-          "Content-Type": "application/json",
-        },
+      const response = await axios.post(
+        `${API_URL}/api/auth/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("✅ 로그아웃 성공:", response.data.message);
+      } else {
+        alert("로그아웃 실패. 다시 시도해주세요.");
       }
-    );
-    
-    if (response.status === 200) {
-  console.log("로그아웃 성공:", response.data.message);
-} else {
-  alert("로그아웃 실패. 다시 시도해주세요");
-}
+    } catch (error) {
+      console.error("❌ 로그아웃 에러:", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      setLoggedIn(false);
+      navigate("/");
+    }
+  };
 
-  } catch (error) {
-    console.error("로그아웃 에러:", error);
-  } finally {
-    // 항상 실행되는 정리 코드
-    localStorage.removeItem("accessToken");
-    setLoggedIn(false);
-    navigate("/");
-  }
-};
-
+  // =======================
+  // 🔹 렌더링
+  // =======================
   return (
     <HeaderContainer>
-      <Logo onClick={() => navigate("/")}>중고책 판매(로고)</Logo>
+      {/* 로고 클릭 시 홈으로 이동 */}
+      <Logo onClick={() => navigate("/")}>📚 중고책 판매</Logo>
 
+      {/* 검색창 */}
       <SearchBox>
         <SelectWrapper>
           <Select
@@ -207,50 +228,40 @@ const handleLogout = async () => {
             onChange={(e) => setSearchType(e.target.value)}
           >
             <option value="bookName">책이름</option>
-            <option value="professor">교수님</option>
             <option value="className">강의명</option>
           </Select>
           <Arrow />
         </SelectWrapper>
+
         <SearchInput
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="책 이름, 강의명, 교수님 이름을 입력해주세요"
+          placeholder="책 이름 또는 강의명을 입력하세요"
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
-        <Reading_glass
-          src={reading_glass}
+
+        <ReadingGlass
+          src={readingGlass}
           alt="돋보기 버튼"
           onClick={handleSearch}
         />
       </SearchBox>
 
+      {/* 네비게이션 */}
       <Nav>
-        <Link to="/chatlist" style={{ whiteSpace: "nowrap" }}>
-          채팅방
-        </Link>
-        <Link to="/mypage/my_info" style={{ whiteSpace: "nowrap" }}>
-          마이페이지
-        </Link>
-        <Link to="/upload" style={{ whiteSpace: "nowrap" }}>
-          책 팔기
-        </Link>
+        <a href="/chatlist">채팅방</a>
+        <a href="/mypage/my_info">마이페이지</a>
+        <a href="/upload">책 팔기</a>
       </Nav>
+
+      {/* 로그인 / 로그아웃 */}
       <div
-        style={{
-          width: "80px",
-          padding: "0px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        style={{ width: "100px", display: "flex", justifyContent: "center" }}
       >
         {loggedIn ? (
-          <Profile src={profile} alt="프로필" />
+          <Button onClick={handleLogout}>로그아웃</Button>
         ) : (
-          <div>
-            <LoginButton onClick={handleLogin}>로그인</LoginButton>
-            <LoginButton onClick={handleLogout}>로그아웃</LoginButton>
-          </div>
+          <Button onClick={handleLogin}>로그인</Button>
         )}
       </div>
     </HeaderContainer>
