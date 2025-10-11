@@ -4,11 +4,12 @@
   align-items: center;
   justify-content: center;
   width: 1400px;
-  height: calc(100vh - 103px); /*헤더 높이 제외*/
+  min-height: calc(100vh - 103px); /*헤더 높이 제외*/
   background-color: #f0f0f0;
   left: 50%;
   gap: 50px;
   transform: translateX(-50%);
+  box-sizing: border-box;
 }
 
 .filter-container {

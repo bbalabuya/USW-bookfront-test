@@ -117,7 +117,7 @@ export default function Home() {
 
         {/* ✅ 판매 상태 */}
         <div>
-          <div className="filter-subtitle">판매 상태</div>
+          {/*<div className="filter-subtitle">판매 상태</div>*/}
           {["판매중", "거래완료"].map((s) => (
             <label key={s} className="checkbox-wrapper">
               <input
@@ -141,7 +141,7 @@ export default function Home() {
         <span className="divider" />
 
         {/* ✅ 학년 선택 */}
-        <div className="filter-subtitle">학년</div>
+        {/*<div className="filter-subtitle">학년</div>*/}
         {[1, 2, 3, 4].map((g) => (
           <label key={g} className="checkbox-wrapper">
             <input
@@ -164,7 +164,7 @@ export default function Home() {
         <span className="divider" />
 
         {/* ✅ 학기 선택 */}
-        <div className="filter-subtitle">학기</div>
+        {/*<div className="filter-subtitle">학기</div>*/}
         {[1, 2].map((s) => (
           <label key={s} className="checkbox-wrapper">
             <input
@@ -282,4 +282,3 @@ export default function Home() {
 }
 
   
-

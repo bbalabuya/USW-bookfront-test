@@ -1,12 +1,13 @@
 .whole-container{
     width: 100%;
-    height: calc(100vh - 103px);
+    min-height: calc(100vh - 103px);
     border: 1px solid #b516ff;
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    overflow-y: hidden;
 }
 
 .left-container{

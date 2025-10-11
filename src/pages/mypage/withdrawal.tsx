@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import "./withdrawal.css";
 import axios from 'axios';
+import api from '../../API/index';
 
 const API_URL = (import.meta as any).env.VITE_DOMAIN_URL;
 
@@ -19,13 +20,15 @@ const Withdrawal = () => {
     const canWithdraw = backup && restore; //버튼 활성화 조건
 
     const withDrawal = async() =>{
-        try{
-            const response = await axios.delete(`${API_URL}/api/me`);
-            console.log(response.data.message);
-        }catch(err){
+        try {
+            const response = await api.delete(`/api/me`);
+            alert(response.data.message || "회원탈퇴가 완료되었습니다.");
+            localStorage.removeItem("accessToken"); // 토큰 제거
+            window.location.href = "/"; // 홈으로 이동
+        } catch (err) {
             console.error(err);
+            alert("회원탈퇴에 실패했습니다. 다시 시도해주세요.");
         }
-        
     }
 
     return (

@@ -13,11 +13,14 @@ const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 250px;
+  padding: 50px 30px;
+  width:100%;
   height: 70px;
   background-color: #f8f8f8;
   border-bottom: 3px solid #b516ff;
   position: sticky;
+  box-sizing: border-box;
+  
   top: 0;
   z-index: 100;
 `;
