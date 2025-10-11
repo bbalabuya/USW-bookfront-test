@@ -6,33 +6,36 @@ import { Link } from "react-router-dom";
 
 const URL = (import.meta as any).env.VITE_DOMAIN_URL;
 
+// 서버에서 오는 실제 데이터 타입
 type User = {
-  userId: number;
-  studentCode:string;
-  email: string;
   name: string;
-  createdAt: string;
-  major:string;
-  grade:number;
-  semeseter:number;
-  profileImage?: string;
+  majorName: string;
+  email: string;
+  grade: number;
+  semester: number;
+  profileImage?: string; // 선택적
 };
 
-const My_info = () => {
+const My_info: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
 
-  const getInfo = async () => {
-    try {
-      const response = await axios.get(`${URL}/api/user/infomation`, {
-        withCredentials: true,
-      });
-      setUser(response.data); // 서버에서 받아온 유저 정보 저장
-    } catch (err) {
-      console.error("유저 정보 불러오기 실패:", err);
-    }
-  };
-
   useEffect(() => {
+    const getInfo = async () => {
+      try {
+        const response = await axios.get(`${URL}/api/user/infomation`, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        // API가 { code, message, data } 구조이므로 data만 저장
+        setUser(response.data.data);
+      } catch (err) {
+        console.error("유저 정보 불러오기 실패:", err);
+      }
+    };
+
     getInfo();
   }, []);
 
@@ -44,7 +47,7 @@ const My_info = () => {
       <div className="right-container">
         <img
           className="profile-img"
-          src={user?.profileImage || "/default_profile.png"} // 기본 이미지 경로 설정 가능
+          src={user?.profileImage || "/default_profile.png"}
           alt="프로필 이미지"
         />
         <div className="info-box">
@@ -54,30 +57,29 @@ const My_info = () => {
           </div>
           <div className="wrapper">
             <div className="title">학과</div>
-            <div className="info">{user?.major || "정보 없음"}</div>
+            <div className="info">{user?.majorName || "정보 없음"}</div>
           </div>
           <div className="wrapper">
             <div className="title">이메일</div>
             <div className="info">{user?.email || "정보 없음"}</div>
           </div>
           <div className="wrapper">
-            <div className="title">가입일</div>
+            <div className="title">학년/학기</div>
             <div className="info">
-                {user?.createdAt ? (() => {
-                    const date = new Date(user.createdAt);
-                    const year = date.getFullYear();
-                    const month = date.getMonth() + 1;
-                    const day = date.getDate();
-                    return `${year}년 ${month}월 ${day}일`;
-                    })() : "정보 없음"}
+              {user ? `${user.grade}학년 / ${user.semester}학기` : "정보 없음"}
             </div>
-        </div>
-
+          </div>
         </div>
         <div className="button-set">
-          <Link to="/mypage/edit_my_info" className="buttons">내 정보 변경</Link>
-          <Link to="/mypage/change_pw" className="buttons">비밀번호 변경</Link>
-          <Link to="/mypage/withdrawal" className="buttons">회원탈퇴</Link>
+          <Link to="/mypage/edit_my_info" className="buttons">
+            내 정보 변경
+          </Link>
+          <Link to="/mypage/change_pw" className="buttons">
+            비밀번호 변경
+          </Link>
+          <Link to="/mypage/withdrawal" className="buttons">
+            회원탈퇴
+          </Link>
         </div>
       </div>
     </div>
