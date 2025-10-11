@@ -1,79 +1,63 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./editMyInfo.css";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-const API_URL = (import.meta as any).env.VITE_DOMAIN_URL;
+import { getMyInfo, updateMyInfo, getMajorList } from "../../API/editMyInfoAPI";
 
 const EditMyInfo = () => {
   const navigate = useNavigate();
 
-  // 사용자 정보 상태
-  const [profileImage, setProfileImage] = useState<string>(""); // 서버에서 받은 원본 URL
-  const [profileFile, setProfileFile] = useState<File | null>(null); // 새로 업로드한 파일
-  const [profilePreview, setProfilePreview] = useState<string>(""); // 미리보기 URL
+  // ✅ 사용자 정보 상태
+  const [profileImage, setProfileImage] = useState<string>("");
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string>("");
   const [nickname, setNickname] = useState<string>("");
   const [year, setYear] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
   const [major, setMajor] = useState<string>("");
 
+  // ✅ 전공 목록 상태
+  const [majorList, setMajorList] = useState<{ id: string; name: string }[]>(
+    []
+  );
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1️⃣ 내 정보 불러오기
+  // ✅ 1️⃣ 내 정보 + 전공 목록 불러오기
   useEffect(() => {
-    axios
-      .get(`${API_URL}/api/me`)
-      .then((res) => {
-        setProfileImage(res.data.img || "");
-        setNickname(res.data.name || "");
-        setYear(res.data.year || 1);
-        setSemester(res.data.semester || 1);
-        setMajor(res.data.major || "");
-      })
-      .catch((err) => console.error(err));
+    const fetchData = async () => {
+      try {
+        const [myInfo, majors] = await Promise.all([
+          getMyInfo(),
+          getMajorList(),
+        ]);
+        setProfileImage(myInfo.img || "");
+        setNickname(myInfo.name || "");
+        setYear(myInfo.year || 1);
+        setSemester(myInfo.semester || 1);
+        setMajor(myInfo.major || "");
+        setMajorList(majors);
+      } catch (err) {
+        console.error("데이터 불러오기 오류:", err);
+      }
+    };
+    fetchData();
   }, []);
 
-  // 2️⃣ 이미지 선택 핸들러
+  // ✅ 2️⃣ 이미지 선택
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setProfileFile(file); // 실제 전송할 파일
-      setProfilePreview(URL.createObjectURL(file)); // 미리보기용 URL
+      setProfileFile(file);
+      setProfilePreview(URL.createObjectURL(file));
     }
   };
 
-  // 3️⃣ 저장하기
+  // ✅ 3️⃣ 저장하기
   const handleSave = async () => {
     try {
-      // JSON 객체 생성
-      const userInfo = {
-        name: nickname,
-        year,
-        semester,
-        major,
-      };
-
-      const formData = new FormData();
-      // JSON을 Blob으로 추가 (requestPart 방식)
-      formData.append(
-        "changeInfoRequest",
-        new Blob([JSON.stringify(userInfo)], { type: "application/json" })
-      );
-
-      // 이미지가 있으면 추가
-      if (profileFile) {
-        formData.append("profileImage", profileFile);
-      } else {
-        // 기존 이미지 URL을 그대로 보내고 싶으면 서버에서 처리
-        formData.append("profileImage", profileImage);
-      }
-
-      await axios.post(`${API_URL}/api/me`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
+      const userInfo = { name: nickname, year, semester, major };
+      await updateMyInfo(userInfo, profileFile, profileImage);
       alert("정보가 저장되었습니다!");
-      // 필요 시 페이지 이동
       // navigate("/somepath");
     } catch (err) {
       console.error(err);
@@ -81,7 +65,7 @@ const EditMyInfo = () => {
     }
   };
 
-  // 4️⃣ 버튼 클릭 시 파일 선택창 열기
+  // ✅ 4️⃣ 파일 선택창 열기
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };
@@ -94,7 +78,6 @@ const EditMyInfo = () => {
           src={profilePreview || profileImage}
           alt="프로필 이미지"
         />
-
         <input
           type="file"
           accept="image/*"
@@ -152,8 +135,11 @@ const EditMyInfo = () => {
             value={major}
             onChange={(e) => setMajor(e.target.value)}
           >
-            <option value="임시">임시</option>
-            <option value="임시2">임시2</option>
+            {majorList.map((m) => (
+              <option key={m.id} value={m.name}>
+                {m.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>

@@ -13,7 +13,23 @@ export const getMajorList = async () => {
   }));
 };
 
+// 이메일 인증코드 요청
+export const sendEmailVerification = async (email: string) => {
+  return api.post(`/api/mail/email-verifications?email=${email}`);
+};
 
+// 이메일 인증코드 검증
+export const checkEmailVerification = async (
+  email: string,
+  authCode: string
+) => {
+  return api.get(
+    `/api/mail/email-verifications?email=${email}&authCode=${authCode}`
+  );
+};
+
+
+/* parameter가 아닌 body로 보내는 버전
 // 이메일 인증코드 요청
 export const sendEmailVerification = async (
   email: string,
@@ -29,6 +45,8 @@ export const checkEmailVerification = async (
 ) => {
   return api.post("/api/mail/verify", { email, authCode });
 };
+*/
+
 
 // 회원가입 (이미지 업로드 처리 없이 JSON 전송)
 export const join = async (userInfo: JoinRequest) => {

@@ -16,9 +16,10 @@
   display: flex;
   flex-direction: column;
   width: 300px;
-  height: 70%;
+  height: 90%;
   padding: 15px 20px 15px 25px;
-  gap: 8px;
+  box-sizing: border-box;
+
 }
 
 .book-list-container {
@@ -33,6 +34,7 @@
   box-sizing: border-box;
   align-items: start; /* 각 셀의 위쪽 정렬 */
   padding: 20px;
+  margin: 0;
 }
 
 .filter-title {
@@ -162,3 +164,26 @@
     color: #666;
   }
   
+  .price-input {
+  width: 70px;
+  padding: 4px 6px;
+  border: 1px solid #b516ff;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.reset-button {
+  background-color: transparent;
+  border: none;
+  color: #b516ff;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 3px;
+  text-decoration: underline;
+}
+
+.filter-subtitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}

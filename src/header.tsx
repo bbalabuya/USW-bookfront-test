@@ -171,7 +171,7 @@ const handleLogout = async () => {
     // 로그아웃 요청
     const response = await axios.post(
       `${URL}/api/auth/logout`,
-      {}, // body (없으면 빈 객체)
+      {}, 
       {
         headers: {
           Authorization: `Bearer ${token}`, // 헤더에 토큰 추가
@@ -179,8 +179,13 @@ const handleLogout = async () => {
         },
       }
     );
+    
+    if (response.status === 200) {
+  console.log("로그아웃 성공:", response.data.message);
+} else {
+  alert("로그아웃 실패. 다시 시도해주세요");
+}
 
-    console.log("로그아웃 성공:", response.data);
   } catch (error) {
     console.error("로그아웃 에러:", error);
   } finally {
@@ -190,8 +195,6 @@ const handleLogout = async () => {
     navigate("/");
   }
 };
-
-
 
   return (
     <HeaderContainer>
