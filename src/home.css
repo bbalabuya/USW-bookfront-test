@@ -109,12 +109,16 @@
   
   /* 각 책 카드 */
   .book-card {
+    min-width: 100%;
+    min-height: 300px;
     width: 100%; 
     border: 1px solid #ccc;
   }
   
   /* 이미지 스타일 */
   .book-image {
+    min-width: 100%;
+    min-height: 250px;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -122,11 +126,12 @@
   }
   
   /* 책 제목 */
-  .book-title {
+  .book-card .book-title {
     font-size: 16px;
     font-weight: bold;
     color: #000000;
     margin: 0px;
+    padding: 0px;
   }
   
   .info-status-wrapper {
@@ -137,7 +142,7 @@
 
   /* 가격 및 상태 */
   .book-price {
-    font-size: 186;
+    font-size: 15px;
     color: #000000;
   }
 

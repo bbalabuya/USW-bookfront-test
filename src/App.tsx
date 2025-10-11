@@ -22,7 +22,7 @@ import Withdrawal from "./pages/mypage/withdrawal";
 function AppContent() {
   const location = useLocation();
 
-  const hideHeaderPaths = ["/login", "/join", "/mypage/change_info"];
+  const hideHeaderPaths = ["/login", "/join"];
   const shouldHideHeader = hideHeaderPaths.some(path =>
     location.pathname.startsWith(path)
   );

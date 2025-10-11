@@ -12,11 +12,14 @@ const URL = (import.meta as any).env.VITE_DOMAIN_URL;
 // 헤더 전체 컨테이너
 const HeaderContainer = styled.header`
   display: flex;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 250px;
+  box-sizing: border-box;
+  padding: 50px;
   height: 70px;
   max-height: 70px;
+  gap: 20px;
   background-color: #f8f8f8;
   border-bottom: 3px solid #b516ff;
 `;
@@ -25,7 +28,7 @@ const HeaderContainer = styled.header`
 const Logo = styled.div`
   font-size: 24px;
   font-weight: bold;
-
+  white-space: nowrap; 
   color: black;
   cursor: pointer;
 `;
@@ -161,12 +164,33 @@ const Header = () => {
     navigate("/login");
   };
 
-  const handleLogout = () => {
-    // 로그아웃 처리 로직 (예: 토큰 삭제, 상태 업데이트 등)
+const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem("accessToken"); // 토큰 가져오기
+
+    // 로그아웃 요청
+    const response = await axios.post(
+      `${URL}/api/auth/logout`,
+      {}, // body (없으면 빈 객체)
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // 헤더에 토큰 추가
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("로그아웃 성공:", response.data);
+  } catch (error) {
+    console.error("로그아웃 에러:", error);
+  } finally {
+    // 항상 실행되는 정리 코드
     localStorage.removeItem("accessToken");
     setLoggedIn(false);
     navigate("/");
-  };
+  }
+};
+
 
 
   return (
