@@ -4,7 +4,7 @@ import axios from "axios";
 import heartImg from "./assets/hearts.png";
 import { Link, useSearchParams } from "react-router-dom";
 import { Book } from "./types/homeType";
-import { fetchPosts, loginCheck } from "./API/homeAPI";
+import { fetchPosts } from "./API/homeAPI";
 
 const URL = import.meta.env.VITE_DOMAIN_URL;
 
@@ -94,6 +94,7 @@ export default function Home() {
     pageNumber,
   ]);
 
+  /*
   // 🔹 로그인 확인
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -106,6 +107,7 @@ export default function Home() {
     };
     checkLoginStatus();
   }, []);
+  */
 
   return (
     <div className="home-container">
