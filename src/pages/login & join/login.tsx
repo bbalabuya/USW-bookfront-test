@@ -17,7 +17,12 @@ const Login = () => {
 
     try {
       await login(email, password);
-      navigate("/");
+      console.log(
+        "로그인 후 localStorage:",
+        localStorage.getItem("accessToken")
+      );
+
+      //navigate("/");
     } catch (err) {
       console.error(err);
       alert("로그인 실패");
