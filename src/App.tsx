@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import Home from "./Home";
 import Header from "./header";
-import BoardList from "./pages/boardList";
 import Login from "./pages/login & join/login";
 import Join from "./pages/login & join/join";
 import Single from "./pages/singlePage/single";
@@ -33,8 +32,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/join" eleme nt={<Join />} />
-        <Route path="/boardlist" element={<BoardList />} />
+        <Route path="/join" element={<Join />} />
         <Route path="/single/:postId" element={<Single />} />
         <Route path="/mypage/like" element={<Like />} />
         <Route path="/mypage/bought" element={<Bought />} />
