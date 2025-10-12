@@ -164,7 +164,6 @@ const Header: React.FC = () => {
       }
     } catch (error) {
       console.error("❌ [Header] 토큰 재발급 실패:", error);
-      localStorage.removeItem("accessToken");
       setLoggedIn(false);
     }
   };
