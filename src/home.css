@@ -1,171 +1,59 @@
 .home-container {
   display: flex;
-  position: absolute;
-  align-items: center;
   justify-content: center;
-  width: 1400px;
-  min-height: calc(100vh - 103px); /*헤더 높이 제외*/
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
   background-color: #f0f0f0;
-  left: 50%;
-  gap: 50px;
-  transform: translateX(-50%);
+  gap: 40px;
   box-sizing: border-box;
+  overflow: hidden; /* 스크롤 제거 */
 }
 
+/* 왼쪽 필터 영역 */
 .filter-container {
-  border: 1px solid black;
   display: flex;
   flex-direction: column;
   width: 300px;
-  height: 90%;
-  padding: 15px 20px 15px 25px;
-  box-sizing: border-box;
-
-}
-
-.book-list-container {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 1050px;
   height: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 한 줄에 4칸 */
-  gap: 20px;
-  box-sizing: border-box;
-  align-items: start; /* 각 셀의 위쪽 정렬 */
   padding: 20px;
-  margin: 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #fff;
+  overflow: hidden;
 }
 
 .filter-title {
-  font-size: 35px;
+  font-size: 28px;
   font-weight: bold;
-  color: #000000;
+  margin-bottom: 10px;
+  color: #000;
 }
 
-.filter-list {
+.checkbox-wrapper {
   display: flex;
   align-items: center;
-  width: 100%;
-  gap: 10px;
-  font-size: 20px;
-  padding: 10px 0px;
-  color: #000000;
+  font-size: 16px;
+  margin-top: 8px;
+  cursor: pointer;
+  color: #000;
 }
 
-/* 체크박스 숨기기 */
-.checkbox-wrapper input[type="checkbox"] {
-    display: none;
-  }
- /* 전체 라벨 정렬 */
-  .checkbox-wrapper {
-    display: flex;
-    align-items: center;
-    font-size: 16px;
-    margin-top: 10px;
-    cursor: pointer;
-    color: #000000;
-  } 
-  /* 커스텀 체크박스 */
-  .custom-checkbox {
-    width: 20px;
-    height: 20px;
-    display: inline-block;
-    border: 2px solid #000;
-    border-radius: 5px;
-    margin-right: 10px;
-    position: relative;
-    cursor: pointer;
-    vertical-align: middle;
-  }
-  
-  /* 체크되었을 때 체크 표시 */
-  .checkbox-wrapper input[type="checkbox"]:checked + .custom-checkbox::after {
-    content: "✔";
-    position: absolute;
-    top:-3px;
-    left: 6px;
-  }
-  
-  
-  
-  /* 구분선 */
-  .divider {
-    display: block;
-    width: 80%;
-    height: 1px;
-    background-color: black;
-    margin: 10px 0;
-  }
-  
-  .book-list-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 한 줄에 4칸 */
-    gap: 20px;
-    box-sizing: border-box;
-    align-items: start; /* 각 셀의 위쪽 정렬 */
-    padding: 20px;
-  }
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: #ddd;
+  margin: 12px 0;
+}
 
-  
-  
-  /* 각 책 카드 */
-  .book-card {
-    min-width: 100%;
-    min-height: 300px;
-    width: 100%; 
-    border: 1px solid #ccc;
-  }
-  
-  /* 이미지 스타일 */
-  .book-image {
-    min-width: 100%;
-    min-height: 250px;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-  
-  /* 책 제목 */
-  .book-card .book-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #000000;
-    margin: 0px;
-    padding: 0px;
-  }
-  
-  .info-status-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+.price-range {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 
-  /* 가격 및 상태 */
-  .book-price {
-    font-size: 15px;
-    color: #000000;
-  }
-
-  .book-status {
-    color: white;
-    background-color: #AE00FF;
-    padding: 3px 5px;
-    border-radius: 5px;
-    margin-right: 5px;
-    font-size: 13px;
-    font-weight: bold;
-  }
-  
-  /* 날짜 */
-  .book-date {
-    font-size: 12px;
-    color: #666;
-  }
-  
-  .price-input {
+.price-input {
   width: 70px;
   padding: 4px 6px;
   border: 1px solid #b516ff;
@@ -174,17 +62,95 @@
 }
 
 .reset-button {
-  background-color: transparent;
+  background: none;
   border: none;
   color: #b516ff;
   font-size: 13px;
   cursor: pointer;
-  margin-top: 3px;
   text-decoration: underline;
+  margin-top: 3px;
 }
 
-.filter-subtitle {
+/* 오른쪽 책 목록 */
+.book-list-container {
+  width: 1000px;
+  height: 90%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  box-sizing: border-box;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.book-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.book-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.book-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 5px;
+}
+
+.info-status-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.book-status {
+  background-color: #ae00ff;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 5px;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+.book-price {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.book-heart {
+  display: flex;
+  align-items: center;
+  color: #ae00ff;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 3px;
+}
+
+.book-date {
+  font-size: 12px;
+  color: #666;
+}
+
+.status-text {
+  text-align: center;
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 6px;
+  color: gray;
+  grid-column: span 4;
+  align-self: center;
+  justify-self: center;
 }

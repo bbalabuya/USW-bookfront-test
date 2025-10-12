@@ -1,42 +1,40 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* ✅ 브라우저 전체 높이를 채우기 */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* ✅ 전체 App 영역 */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* vh 단위로 전체 화면 높이 확보 */
+  background-color: #f0f0f0;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* ✅ 메인 콘텐츠 영역 */
+.app-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center; /* 중앙 정렬 */
+  align-items: center;
+  background-color: #f0f0f0;
+  box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+
+/* ✅ 스크롤바 디자인 통일 (선택 사항) */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.card {
-  padding: 2em;
+::-webkit-scrollbar-thumb {
+  background-color: #b516ff;
+  border-radius: 4px;
 }
 
-.read-the-docs {
-  color: #888;
+::-webkit-scrollbar-track {
+  background-color: #e0e0e0;
 }

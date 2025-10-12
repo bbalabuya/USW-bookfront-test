@@ -40,7 +40,7 @@ const My_info: React.FC = () => {
   }, []);
 
   return (
-    <div className="whole-container">
+    <div className="my_info-whole-container">
       <div className="left-container">
         <Selecter />
       </div>
