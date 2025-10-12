@@ -3,9 +3,12 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Selecter from "./selecter";
 import heartImg from "../../assets/hearts.png";
+import { boughtBook } from "../../types/boughtType";
+import { boughtBookExample } from "../../mockData/boughtSample";
+import api from "../../API/index";
 import "./bought.css";
 
-const URL = (import.meta as any).env.VITE_DOMAIN_URL;
+const API_URL = import.meta.env.VITE_DOMAIN_URL;
 
 // 시간 경과 함수
 const getTimeAgo = (dateString: string): string => {
@@ -15,59 +18,21 @@ const getTimeAgo = (dateString: string): string => {
   return diff === 0 ? "오늘" : `${diff}일 전`;
 };
 
-type Book = {
-  id: string;
-  title: string;
-  sellerName: string;
-  postImage: string;
-  completedAt: string;
-  postPrice: number;
-  status: string;
-  heart: number;
-};
-
 const Bought = () => {
-  const [books, setBooks] = useState<Book[]>([]);
+  const [books, setBooks] = useState<boughtBook[]>([]);
 
   useEffect(() => {
-    const exampleData: Book[] = [
-      {
-        id: "1",
-        title: "운영체제 책 구매",
-        sellerName: "김철수",
-        postImage: "https://via.placeholder.com/200x280.png?text=Book+1",
-        completedAt: "2025-06-30T09:00:00",
-        postPrice: 12000,
-        status: "거래완료",
-        heart: 5,
-      },
-      {
-        id: "2",
-        title: "자료구조 책 구매",
-        sellerName: "박영희",
-        postImage: "https://via.placeholder.com/200x280.png?text=Book+2",
-        completedAt: "2025-07-01T12:00:00",
-        postPrice: 15000,
-        status: "판매중",
-        heart: 8,
-      },
-    ];
-
-    setBooks(exampleData);
-
-    // 실제 API 호출 예시
-    /*
-    const fetchBooks = async () => {
+    const getBoughtBooks = async () => {
       try {
-        const res = await axios.get(`${URL}/api/me/posts/buy`);
-        setBooks(res.data);
+        const response = await api.get("/api/me/posts/buy");
+        console.log("구매한 책 목록 불러오기 성공");
+        setBooks(response.data.data);
       } catch (err) {
-        console.error("책 데이터 불러오기 실패", err);
+        console.error("구매한 책 목록 불러오기 실패, 예시데이터 사용", err);
+        setBooks(boughtBookExample);
       }
     };
-
-    fetchBooks();
-    */
+    getBoughtBooks();
   }, []);
 
   return (

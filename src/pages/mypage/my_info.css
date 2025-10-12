@@ -12,10 +12,10 @@
 
 .left-container{
     display:flex;
-    position:absolute;
-    flex: 0;
-    left: 40px;
-
+    flex: 1;
+    margin-left:40px;
+    justify-content: flex-start;
+    z-index: 10;
 }
 
 .right-container{
