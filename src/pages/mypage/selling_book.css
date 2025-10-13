@@ -1,168 +1,165 @@
+/* ✅ 판매 도서 전체 영역 (헤더 아래 공간을 꽉 채움) */
 .selling-whole-container {
-    width: 100%;
-    height: calc(100vh - 103px);
-    border: 1px solid #b516ff;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  height: 100%; /* 부모(app-main)의 전체 높이 채우기 */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center; /* 상하 공간 꽉 채우기 */
+  border: 1px solid #b516ff;
 }
 
+/* ✅ 왼쪽 필터 영역 */
 .selling-left-container {
-    display: flex;
-    position: relative;
-    flex: 0;
-    margin-left: 20px;
+  display: flex;
+  position: relative;
+  flex: 0 0 200px; /* 고정 너비 200px */
+  margin-left: 20px;
+  align-items: flex-start;
+  justify-content: center;
 }
 
+/* ✅ 오른쪽 콘텐츠 영역 */
 .selling-right-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    position: relative;
-    color: black;
-    flex: 3;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid #b516ff;
-    box-sizing: border-box;
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #b516ff;
+  box-sizing: border-box;
+
+  /* ✅ 오직 오른쪽 영역만 세로 스크롤 가능 */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* ✅ 화면 높이에 맞춰 확실히 채우기 */
+  height: 100%;
+  min-height: 100%;
 }
 
+/* ✅ 내부 책 리스트 */
 .sell-container {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* plate 간 간격 */
-    width: 1100px;
-    height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 1100px;
+  box-sizing: border-box;
 }
 
-
-.sell-plate{
-    display: flex;
-    width: 1100px;
-    height: 200px;
-    background-color: #F6E3FF ;
-    border-radius: 30px;
-    padding: 20px;
-    box-sizing: border-box;
-    justify-content: space-between;
-    align-items: center;
+/* ✅ 각 도서 박스 */
+.sell-plate {
+  display: flex;
+  width: 1100px;
+  height: 200px;
+  background-color: #f6e3ff;
+  border-radius: 30px;
+  padding: 20px;
+  box-sizing: border-box;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.sell-picture{
-    width: 162px;
-    min-width: 162px;
-    max-width: 162px;
-    height: 100%;
-    max-height: 162px;
-    object-fit: cover;
-    border: 1px solid #b516ff;
-  
+/* ✅ 책 이미지 */
+.sell-picture {
+  width: 162px;
+  min-width: 162px;
+  max-width: 162px;
+  height: 162px;
+  object-fit: cover;
+  border: 1px solid #b516ff;
+  border-radius: 10px;
 }
 
-.middle-set{
-    width: 100%;
-    height: 100%;
-    border: 1px solid black;
-    padding: 10px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+/* ✅ 중앙 내용 박스 */
+.middle-set {
+  flex: 1;
+  border: 1px solid black;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.middle-upper-set{
-    display: flex;
-    flex-direction: row;
-    flex-shrink: 0;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 5px;
+/* 상단 정보 묶음 */
+.middle-upper-set {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 5px;
 }
 
-.title-set{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 5px;
+.title-set {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
 }
 
-
-
-.book-title{
-    font-size: 20px;
-    font-weight: bold;
+.book-title {
+  font-size: 20px;
+  font-weight: bold;
 }
 
-.sell-book-status{
-    padding: 3px 8px;
-    background-color: #b516ff;
-    color: white;
-    font-weight: bold;
-    border-radius: 5px;
+.sell-book-status {
+  padding: 3px 8px;
+  background-color: #b516ff;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
 }
 
-.book-price{
-    
+/* 찜 영역 */
+.like-set {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
 }
 
-.upload-date{
-
+.heart-img {
+  width: 20px;
+  height: 20px;
 }
 
-.like-set{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap:2px;
+.book-heart {
+  font-size: 17px;
 }
 
-.heart-img{
-    width: 20px;
-    height: 20px;
+/* 설명 영역 */
+.middle-down-set {
+  flex: 1;
+  background-color: #f6f6f6;
+  align-items: flex-start;
 }
 
-.book-heart{
-    font-size: 17px;
+.book-explain {
+  padding: 10px;
+  font-size: 15px;
 }
 
-
-.book-explain{
-    height: 100%;
-}
-
-.plate-button-set{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* 버튼 묶음 */
+.plate-button-set {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .sell-button {
-    display: flex; 
-    justify-content: center;
-    align-items: center;
-    padding: 8px 0px;
-    width: 150px;
-    background-color: #DA8AFF;
-    color: white;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-
-    cursor: pointer;
-    text-decoration: none; 
-}
-
-.middle-down-set{
-    flex: 1;
-    background-color: #f6f6f6;
-    align-items: flex-start;
-}
-
-.book-explain{
-    padding:10px;
-    font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0px;
+  width: 150px;
+  background-color: #da8aff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
 }
