@@ -5,10 +5,9 @@ import Selecter from "./selecter";
 import heartImg from "../../assets/hearts.png";
 import { boughtBook } from "../../types/boughtType";
 import { boughtBookExample } from "../../mockData/boughtSample";
-import api from "../../API/index";
+import { getBoughtBooks } from "../../API/boughtAPI";
 import "./bought.css";
-
-const API_URL = import.meta.env.VITE_DOMAIN_URL;
+import { get } from "http";
 
 // 시간 경과 함수
 const getTimeAgo = (dateString: string): string => {
@@ -22,17 +21,16 @@ const Bought = () => {
   const [books, setBooks] = useState<boughtBook[]>([]);
 
   useEffect(() => {
-    const getBoughtBooks = async () => {
+    const getBoughtBooksData = async () => {
       try {
-        const response = await api.get("/api/me/posts/buy");
-        console.log("구매한 책 목록 불러오기 성공");
-        setBooks(response.data.data);
-      } catch (err) {
+        const data = await getBoughtBooks();
+        setBooks(data || []);
+      }catch(err){
         console.error("구매한 책 목록 불러오기 실패, 예시데이터 사용", err);
         setBooks(boughtBookExample);
       }
-    };
-    getBoughtBooks();
+      getBoughtBooksData();
+    }
   }, []);
 
   return (
@@ -53,9 +51,7 @@ const Bought = () => {
                 <div className="bought-book-title">{book.title}</div>
                 <div className="bought-info-status-wrapper">
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    {book.status !== "판매중" && (
-                      <div className="bought-book-status">거래완료</div>
-                    )}
+                    <div className="bought-book-status">거래완료</div>
                     <div className="bought-book-price">{book.postPrice.toLocaleString()}원</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center" }}>

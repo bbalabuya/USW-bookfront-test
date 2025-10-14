@@ -9,20 +9,23 @@ html, body, #root {
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* vh 단위로 전체 화면 높이 확보 */
+  min-height: 100%;
+  height: 100%;
   background-color: #f0f0f0;
 }
 
-/* ✅ 메인 콘텐츠 영역 */
 .app-main {
   display: flex;
   flex: 1;
   flex-direction: column;
-  justify-content: center; /* 중앙 정렬 */
+  justify-content: center;
   align-items: center;
   background-color: #f0f0f0;
   box-sizing: border-box;
+  overflow: hidden;
+  /*height: 100%; /* ✅ 추가: 내부 컨텐츠가 부모 높이를 100%로 인식하게 함 */
 }
+
 
 
 /* ✅ 스크롤바 디자인 통일 (선택 사항) */

@@ -70,9 +70,7 @@ const Selling_book = () => {
                                         <div className="book-heart">찜 개수</div>
                                     </div>
                                 </div>
-                                <div className="middle-down-set">
-                                    <div className="book-explain">여기는 설명칸</div>
-                                </div>
+                                <div className="middle-down-set">설명칸</div>
                             </div>
                             <div className="plate-button-set">
                                 <Link to={`/single/${book.id}`} className="sell-button">게시글로 이동하기</Link>

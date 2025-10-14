@@ -3,8 +3,7 @@ import "./my_info.css";
 import Selecter from "./selecter";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
-const URL = (import.meta as any).env.VITE_DOMAIN_URL;
+import { getMyInfo } from "../../API/my_info";
 
 // 서버에서 오는 실제 데이터 타입
 type User = {
@@ -20,23 +19,14 @@ const My_info: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const getInfo = async () => {
-      try {
-        const response = await axios.get(`${URL}/api/user/infomation`, {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
-
-        // API가 { code, message, data } 구조이므로 data만 저장
-        setUser(response.data.data);
-      } catch (err) {
-        console.error("유저 정보 불러오기 실패:", err);
-      }
-    };
-
-    getInfo();
+    const getMyInfoAPI = async() => {
+      try{
+        const data = await getMyInfo();
+        setUser(data || null);
+      }catch(err){
+    }
+  };
+    getMyInfoAPI();
   }, []);
 
   return (
