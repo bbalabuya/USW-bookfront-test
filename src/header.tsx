@@ -153,14 +153,12 @@ const Header: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("🔍 재발급 응답:", response.data);
-
       if (response.data?.accessToken) {
         localStorage.setItem("accessToken", response.data.accessToken);
-        console.log("✅ 저장된 토큰:", localStorage.getItem("accessToken"));
+        console.log("✅ [Header] 토큰 재발급 성공");
         setLoggedIn(true);
       } else {
-        console.warn("⚠️ accessToken이 응답에 없음");
+        console.warn("⚠️ [Header] 재발급 응답에 accessToken 없음");
         localStorage.removeItem("accessToken");
         setLoggedIn(false);
       }

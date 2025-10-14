@@ -47,6 +47,9 @@ export default function Home() {
 
   // 🔹 게시글 불러오기
   useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    console.log("home에서 getItem:", token);
+
     const loadBooks = async () => {
       setLoading(true);
       try {

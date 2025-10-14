@@ -54,7 +54,7 @@ api.interceptors.request.use(
     }
 
     // 그 외 API → Authorization 헤더 추가
-    const token = getAccessToken();
+    const token = localStorage.getItem("accessToken");
     if (token && config.headers) {
       config.headers["Authorization"] = `Bearer ${token}`;
       console.log("🔑 [요청 인터셉터] 토큰 첨부 완료");
