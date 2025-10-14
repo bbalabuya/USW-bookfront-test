@@ -16,7 +16,7 @@ export const getAccessToken = () => accessToken;
 export const setAccessToken = (token: string) => {
   accessToken = token;
   localStorage.setItem("accessToken", token);
-  console.log("✅ [setAccessToken] 토큰 저장 완료");
+  console.log("✅ [setAccessToken] 토큰 저장 완료 (Local & Memory)"); // 로그 명확화
 };
 
 // 🚀 앱 시작 시 localStorage에서 불러오기
