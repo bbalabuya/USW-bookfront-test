@@ -18,6 +18,7 @@ const Login = () => {
     try {
       await login(email, password);
       console.log("로그인 후 localStorage:",localStorage.getItem("accessToken"));
+      alert("로그인 성공! 홈으로 이동합니다.");
       navigate("/");
     } catch (err) {
       console.error(err);

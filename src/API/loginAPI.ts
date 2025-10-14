@@ -1,18 +1,32 @@
 import api, { setAccessToken } from "./index";
 
 export const login = async (email: string, password: string) => {
-  const res = await api.post("/api/auth/login", { email, password });
+  try {
+    const res = await api.post("/api/auth/login", { email, password });
 
-  // 응답 헤더에서 Authorization 꺼내기
-  console.log("응답", res);
-  const accessToken = res.headers["authorization"];
-  console.log("정상적으로 토큰 받아옴");
-  if (accessToken) {
-    const tokenValue = accessToken.replace("Bearer ", "");
+    console.log("✅ [login] 로그인 응답:", res);
+
+    // 🔹 Authorization 헤더에서 토큰 추출
+    const accessTokenHeader =
+      res.headers["authorization"] || res.headers["Authorization"];
+
+    if (!accessTokenHeader) {
+      console.error("❌ [login] Authorization 헤더 없음");
+      throw new Error("토큰이 응답에 포함되지 않았습니다.");
+    }
+
+    // 🔹 Bearer 제거
+    const tokenValue = accessTokenHeader.replace("Bearer ", "");
+
+    // 🔹 localStorage & 메모리 저장
     localStorage.setItem("accessToken", tokenValue);
-    console.log("accessToken 로컬스토리지에 저장 완료");
+    setAccessToken(tokenValue); // ✅ 이게 중요합니다!
+
+    console.log("🎉 [login] accessToken 저장 완료:", tokenValue);
+
+    return res.data;
+  } catch (err) {
+    console.error("💥 [login] 로그인 실패:", err);
+    throw err;
   }
-
-
-  return res.data;
 };
