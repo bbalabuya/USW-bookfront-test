@@ -3,8 +3,13 @@ import api from "./index";
 
 // ✅ 내 정보 불러오기
 export const getMyInfo = async () => {
-  const res = await api.get("/api/me");
-  return res.data;
+  try {
+    const response = await api.get("/api/user/infomation");
+    console.log("유저 정보 불러오기 성공");
+    return response.data.data;
+  } catch (err) {
+    console.error("유저 정보 불러오기 실패", err);
+  }
 };
 
 // ✅ 내 정보 수정 (프로필 이미지 + 정보)

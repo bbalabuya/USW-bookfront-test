@@ -22,24 +22,29 @@ const EditMyInfo = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ✅ 1️⃣ 내 정보 + 전공 목록 불러오기
+  // ✅ 1️⃣ 전공 목록 먼저, 그 다음 사용자 정보
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [myInfo, majors] = await Promise.all([
-          getMyInfo(),
-          getMajorList(),
-        ]);
+        // 1️⃣ 전공 목록 먼저 불러오기
+        const majors = await getMajorList();
+        setMajorList(majors);
+        console.log("저장된 전공 목록:", major);
+
+        // 2️⃣ 사용자 정보 불러오기
+        const myInfo = await getMyInfo();
+
+        // 3️⃣ input/select에 기본값 세팅
         setProfileImage(myInfo.img || "");
         setNickname(myInfo.name || "");
         setYear(myInfo.year || 1);
         setSemester(myInfo.semester || 1);
         setMajor(myInfo.major || "");
-        setMajorList(majors);
       } catch (err) {
         console.error("데이터 불러오기 오류:", err);
       }
     };
+
     fetchData();
   }, []);
 
@@ -69,6 +74,11 @@ const EditMyInfo = () => {
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };
+
+  // ✅ 로딩 중 처리 (데이터 도착 전엔 빈칸 방지)
+  if (!majorList.length || !nickname) {
+    return <div className="loading">정보를 불러오는 중입니다...</div>;
+  }
 
   return (
     <div className="edit-whole-container">
