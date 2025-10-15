@@ -1,7 +1,7 @@
 // API/joinAPI.ts
 import api from "./index";
 import { JoinRequest } from "../types/join";
-
+import { time } from "console";
 
 // 전공 리스트 가져오기
 export const getMajorList = async () => {
@@ -15,7 +15,31 @@ export const getMajorList = async () => {
 
 // 이메일 인증코드 요청
 export const sendEmailVerification = async (email: string) => {
-  return api.post(`/api/mail/email-verifications?email=${email}`);
+  try {
+    const sendEmail = await api.post(
+      `/api/email-verifications`, // api email인가 /email인가
+      {
+        email,
+        purpose: "SIGN_UP",
+      }
+    );
+    if (sendEmail.data == 200) {
+      console.log("이메일 전송 완료, 2초 후 실제 전송 api 호출");
+      setTimeout(() => {}, 2000);
+      try {
+        const realEmailSent = await api.get(
+          `/api/mail/status?email=${email}&purpose=SIGN_UP`
+        );
+        return realEmailSent.data.status;
+      } catch (err) {
+        console.error("실제 이메일 전송 실패:", err);
+      }
+    } else {
+      console.log("이메일 전송 요청 실패");
+    }
+  } catch (err) {
+    console.error("이메일 전송 실패:", err);
+  }
 };
 
 // 이메일 인증코드 검증
@@ -24,7 +48,7 @@ export const checkEmailVerification = async (
   authCode: string
 ) => {
   return api.get(
-    `/api/mail/email-verifications?email=${email}&authCode=${authCode}`
+    `/email-verifications?email=${email}&authCode=${authCode}&purpose=SIGN_UP`
   );
 };
 
