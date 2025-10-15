@@ -11,9 +11,9 @@ const EditMyInfo = () => {
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>("");
   const [nickname, setNickname] = useState<string>("");
-  const [year, setYear] = useState<number>(1);
-  const [semester, setSemester] = useState<number>(1);
-  const [major, setMajor] = useState<string>("");
+  const [grade, setGrade] = useState<string>("1");
+  const [semester, setSemester] = useState<string>("1");
+  const [majorId, setMajorId] = useState<string>(""); // ✅ 전공 UUID 저장
 
   // ✅ 전공 목록 상태
   const [majorList, setMajorList] = useState<{ id: string; name: string }[]>(
@@ -26,20 +26,22 @@ const EditMyInfo = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1️⃣ 전공 목록 먼저 불러오기
+        // 1️⃣ 전공 목록 불러오기
         const majors = await getMajorList();
         setMajorList(majors);
-        console.log("저장된 전공 목록:", major);
 
         // 2️⃣ 사용자 정보 불러오기
         const myInfo = await getMyInfo();
 
-        // 3️⃣ input/select에 기본값 세팅
+        // 3️⃣ input/select 기본값 세팅
         setProfileImage(myInfo.img || "");
         setNickname(myInfo.name || "");
-        setYear(myInfo.year || 1);
-        setSemester(myInfo.semester || 1);
-        setMajor(myInfo.major || "");
+        setGrade(myInfo.grade?.toString() || "1");
+        setSemester(myInfo.semester?.toString() || "1");
+
+        // 전공 이름을 통해 UUID 찾기
+        const matchedMajor = majors.find((m) => m.name === myInfo.major);
+        setMajorId(matchedMajor ? matchedMajor.id : "");
       } catch (err) {
         console.error("데이터 불러오기 오류:", err);
       }
@@ -60,7 +62,13 @@ const EditMyInfo = () => {
   // ✅ 3️⃣ 저장하기
   const handleSave = async () => {
     try {
-      const userInfo = { name: nickname, year, semester, major };
+      const userInfo = {
+        name: nickname,
+        grade: Number(grade),
+        semester: Number(semester),
+        majorid: majorId, // ✅ UUID로 전송
+      };
+
       await updateMyInfo(userInfo, profileFile, profileImage);
       alert("정보가 저장되었습니다!");
       // navigate("/somepath");
@@ -75,7 +83,7 @@ const EditMyInfo = () => {
     fileInputRef.current?.click();
   };
 
-  // ✅ 로딩 중 처리 (데이터 도착 전엔 빈칸 방지)
+  // ✅ 로딩 중 처리
   if (!majorList.length || !nickname) {
     return <div className="loading">정보를 불러오는 중입니다...</div>;
   }
@@ -114,13 +122,13 @@ const EditMyInfo = () => {
           <div className="edit-title">학년</div>
           <select
             className="edit-select-option"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+            value={grade}
+            onChange={(e) => setGrade(e.target.value)}
           >
-            <option value={1}>1학년</option>
-            <option value={2}>2학년</option>
-            <option value={3}>3학년</option>
-            <option value={4}>4학년</option>
+            <option value="1">1학년</option>
+            <option value="2">2학년</option>
+            <option value="3">3학년</option>
+            <option value="4">4학년</option>
           </select>
         </div>
 
@@ -129,10 +137,10 @@ const EditMyInfo = () => {
           <select
             className="edit-select-option"
             value={semester}
-            onChange={(e) => setSemester(Number(e.target.value))}
+            onChange={(e) => setSemester(e.target.value)}
           >
-            <option value={1}>1학기</option>
-            <option value={2}>2학기</option>
+            <option value="1">1학기</option>
+            <option value="2">2학기</option>
           </select>
         </div>
       </div>
@@ -142,11 +150,11 @@ const EditMyInfo = () => {
           <div className="edit-title">전공</div>
           <select
             className="edit-major"
-            value={major}
-            onChange={(e) => setMajor(e.target.value)}
+            value={majorId} // ✅ UUID 저장됨
+            onChange={(e) => setMajorId(e.target.value)}
           >
             {majorList.map((m) => (
-              <option key={m.id} value={m.name}>
+              <option key={m.id} value={m.id}>
                 {m.name}
               </option>
             ))}

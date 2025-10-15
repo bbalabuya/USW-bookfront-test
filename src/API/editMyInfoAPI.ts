@@ -18,25 +18,28 @@ export const updateMyInfo = async (
   profileFile: File | null,
   profileImage: string
 ) => {
-  const formData = new FormData();
-
-  // JSON을 Blob으로 변환하여 추가
-  formData.append(
-    "changeInfoRequest",
-    new Blob([JSON.stringify(userInfo)], { type: "application/json" })
-  );
-
-  // 프로필 이미지 파일이 있으면 새 파일, 없으면 기존 URL
+  // 1️⃣ 이미지 파일이 있으면 → multipart/form-data로 전송
   if (profileFile) {
+    const formData = new FormData();
+
+    formData.append(
+      "changeInfoRequest",
+      new Blob([JSON.stringify(userInfo)], { type: "application/json" })
+    );
+
     formData.append("profileImage", profileFile);
-  } else {
-    formData.append("profileImage", profileImage);
+
+    return api.post("/api/user/information", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   }
 
-  return api.post("/api/me", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+  // 2️⃣ 이미지 파일이 없으면 → JSON으로 전송
+  return api.post("/api/user/information", userInfo, {
+    headers: { "Content-Type": "application/json" },
   });
 };
+
 
 // ✅ 전공 리스트 가져오기
 export const getMajorList = async () => {
