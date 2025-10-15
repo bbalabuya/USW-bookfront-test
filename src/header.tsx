@@ -154,6 +154,7 @@ const Header: React.FC = () => {
         { withCredentials: true }
       );
 
+      console.log("✅ [Header] 로그인 상태 확인 응답:", response);
       if (response.data?.accessToken) {
         localStorage.setItem("accessToken", response.data.accessToken);
         console.log("✅ [Header] 토큰 재발급 성공");
