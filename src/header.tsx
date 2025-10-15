@@ -148,9 +148,8 @@ const Header: React.FC = () => {
     }
 
     try {
-      const response = await axios.get(`${API_URL}/api/auth/reissue`, {
+      const response = await axios.post(`${API_URL}/api/auth/reissue`, {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.data?.accessToken) {
