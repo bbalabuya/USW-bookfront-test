@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import "./find_password.css";
 import {
-  sendVerificationCode,
-  verifyEmailCode,
+  sendEmailVerification,
+  checkEmailVerification,
   resetPassword,
 } from "../../API/find_password";
 
 const FindPassword: React.FC = () => {
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [authCode, setAuthCode] = useState("");
   const [changePassword, setChangePassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -17,47 +17,39 @@ const FindPassword: React.FC = () => {
 
   const emailValid = email.includes("@") && email.endsWith(".com");
 
-  // 1. 이메일 인증코드 발송
+  // ✅ 1. 이메일 인증코드 발송
   const handleSendCode = async () => {
     if (!emailValid) {
       alert("올바른 이메일을 입력해주세요.");
       return;
     }
-    try {
-      const res = await sendVerificationCode({ email });
-      if (res.status === 200) {
-        alert("인증코드가 발송되었습니다!");
-        setActiveButton(true);
-      } else {
-        alert(res.message || "인증코드 발송 실패");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("인증코드 발송 중 오류가 발생했습니다.");
+
+    const sent = await sendEmailVerification(email);
+    if (sent) {
+      alert("인증코드가 발송되었습니다. 이메일을 확인해주세요.");
+      setActiveButton(true);
+    } else {
+      alert("인증코드 발송에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
-  // 2. 인증코드 확인
+  // ✅ 2. 인증코드 확인
   const handleVerifyCode = async () => {
-    if (!code) {
+    if (!authCode) {
       alert("인증코드를 입력해주세요.");
       return;
     }
-    try {
-      const res = await verifyEmailCode({ email, code });
-      if (res.verified) {
-        alert("인증 성공!");
-        setIsVerified(true);
-      } else {
-        alert(res.message || "인증코드가 올바르지 않습니다.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("인증 확인 중 오류가 발생했습니다.");
+
+    const verified = await checkEmailVerification(email, authCode);
+    if (verified) {
+      alert("이메일 인증이 완료되었습니다.");
+      setIsVerified(true);
+    } else {
+      alert("인증코드가 올바르지 않습니다. 다시 확인해주세요.");
     }
   };
 
-  // 3. 비밀번호 초기화
+  // ✅ 3. 비밀번호 초기화
   const handleResetPassword = async () => {
     const passwordRegex =
       /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&^])[A-Za-z\d@$!%*?&^]{8,20}$/;
@@ -66,18 +58,27 @@ const FindPassword: React.FC = () => {
       alert("비밀번호는 영문, 숫자, 특수문자를 포함한 8~20자여야 합니다.");
       return;
     }
+
     if (changePassword !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
 
+    if (!isVerified) {
+      alert("이메일 인증을 먼저 완료해주세요.");
+      return;
+    }
+
     try {
-      const res = await resetPassword({ email, newPassword: changePassword });
+      const res = await resetPassword({
+        email,
+        newPassword: changePassword,
+      });
+
       if (res.status === 200) {
         alert("비밀번호가 변경되었습니다. 로그인 해주세요.");
-        // 초기화
         setEmail("");
-        setCode("");
+        setAuthCode("");
         setChangePassword("");
         setConfirmPassword("");
         setActiveButton(false);
@@ -85,8 +86,7 @@ const FindPassword: React.FC = () => {
       } else {
         alert(res.message || "비밀번호 변경 실패");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("비밀번호 변경 중 오류가 발생했습니다.");
     }
   };
@@ -130,8 +130,8 @@ const FindPassword: React.FC = () => {
               <input
                 className="find_password-enter"
                 placeholder="인증코드를 입력하세요"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+                value={authCode}
+                onChange={(e) => setAuthCode(e.target.value)}
               />
               <button
                 className="find_password-send-code"
