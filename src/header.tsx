@@ -148,9 +148,11 @@ const Header: React.FC = () => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/auth/reissue`, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        `${API_URL}/api/auth/reissue`,
+        {},
+        { withCredentials: true }
+      );
 
       if (response.data?.accessToken) {
         localStorage.setItem("accessToken", response.data.accessToken);
