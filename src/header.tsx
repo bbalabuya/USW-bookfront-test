@@ -160,7 +160,6 @@ const Header: React.FC = () => {
         setLoggedIn(true);
       } else {
         console.warn("⚠️ [Header] 재발급 응답에 accessToken 없음");
-        localStorage.removeItem("accessToken");
         setLoggedIn(false);
       }
     } catch (error) {
