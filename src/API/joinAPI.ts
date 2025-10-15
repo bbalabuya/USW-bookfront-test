@@ -16,6 +16,7 @@ export const getMajorList = async () => {
 // 이메일 인증코드 요청
 export const sendEmailVerification = async (email: string) => {
   try {
+    console.log("인증코드 요청 시작:", email);
     const sendEmail = await api.post(
       `/api/mail/email-verifications`, // api email인가 /email인가
       {
