@@ -24,7 +24,7 @@ export const sendEmailVerification = async (email: string) => {
         purpose: "SIGN_UP",
       }
     );
-    if (sendEmail.data == 200) {
+    if (sendEmail.data == 202) {
       console.log("이메일 전송 완료, 2초 후 실제 전송 api 호출");
       setTimeout(() => {}, 2000);
       try {
