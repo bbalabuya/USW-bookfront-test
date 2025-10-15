@@ -17,7 +17,7 @@ export const getMajorList = async () => {
 export const sendEmailVerification = async (email: string) => {
   try {
     const sendEmail = await api.post(
-      `/api/email-verifications`, // api email인가 /email인가
+      `/api/mail/email-verifications`, // api email인가 /email인가
       {
         email,
         purpose: "SIGN_UP",
@@ -48,7 +48,7 @@ export const checkEmailVerification = async (
   authCode: string
 ) => {
   return api.get(
-    `/email-verifications?email=${email}&authCode=${authCode}&purpose=SIGN_UP`
+    `/api/mail/email-verifications?email=${email}&authCode=${authCode}&purpose=SIGN_UP`
   );
 };
 
