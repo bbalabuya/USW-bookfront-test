@@ -16,7 +16,9 @@ const Upload = () => {
   const [grade, setGrade] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
   const [postImage, setPostImage] = useState<File[]>([]);
-  const [majorList, setMajorList] = useState<{ id: string; name: string }[]>([]);
+  const [majorList, setMajorList] = useState<{ id: string; name: string }[]>(
+    []
+  );
   const [majorId, setMajorId] = useState("");
 
   const navigate = useNavigate();
@@ -34,36 +36,68 @@ const Upload = () => {
   };
 
   /** 🧾 게시글 업로드 */
+  /** 🧾 게시글 업로드 */
   const handleSubmit = async () => {
-    const formData = new FormData();
-    formData.append("postName", postName);
-    formData.append("title", title);
-    formData.append("postPrice", postPrice);
-    formData.append("content", content);
-    formData.append("professor", professor);
-    formData.append("courseName", courseName);
-    formData.append("grade", String(grade));
-    formData.append("semester", String(semester));
-    formData.append("majorId", majorId); // 선택한 전공 ID
-
-    postImage.forEach((file) => {
-      formData.append("postImage", file);
-    });
-
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${API_URL}/api/posts`, {
-        method: "POST",
-        headers: { Authorization: token ? `Bearer ${token}` : "" },
-        body: formData,
-      });
 
-      if (!res.ok) throw new Error("업로드 실패");
-      alert("게시글이 성공적으로 업로드되었습니다.");
+      // 공통 데이터
+      const baseData = {
+        postName,
+        title,
+        postPrice,
+        content,
+        professor,
+        courseName,
+        grade,
+        semester,
+        majorId,
+      };
+
+      // ✅ 이미지가 있는 경우 (multipart/form-data)
+      if (postImage.length > 0) {
+        const formData = new FormData();
+
+        // 최대 3장까지만 첨부
+        postImage.slice(0, 3).forEach((file) => {
+          formData.append("postImage", file);
+        });
+
+        // 나머지 텍스트 데이터 추가
+        Object.entries(baseData).forEach(([key, value]) => {
+          formData.append(key, String(value));
+        });
+
+        const res = await fetch(`${API_URL}/api/posts`, {
+          method: "POST",
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("업로드 실패 (이미지 포함)");
+        alert("📸 이미지 포함 게시글이 성공적으로 업로드되었습니다.");
+      }
+      // ✅ 이미지가 없는 경우 (application/json)
+      else {
+        const res = await fetch(`${API_URL}/api/posts`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: JSON.stringify(baseData),
+        });
+
+        if (!res.ok) throw new Error("업로드 실패 (이미지 없음)");
+        alert("📝 이미지 없이 게시글이 성공적으로 업로드되었습니다.");
+      }
+
       navigate("/");
     } catch (err) {
       alert("업로드 중 오류가 발생했습니다.");
-      console.error(err);
+      console.error("❌ [handleSubmit] 업로드 실패:", err);
     }
   };
 
@@ -71,12 +105,9 @@ const Upload = () => {
   useEffect(() => {
     const fetchMajors = async () => {
       try {
-        const res = await getMajorList();
-        if (res?.data) {
-          setMajorList(res.data);
-          // 기본값을 첫 번째 전공으로 설정
-          if (res.data.length > 0) setMajorId(res.data[0].id);
-        }
+        const list = await getMajorList(); // ✅ 배열 그대로 받음
+        setMajorList(list);
+        if (list.length > 0) setMajorId(list[0].id);
       } catch (err) {
         console.error("전공 리스트 불러오기 실패:", err);
       }
