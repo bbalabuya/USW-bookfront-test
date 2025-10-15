@@ -1,24 +1,27 @@
 import api from "./index";
 
-// 🔹 게시글 목록 조회 (인코딩 없이 순수 URL 쿼리 형태로 요청)
-export const fetchPosts = async (params: any) => {
+// 🔹 게시글 목록 조회 (params 있으면 쿼리 포함, 없으면 기본 요청)
+export const fetchPosts = async (params?: Record<string, any>) => {
   try {
-    const response = await api.get("/api/posts", {
-      params,
-      // ⚙️ 인코딩 없이 key=value 형태로 직접 직렬화
-      paramsSerializer: (params) => {
-        return Object.entries(params)
-          .map(([key, value]) => `${key}=${value}`)
-          .join("&");
-      },
-    });
+    const config = params
+      ? {
+          params,
+          // ⚙️ key=value 형태로 인코딩 없이 직렬화
+          paramsSerializer: (params: Record<string, any>) =>
+            Object.entries(params)
+              .map(([key, value]) => `${key}=${value}`)
+              .join("&"),
+        }
+      : {}; // params 없으면 빈 설정으로
 
+    const response = await api.get("/api/posts", config);
     return response.data;
   } catch (error) {
     console.error("❌ [fetchPosts] 게시글 불러오기 실패:", error);
     throw error;
   }
 };
+
 
 /*
 // 로그인 상태 확인
