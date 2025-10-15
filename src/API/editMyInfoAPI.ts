@@ -29,13 +29,13 @@ export const updateMyInfo = async (
 
     formData.append("profileImage", profileFile);
 
-    return api.post("/api/user/information", formData, {
+    return api.patch("/api/user/information", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   }
 
   // 2️⃣ 이미지 파일이 없으면 → JSON으로 전송
-  return api.post("/api/user/information", userInfo, {
+  return api.patch("/api/user/information", userInfo, {
     headers: { "Content-Type": "application/json" },
   });
 };
