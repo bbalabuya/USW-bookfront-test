@@ -59,7 +59,7 @@ api.interceptors.request.use(
     const token = localStorage.getItem("accessToken");
     if (token && config.headers) {
       config.headers["Authorization"] = `Bearer ${token}`;
-      console.log("🔑 [요청 인터셉터] 토큰 첨부 완료");
+      console.log(`🔑 [요청 인터셉터] 토큰 첨부 완료 : ${token}`);
     } else {
       console.warn("⚠️ [요청 인터셉터] 토큰 없음, 로그인 필요");
     }
