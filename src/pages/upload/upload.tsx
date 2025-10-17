@@ -36,7 +36,6 @@ const Upload = () => {
   };
 
   /** 🧾 게시글 업로드 */
-  /** 🧾 게시글 업로드 */
   const handleSubmit = async () => {
     try {
       const token = localStorage.getItem("accessToken");

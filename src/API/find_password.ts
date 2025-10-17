@@ -48,7 +48,7 @@ export const resetPassword = async (
   data: ResetPasswordRequest
 ): Promise<ResetPasswordResponse> => {
   try {
-    const res = await api.patch("/api/auth/password", data);
+    const res = await api.post("/api/auth/password", data);
     return { status: res.status, message: res.data?.message };
   } catch (err: any) {
     console.error("❌ 비밀번호 초기화 실패:", err);

@@ -152,22 +152,29 @@ const Chat = () => {
     };
     enterChatRoomAPI();
 
-    const fetchHistory = async () => {
-      try {
-        console.log("⏳ 메시지 불러오는 중...");
-        const { myId, messages } = await fetchMessages(roomId);
-        console.log("✅ 메시지 불러오기 성공:", {
-          myId,
-          count: messages ? messages.length : 0,
-        });
-        setMyID(myId);
-        setMessages(messages || []);
-      } catch (err) {
-        console.error("❌ 메시지 불러오기 실패:", err);
-        setMessages(chatExampleMessages);
-        alert("⚠️ 채팅방 메시지 불러오기 실패");
-      }
-    };
+ const fetchHistory = async () => {
+   try {
+     console.log("⏳ 메시지 불러오는 중...");
+     const { myId, messages } = await fetchMessages(roomId);
+     console.log("✅ 메시지 불러오기 성공:", {
+       myId,
+       count: messages ? messages.length : 0,
+     });
+     setMyID(myId);
+
+     // ✅ 시간순 정렬 (sentAt 기준)
+     const sortedMessages = [...messages].sort(
+       (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+     );
+
+     setMessages(sortedMessages || []);
+   } catch (err) {
+     console.error("❌ 메시지 불러오기 실패:", err);
+     setMessages(chatExampleMessages);
+     alert("⚠️ 채팅방 메시지 불러오기 실패");
+   }
+ };
+
 
     fetchHistory();
   }, [roomId]);
