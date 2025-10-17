@@ -152,29 +152,28 @@ const Chat = () => {
     };
     enterChatRoomAPI();
 
- const fetchHistory = async () => {
-   try {
-     console.log("⏳ 메시지 불러오는 중...");
-     const { myId, messages } = await fetchMessages(roomId);
-     console.log("✅ 메시지 불러오기 성공:", {
-       myId,
-       count: messages ? messages.length : 0,
-     });
-     setMyID(myId);
+    const fetchHistory = async () => {
+      try {
+        console.log("⏳ 메시지 불러오는 중...");
+        const { myId, messages } = await fetchMessages(roomId);
+        console.log("✅ 메시지 불러오기 성공:", {
+          myId,
+          count: messages ? messages.length : 0,
+        });
+        setMyID(myId);
 
-     // ✅ 시간순 정렬 (sentAt 기준)
-     const sortedMessages = [...messages].sort(
-       (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-     );
+        // ✅ 시간순 정렬 (sentAt 기준)
+        const sortedMessages = [...messages].sort(
+          (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+        );
 
-     setMessages(sortedMessages || []);
-   } catch (err) {
-     console.error("❌ 메시지 불러오기 실패:", err);
-     setMessages(chatExampleMessages);
-     alert("⚠️ 채팅방 메시지 불러오기 실패");
-   }
- };
-
+        setMessages(sortedMessages || []);
+      } catch (err) {
+        console.error("❌ 메시지 불러오기 실패:", err);
+        setMessages(chatExampleMessages);
+        alert("⚠️ 채팅방 메시지 불러오기 실패");
+      }
+    };
 
     fetchHistory();
   }, [roomId]);
@@ -229,6 +228,8 @@ const Chat = () => {
     };
   }, [roomId]);
 
+  //======================================JSX 부분======================================//
+
   return (
     <div className="chat-whole-container">
       {/* 🔼 상단 헤더 */}
@@ -264,39 +265,78 @@ const Chat = () => {
 
       {/* 🔽 중앙 채팅 화면 */}
       <div className="chat-message-screen">
-        {messages.map((msg) => {
-          const isMine = msg.senderId === myID;
-          return (
-            <div
-              key={msg.messageId}
-              className={`chat-message-row ${isMine ? "mine" : "opponent"}`}
-            >
-              <div className="chat-bubble-row">
-                {isMine ? (
-                  <>
-                    <div className="chat-time">
-                      {new Date(msg.sentAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                    <div className="chat-bubble mine">{msg.message}</div>
-                  </>
-                ) : (
-                  <>
-                    <div className="chat-bubble opponent">{msg.message}</div>
-                    <div className="chat-time">
-                      {new Date(msg.sentAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                  </>
+        {messages
+          .sort(
+            (a, b) =>
+              new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+          )
+          .map((msg, index, arr) => {
+            const isMine = msg.senderId === myID;
+
+            // 🔹 현재 메시지의 날짜 (예: "2025-10-17")
+            const currentDate = new Date(msg.sentAt).toLocaleDateString(
+              "ko-KR",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                weekday: "long",
+              }
+            );
+
+            // 🔹 이전 메시지의 날짜 (첫 번째면 null)
+            const prevDate =
+              index > 0
+                ? new Date(arr[index - 1].sentAt).toLocaleDateString("ko-KR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    weekday: "long",
+                  })
+                : null;
+
+            const showDateSeparator = currentDate !== prevDate;
+
+            return (
+              <React.Fragment key={msg.messageId}>
+                {/* ✅ 날짜 구분선 */}
+                {showDateSeparator && (
+                  <div className="chat-date-separator">📅 {currentDate}</div>
                 )}
-              </div>
-            </div>
-          );
-        })}
+
+                {/* ✅ 메시지 버블 */}
+                <div
+                  className={`chat-message-row ${isMine ? "mine" : "opponent"}`}
+                >
+                  <div className="chat-bubble-row">
+                    {isMine ? (
+                      <>
+                        <div className="chat-time">
+                          {new Date(msg.sentAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                        <div className="chat-bubble mine">{msg.message}</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="chat-bubble opponent">
+                          {msg.message}
+                        </div>
+                        <div className="chat-time">
+                          {new Date(msg.sentAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </React.Fragment>
+            );
+          })}
       </div>
 
       {/* 🔽 선택 이미지 미리보기 */}

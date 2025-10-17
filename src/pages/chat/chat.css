@@ -309,3 +309,18 @@
 .report-buttons button:last-child {
   background: #ccc;
 }
+
+.chat-date-separator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 12px 0;
+  font-size: 13px;
+  color: #555;
+  background-color: #e0e7ff;
+  padding: 6px 12px;
+  border-radius: 16px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
