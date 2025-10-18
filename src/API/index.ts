@@ -45,23 +45,26 @@ const PUBLIC_APIS = [
 ];
 
 // 📡 요청 인터셉터
+// 📡 요청 인터셉터
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const url = config.url || "";
 
-    // 퍼블릭 API는 토큰 미부착
-    if (PUBLIC_APIS.some((p) => url === p)) {
-      console.log("⏩ [요청 인터셉터] 퍼블릭 API 요청 → 토큰 미첨부");
+    // ✅ PUBLIC_APIS 중 하나로 시작하면 토큰 미첨부
+    const isPublic = PUBLIC_APIS.some((p) => url.startsWith(p));
+
+    if (isPublic) {
+      console.log(`⏩ [요청 인터셉터] 퍼블릭 API 요청 (${url}) → 토큰 미첨부`);
       return config;
     }
 
-    // 그 외 API → Authorization 헤더 추가
+    // ✅ 그 외 API → Authorization 헤더 추가
     const token = localStorage.getItem("accessToken");
     if (token && config.headers) {
       config.headers["Authorization"] = `Bearer ${token}`;
-      console.log(`🔑 [요청 인터셉터] 토큰 첨부 완료 : ${token}`);
+      console.log(`🔑 [요청 인터셉터] 토큰 첨부 완료 (${url})`);
     } else {
-      console.warn("⚠️ [요청 인터셉터] 토큰 없음, 로그인 필요");
+      console.warn(`⚠️ [요청 인터셉터] 토큰 없음 → 로그인 필요 (${url})`);
     }
 
     return config;
@@ -71,6 +74,7 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
 
 // 📡 응답 인터셉터
 api.interceptors.response.use(
