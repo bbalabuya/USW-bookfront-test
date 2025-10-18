@@ -37,7 +37,8 @@ export default function Home() {
 
   const [searchParams] = useSearchParams();
   const searchType = searchParams.get("type") || "bookName";
-  const keyword = decodeURIComponent(searchParams.get("keyword") || "");
+  const keyword = searchParams.get("keyword") || "";
+
 
   // 🔹 필터 상태
   const [grade, setGrade] = useState<number | null>(null);
