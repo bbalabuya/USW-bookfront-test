@@ -5,6 +5,7 @@ import heartImg from "./assets/hearts.png";
 import { Link, useSearchParams } from "react-router-dom";
 import { Book } from "./types/homeType";
 import { fetchPosts } from "./API/homeAPI";
+import { sampleBooks } from "./mockData/homeSample";
 
 const URL = import.meta.env.VITE_DOMAIN_URL;
 
@@ -79,7 +80,7 @@ export default function Home() {
         }
       } catch (err) {
         console.error("API 요청 에러:", err);
-        setBooks([]);
+        setBooks(sampleBooks); // Mock 데이터로 대체
       } finally {
         setLoading(false);
       }
@@ -113,134 +114,133 @@ export default function Home() {
   */
 
   return (
-  <div className="home-container">
-    {/* 왼쪽 필터 */}
-    <div className="filter-container">
-      <div className="filter-title">필터</div>
+    <div className="home-container">
+      {/* 왼쪽 필터 */}
+      <div className="filter-container">
+        <div className="filter-title">필터</div>
 
-      {/* 판매 상태 */}
-      {["판매중", "거래완료"].map((s) => (
-        <label key={s} className="checkbox-wrapper">
+        {/* 판매 상태 */}
+        {["판매중", "거래완료"].map((s) => (
+          <label key={s} className="checkbox-wrapper">
+            <input
+              type="radio"
+              name="status"
+              checked={status === s}
+              onChange={() => setStatus(s)}
+            />
+            {s}
+          </label>
+        ))}
+        <button onClick={() => setStatus(null)} className="reset-button">
+          상태 초기화
+        </button>
+
+        <span className="divider" />
+
+        {/* 학년 */}
+        {[1, 2, 3, 4].map((g) => (
+          <label key={g} className="checkbox-wrapper">
+            <input
+              type="radio"
+              name="grade"
+              checked={grade === g}
+              onChange={() => setGrade(g)}
+            />
+            {g}학년
+          </label>
+        ))}
+        <button onClick={() => setGrade(null)} className="reset-button">
+          학년 초기화
+        </button>
+
+        <span className="divider" />
+
+        {/* 학기 */}
+        {[1, 2].map((s) => (
+          <label key={s} className="checkbox-wrapper">
+            <input
+              type="radio"
+              name="semester"
+              checked={semester === s}
+              onChange={() => setSemester(s)}
+            />
+            {s}학기
+          </label>
+        ))}
+        <button onClick={() => setSemester(null)} className="reset-button">
+          학기 초기화
+        </button>
+
+        <span className="divider" />
+
+        {/* 가격 입력 */}
+        <div className="filter-subtitle">가격 범위</div>
+        <div className="price-range">
           <input
-            type="radio"
-            name="status"
-            checked={status === s}
-            onChange={() => setStatus(s)}
+            type="number"
+            placeholder="최소"
+            value={priceMin ?? ""}
+            onChange={(e) =>
+              setPriceMin(e.target.value ? Number(e.target.value) : null)
+            }
+            className="price-input"
           />
-          {s}
-        </label>
-      ))}
-      <button onClick={() => setStatus(null)} className="reset-button">
-        상태 초기화
-      </button>
-
-      <span className="divider" />
-
-      {/* 학년 */}
-      {[1, 2, 3, 4].map((g) => (
-        <label key={g} className="checkbox-wrapper">
+          <span>~</span>
           <input
-            type="radio"
-            name="grade"
-            checked={grade === g}
-            onChange={() => setGrade(g)}
+            type="number"
+            placeholder="최대"
+            value={priceMax ?? ""}
+            onChange={(e) =>
+              setPriceMax(e.target.value ? Number(e.target.value) : null)
+            }
+            className="price-input"
           />
-          {g}학년
-        </label>
-      ))}
-      <button onClick={() => setGrade(null)} className="reset-button">
-        학년 초기화
-      </button>
-
-      <span className="divider" />
-
-      {/* 학기 */}
-      {[1, 2].map((s) => (
-        <label key={s} className="checkbox-wrapper">
-          <input
-            type="radio"
-            name="semester"
-            checked={semester === s}
-            onChange={() => setSemester(s)}
-          />
-          {s}학기
-        </label>
-      ))}
-      <button onClick={() => setSemester(null)} className="reset-button">
-        학기 초기화
-      </button>
-
-      <span className="divider" />
-
-      {/* 가격 입력 */}
-      <div className="filter-subtitle">가격 범위</div>
-      <div className="price-range">
-        <input
-          type="number"
-          placeholder="최소"
-          value={priceMin ?? ""}
-          onChange={(e) =>
-            setPriceMin(e.target.value ? Number(e.target.value) : null)
-          }
-          className="price-input"
-        />
-        <span>~</span>
-        <input
-          type="number"
-          placeholder="최대"
-          value={priceMax ?? ""}
-          onChange={(e) =>
-            setPriceMax(e.target.value ? Number(e.target.value) : null)
-          }
-          className="price-input"
-        />
+        </div>
+        <button
+          onClick={() => {
+            setPriceMin(null);
+            setPriceMax(null);
+          }}
+          className="reset-button"
+        >
+          가격 초기화
+        </button>
       </div>
-      <button
-        onClick={() => {
-          setPriceMin(null);
-          setPriceMax(null);
-        }}
-        className="reset-button"
-      >
-        가격 초기화
-      </button>
-    </div>
 
-    {/* 오른쪽 책 목록 */}
-    <div className="book-list-container">
-      {loading ? (
-        <div className="status-text">🔍 검색 중입니다...</div>
-      ) : books.length === 0 ? (
-        <div className="status-text">책이 없습니다.</div>
-      ) : (
-        books.map((book) => (
-          <Link to={`/single/${book.id}`} key={book.id} className="book-card">
-            <img src={book.postImage} alt="책 사진" className="book-image" />
-            <div className="book-title">{book.title}</div>
-            <div className="info-status-wrapper">
-              <div style={{ display: "flex", alignItems: "center" }}>
-                {book.status !== "판매중" && (
-                  <div className="book-status">거래완료</div>
-                )}
-                <div className="book-price">
-                  {book.postPrice.toLocaleString()}원
+      {/* 오른쪽 책 목록 */}
+      <div className="book-list-container">
+        {loading ? (
+          <div className="status-text">🔍 검색 중입니다...</div>
+        ) : books.length === 0 ? (
+          <div className="status-text">책이 없습니다.</div>
+        ) : (
+          books.map((book) => (
+            <Link to={`/single/${book.id}`} key={book.id} className="book-card">
+              <img src={book.postImage} alt="책 사진" className="book-image" />
+              <div className="book-title">{book.title}</div>
+              <div className="info-status-wrapper">
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  {book.status !== "판매중" && (
+                    <div className="book-status">거래완료</div>
+                  )}
+                  <div className="book-price">
+                    {book.postPrice.toLocaleString()}원
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div className="book-heart">
+                    <img src={heartImg} alt="heart" />
+                    {book.heart}
+                  </div>
+                  <div className="book-date">{getTimeAgo(book.createdAt)}</div>
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <div className="book-heart">
-                  <img src={heartImg} alt="heart" />
-                  {book.heart}
-                </div>
-                <div className="book-date">{getTimeAgo(book.createdAt)}</div>
-              </div>
-            </div>
-          </Link>
-        ))
-      )}
+            </Link>
+          ))
+        )}
+      </div>
     </div>
-  </div>
-);
-
+  );
 }
 
   
