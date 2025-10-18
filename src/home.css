@@ -4,7 +4,7 @@
 .home-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
   min-height: 100vh;
   background-color: #f8f8fa;
@@ -134,11 +134,12 @@
 }
 
 /* ==============================
-   📖 책 카드 스타일
+   📖 책 카드
 ============================== */
 .book-card {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   background-color: #fff;
   border: 1px solid #e2e2e2;
   border-radius: 12px;
@@ -155,6 +156,9 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
+/* ==============================
+   이미지
+============================== */
 .book-image {
   width: 100%;
   height: 200px;
@@ -164,35 +168,29 @@
   background-color: #f0f0f0;
 }
 
+/* ==============================
+   제목 (줄바꿈 가능 + 겹침 방지)
+============================== */
 .book-title {
   font-size: 16px;
   font-weight: 700;
   color: #222;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   line-height: 1.4;
   word-break: keep-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+  min-height: 40px; /* ✅ 두 줄까지 안정적인 높이 확보 */
 }
 
-.info-status-wrapper {
+/* ==============================
+   💜 하트 + ⏰ 업로드 시간
+============================== */
+.book-info-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.book-status {
-  background-color: #ae00ff;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3px 6px;
-  border-radius: 5px;
-  margin-right: 5px;
-}
-
-.book-price {
-  font-size: 14px;
-  font-weight: 600;
-  color: #000;
+  margin-bottom: 6px;
 }
 
 .book-heart {
@@ -212,8 +210,33 @@
 .book-date {
   font-size: 12px;
   color: #777;
-  text-align: right;
 }
+
+/* ==============================
+   💰 가격 + 🏷️ 판매상태
+============================== */
+.book-info-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.book-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+}
+
+.book-status {
+  background-color: #ae00ff;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+
 
 /* ==============================
    📱 반응형 디자인

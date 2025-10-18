@@ -217,23 +217,27 @@ export default function Home() {
           books.map((book) => (
             <Link to={`/single/${book.id}`} key={book.id} className="book-card">
               <img src={book.postImage} alt="책 사진" className="book-image" />
+
+              {/* 제목 */}
               <div className="book-title">{book.title}</div>
-              <div className="info-status-wrapper">
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  {book.status !== "판매중" && (
-                    <div className="book-status">거래완료</div>
-                  )}
-                  <div className="book-price">
-                    {book.postPrice.toLocaleString()}원
-                  </div>
+
+              {/* 하트 + 작성시간 */}
+              <div className="book-info-top">
+                <div className="book-heart">
+                  <img src={heartImg} alt="heart" />
+                  {book.heart}
                 </div>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div className="book-heart">
-                    <img src={heartImg} alt="heart" />
-                    {book.heart}
-                  </div>
-                  <div className="book-date">{getTimeAgo(book.createdAt)}</div>
+                <div className="book-date">{getTimeAgo(book.createdAt)}</div>
+              </div>
+
+              {/* 가격 + 판매상태 */}
+              <div className="book-info-bottom">
+                <div className="book-price">
+                  {book.postPrice.toLocaleString()}원
                 </div>
+                {book.status !== "판매중" && (
+                  <div className="book-status">거래완료</div>
+                )}
               </div>
             </Link>
           ))
