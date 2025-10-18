@@ -37,7 +37,7 @@ export default function Home() {
 
   const [searchParams] = useSearchParams();
   const searchType = searchParams.get("type") || "bookName";
-  const keyword = searchParams.get("keyword") || "";
+  const keyword = decodeURIComponent(searchParams.get("keyword") || "");
 
   // 🔹 필터 상태
   const [grade, setGrade] = useState<number | null>(null);
@@ -48,8 +48,10 @@ export default function Home() {
 
   // 🔹 게시글 불러오기
   useEffect(() => {
+    console.log("📍 현재 URL:", window.location.href);
+    console.log("📍 searchType:", searchType, "keyword:", keyword);
     const token = localStorage.getItem("accessToken");
-    console.log("home에서 getItem:", token);
+    console.log("home에서 토큰 불러오기 성공");
 
     const loadBooks = async () => {
       setLoading(true);
