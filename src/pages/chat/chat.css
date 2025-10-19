@@ -102,24 +102,34 @@
 /* ==============================
  채팅 메시지 화면
 ============================== */
+/* ==============================
+ 채팅 메시지 화면
+============================== */
 .chat-message-screen {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start; /* ✅ flex-end → flex-start (Chrome 호환성 개선) */
   padding: 10px;
-  overflow-y: auto;
+  overflow-y: auto; /* ✅ 스크롤 활성화 */
+  overflow-x: hidden;
   gap: 12px;
+  box-sizing: border-box;
+  min-height: 0; /* ✅ 중요! Chrome에서 flex-scroll 작동 핵심 */
 }
 
-/* 스크롤바 숨기기 */
+/* ✅ 스크롤바 디자인 (선택사항) */
 .chat-message-screen::-webkit-scrollbar {
-  display: none;
+  width: 6px;
 }
-.chat-message-screen {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.chat-message-screen::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 6px;
 }
+.chat-message-screen::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 
 /* 메시지 줄 전체 */
 .chat-message-row {
