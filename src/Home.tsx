@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./home.css";
-import axios from "axios";
 import heartImg from "./assets/hearts.png";
 import { Link, useSearchParams } from "react-router-dom";
 import { Book } from "./types/homeType";
 import { fetchPosts } from "./API/homeAPI";
 import { sampleBooks } from "./mockData/homeSample";
 
-const URL = import.meta.env.VITE_DOMAIN_URL;
-
-// 🔹 시간 변환 함수
 export function getTimeAgo(createdAt: string): string {
   const createdDate = new Date(createdAt);
   const now = new Date();
@@ -33,12 +29,13 @@ export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
+
+  // 현재 로드된 마지막 페이지 (0-based)
   const [pageNumber, setPageNumber] = useState(0);
 
   const [searchParams] = useSearchParams();
   const searchType = searchParams.get("type") || "bookName";
   const keyword = searchParams.get("keyword") || "";
-
 
   // 🔹 필터 상태
   const [grade, setGrade] = useState<number | null>(null);
@@ -47,74 +44,94 @@ export default function Home() {
   const [priceMin, setPriceMin] = useState<number | null>(null);
   const [priceMax, setPriceMax] = useState<number | null>(null);
 
-  // 🔹 게시글 불러오기
-  useEffect(() => {
-    console.log("📍 현재 URL:", window.location.href);
-    console.log("📍 searchType:", searchType, "keyword:", keyword);
-    const token = localStorage.getItem("accessToken");
-    console.log("home에서 토큰 불러오기 성공");
+  // 관찰용 ref (무한스크롤)
+  const observerRef = useRef<HTMLDivElement | null>(null);
 
-    const loadBooks = async () => {
-      setLoading(true);
-      try {
-        const params: any = { pageNumber };
+  // 현재 더 불러올 수 있는지
+  const hasMore = pageNumber < Math.max(0, totalPages - 1);
 
-        // 검색어가 있을 때만 추가
-        if (keyword.trim()) {
-          if (searchType === "bookName") params.bookName = keyword;
-          else if (searchType === "className") params.className = keyword;
-        }
+  // ---------- 공통 페치 함수 ----------
+  const fetchPage = async (page: number, append = false) => {
+    // page는 0-based로 서버에 전달합니다.
+    setLoading(true);
+    try {
+      const params: any = { page };
 
-        // 필터가 선택되어 있다면 추가
-        if (grade) params.grade = grade;
-        if (semester) params.semester = semester;
-        if (status) params.status = status;
-        if (priceMin) params.priceMin = priceMin;
-        if (priceMax) params.priceMax = priceMax;
+      if (keyword.trim()) {
+        if (searchType === "bookName") params.bookName = keyword;
+        else if (searchType === "className") params.className = keyword;
+      }
 
-        const res = await fetchPosts(params);
-        const data = res?.data;
+      if (grade) params.grade = grade;
+      if (semester) params.semester = semester;
+      if (status) params.status = status;
+      if (priceMin || priceMin === 0) params.priceMin = priceMin;
+      if (priceMax || priceMax === 0) params.priceMax = priceMax;
 
-        if (data?.content && Array.isArray(data.content)) {
-          setBooks(data.content);
-          setTotalPages(data.totalPages || 1);
+      // 서버 응답 형태에 따라 유연하게 처리:
+      // - fetchPosts가 axios response 전체를 반환하면 res.data가 실제 내용일 수 있고,
+      // - fetchPosts가 response.data를 바로 반환하면 res가 바로 내용일 수 있음.
+      const res = await fetchPosts(params);
+      const serverData = res?.data ?? res; // try res.data first, otherwise res
+
+      const content = serverData?.content ?? serverData ?? [];
+      const tp = serverData?.totalPages ?? totalPages ?? 1;
+
+      if (Array.isArray(content)) {
+        if (append) {
+          setBooks((prev) => [...prev, ...content]);
         } else {
-          setBooks([]);
+          setBooks(content);
         }
-      } catch (err) {
-        console.error("API 요청 에러:", err);
-        setBooks(sampleBooks); // Mock 데이터로 대체
-      } finally {
-        setLoading(false);
+      } else {
+        // 안전망: content가 배열이 아니면 빈 배열로 처리
+        if (!append) setBooks([]);
       }
-    };
 
-    loadBooks();
-  }, [
-    keyword,
-    searchType,
-    grade,
-    semester,
-    status,
-    priceMin,
-    priceMax,
-    pageNumber,
-  ]);
+      setTotalPages(tp);
+      setPageNumber(page);
+    } catch (err) {
+      console.error("API 요청 에러:", err);
+      if (!append) {
+        setBooks(sampleBooks); // 초기 로드 실패 시 목데이터로 대체
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  /*
-  // 🔹 로그인 확인
+  // ---------- 필터/검색어 변경 시: 페이지 초기화 후 첫 페이지 로드 ----------
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      try {
-        const response = await loginCheck();
-        console.log("✅ 로그인 상태:", response);
-      } catch (error) {
-        console.log("❌ 비로그인 상태:", error);
-      }
-    };
-    checkLoginStatus();
-  }, []);
-  */
+    // reset -> load page 0
+    setBooks([]);
+    setPageNumber(0);
+    setTotalPages(1);
+    fetchPage(0, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyword, searchType, grade, semester, status, priceMin, priceMax]);
+
+  // ---------- 무한 스크롤: 관찰요소가 보이면 다음 페이지 로드 ----------
+  useEffect(() => {
+    const el = observerRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !loading && hasMore) {
+          // 다음 페이지 요청 (append)
+          fetchPage(pageNumber + 1, true);
+        }
+      },
+      { threshold: 0.5 } // 조금 보이면 트리거 (원하면 1.0으로 바꿔도 됩니다)
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+    // pageNumber/hasMore/loading은 내부에서 참조되므로 의존성으로 넣지 않음(의도적으로),
+    // fetchPage는 항상 최신 상태를 사용하도록 설계됨.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [observerRef.current]);
 
   return (
     <div className="home-container">
@@ -212,7 +229,7 @@ export default function Home() {
 
       {/* 오른쪽 책 목록 */}
       <div className="book-list-container">
-        {loading ? (
+        {loading && books.length === 0 ? (
           <div className="status-text">🔍 검색 중입니다...</div>
         ) : books.length === 0 ? (
           <div className="status-text">책이 없습니다.</div>
@@ -245,9 +262,15 @@ export default function Home() {
             </Link>
           ))
         )}
+
+        {/* 관찰 요소: 이 요소가 보이면 다음 페이지를 불러옵니다 */}
+        <div ref={observerRef} style={{ height: 20 }} />
+
+        {/* 더 불러오는 중 (페이지가 이미 있던 상태에서 추가로 불러올 때) */}
+        {loading && books.length > 0 && (
+          <div className="status-text">📚 더 불러오는 중...</div>
+        )}
       </div>
     </div>
   );
 }
-
-  

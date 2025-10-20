@@ -28,7 +28,7 @@ export const fetchMessages = async (
     console.log("✅ 메시지 불러오기 성공:", res.data);
     return {
       myId: res.data.data.myId,
-      messages: res.data.data.messages,
+      messages: res.data.data.messages
     };
   } catch (err) {
     console.error("❌ 메시지 불러오기 실패:", err);

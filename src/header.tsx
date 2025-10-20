@@ -183,6 +183,7 @@ const Header: React.FC = () => {
   // ✅ 검색 버튼 클릭 시 "/"로 이동하면서 쿼리 전달
   const handleSearch = () => {
     if (!keyword.trim()) return;
+    console.log("키워드와 타입 전달");
     navigate(`/?type=${searchType}&keyword=${keyword}`);
   };
 

@@ -20,10 +20,6 @@ export const fetchPosts = async (params?: Record<string, any>) => {
 };
 
 
-
-
-
-
 /*
 // 로그인 상태 확인
 export const loginCheck = async () => {
