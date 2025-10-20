@@ -8,7 +8,11 @@ export const fetchPosts = async (params?: Record<string, any>) => {
   try {
     console.log("📡 [fetchPosts] 요청 파라미터 →", params);
 
-    // ✅ Axios가 자동으로 쿼리스트링 인코딩 처리함
+    // ✅ 쿼리스트링 직접 만들어서 경로 출력 (디버깅용)
+    const queryString = new URLSearchParams(params).toString();
+    console.log("🌐 [fetchPosts] 요청 경로 →", `/api/posts?${queryString}`);
+
+    // ✅ 실제 요청 (Axios가 자동으로 쿼리스트링 처리)
     const response = await api.get("/api/posts", { params });
 
     console.log("✅ [fetchPosts] 게시물 호출 결과:", response.data);
@@ -18,6 +22,7 @@ export const fetchPosts = async (params?: Record<string, any>) => {
     throw error;
   }
 };
+
 
 
 /*

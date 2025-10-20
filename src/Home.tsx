@@ -55,7 +55,11 @@ export default function Home() {
     // page는 0-based로 서버에 전달합니다.
     setLoading(true);
     try {
-      const params: any = { page };
+      const params: any = {
+        page: pageNumber,
+        size: 8,
+        sort: "createdAt,desc",
+      };
 
       if (keyword.trim()) {
         if (searchType === "bookName") params.bookName = keyword;
