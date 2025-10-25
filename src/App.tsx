@@ -16,54 +16,61 @@ import Chatlist from "./pages/chat/chatlist";
 import Chat from "./pages/chat/chat";
 import Find_password from "./pages/login & join/find_password";
 import Withdrawal from "./pages/mypage/withdrawal";
+import { Admin } from "./pages/admin/admin";
 import "./App.css";
 
-// 🔹 실제 콘텐츠를 렌더링하는 내부 컴포넌트
 function AppContent() {
   const location = useLocation();
 
-  // 특정 경로에서는 Header 숨김
+  // 🔹 Header 숨길 페이지 목록
   const hideHeaderPaths = ["/login", "/join", "/find_password"];
-  const shouldHideHeader = hideHeaderPaths.some((path) =>
+  const isHideHeader = hideHeaderPaths.some((path) =>
     location.pathname.startsWith(path)
   );
 
+  // 🔹 관리자 페이지 여부
+  const isAdminPage = location.pathname.startsWith("/admin");
+
   return (
     <div className="app-container">
-      {/* ✅ 헤더 (조건부 렌더링) */}
-      {!shouldHideHeader && <Header />}
-
-      {/* ✅ 메인 콘텐츠 영역 */}
-      <main className="app-main">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/join" element={<Join />} />
-          <Route path="/single/:postId" element={<Single />} />
-          <Route path="/mypage/like" element={<Like />} />
-          <Route path="/mypage/bought" element={<Bought />} />
-          <Route path="/mypage/selling_book" element={<Selling_book />} />
-          <Route path="/mypage/my_info" element={<My_info />} />
-          <Route path="/mypage/change_pw" element={<Change_pw />} />
-          <Route path="/mypage/edit_my_info" element={<EditMyInfo />} />
-          <Route path="/mypage/withdrawal" element={<Withdrawal />} />
-          <Route path="/upload" element={<Upload />} />
-          <Route path="/chatlist" element={<Chatlist />} />
-          <Route path="/chat/:roomId" element={<Chat />} />
-          <Route path="/find_password" element={<Find_password />} />
-        </Routes>
-      </main>
+      {isAdminPage ? (
+  
+          <Routes>
+            <Route path="/admin" element={<Admin />} />
+          </Routes>
+      ) : (
+        // ✅ 일반 사용자용 레이아웃
+        <>
+          {!isHideHeader && <Header />}
+          <main className="app-main">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/join" element={<Join />} />
+              <Route path="/single/:postId" element={<Single />} />
+              <Route path="/mypage/like" element={<Like />} />
+              <Route path="/mypage/bought" element={<Bought />} />
+              <Route path="/mypage/selling_book" element={<Selling_book />} />
+              <Route path="/mypage/my_info" element={<My_info />} />
+              <Route path="/mypage/change_pw" element={<Change_pw />} />
+              <Route path="/mypage/edit_my_info" element={<EditMyInfo />} />
+              <Route path="/mypage/withdrawal" element={<Withdrawal />} />
+              <Route path="/upload" element={<Upload />} />
+              <Route path="/chatlist" element={<Chatlist />} />
+              <Route path="/chat/:roomId" element={<Chat />} />
+              <Route path="/find_password" element={<Find_password />} />
+            </Routes>
+          </main>
+        </>
+      )}
     </div>
   );
 }
 
-// 🔹 BrowserRouter로 감싸는 루트 App
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <AppContent />
     </BrowserRouter>
   );
 }
-
-export default App;
