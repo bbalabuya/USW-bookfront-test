@@ -1,30 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Admin_header } from "./admin_header";
-import { ReportList } from "./reportList";
-import { getReportList } from "../../API/adminAPI";
-import { reportListType } from "../../types/report";
+import { ReportList } from "./report_selector";
+import "./admin.css"
 
 export const Admin = () => {
-  const [reports, setReports] = useState<reportListType[]>([]);
-
-  useEffect(() => {
-    const callReportList = async () => {
-      try {
-        const data = await getReportList();
-        setReports(data);
-      } catch (err) {
-        console.error("🚨 신고 목록 불러오기 실패:", err);
-      }
-    };
-    callReportList();
-  }, []);
-
   return (
-    <div className="admin-container">
+    <div className="admin-whole-container">
+      {/* 🔹 상단 헤더 */}
       <Admin_header />
-      <div className="admin-content-container">
-        <h2>관리자 전용 페이지</h2>
-        <ReportList  />
+
+      {/* 🔹 본문 (좌측 사이드바 + 우측 콘텐츠 영역) */}
+      <div className="admin-middle-container">
+        <div className="admin-selector">
+          <ReportList />
+        </div>
+        <div className="admin-right-container">
+          <h2>관리자 메인 콘텐츠</h2>
+          <p>여기에 선택된 항목의 세부 내용이 표시됩니다.</p>
+        </div>
       </div>
     </div>
   );

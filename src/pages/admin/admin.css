@@ -1,16 +1,36 @@
-.admin-container {
+.admin-whole-container {
   display: flex;
-  flex-direction: column; /* 🔸 세로 정렬 */
+  flex-direction: column; /* 헤더 위, 본문 아래 */
   width: 100%;
-  height: 100vh; /* 🔸 화면 전체 높이 채우기 */
-  overflow: hidden; /* 필요 시 스크롤바 깔끔하게 유지 */
+  height: 100vh;
+  margin: 0;
   padding: 0;
-    margin: 0;
+  overflow: hidden;
 }
 
-.admin-content-container {
-  flex: 1; /* 🔸 남은 공간 전부 차지 */
-  padding: 20px;
-  overflow-y: auto; /* 🔸 내용 많을 때 세로 스크롤 */
+/* 🔹 본문: 좌우로 배치 */
+.admin-middle-container {
+  display: flex; /* ✅ 가로 정렬로 변경 */
+  width: 100%;
+  height: auto;
+  flex: 1; /* ✅ 남은 공간 전부 차지 */
+  flex-direction: row; /* 좌우 배치 */
   background-color: #f5f5f5;
+}
+
+/* 🔹 좌측 메뉴 (ReportList 자리) */
+.admin-selector {
+  flex: 2; /* 화면의 약 20% 정도 */
+  border-right: 2px solid #ddd;
+  background-color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 🔹 우측 콘텐츠 영역 */
+.admin-right-container {
+  flex: 8; /* 화면의 약 80% */
+  padding: 30px;
+  background-color: #ffffff;
+  overflow-y: auto;
 }
