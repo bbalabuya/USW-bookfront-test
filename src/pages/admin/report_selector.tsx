@@ -1,27 +1,28 @@
-// src/pages/admin/reportList.tsx
-import React from "react";
-import { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { reportListType } from "../../types/report";
 import { getReportList } from "../../API/adminAPI";
 import { mockReportList } from "../../mockData/report";
 
-export const ReportList = () => {
-   const [reports, setReports] = useState<reportListType[]>([]);
-  
-    useEffect(() => {
-      const callReportList = async () => {
-        try {
-          const data = await getReportList();
-          console.log("✅ 신고 목록 불러오기 성공:", data);
-          setReports(data);
-        } catch (err) {
-          console.error("🚨 신고 목록 불러오기 실패:", err);
-          setReports(mockReportList) // 임시데이터
-        }
-      };
-      callReportList();
-    }, []);
+interface ReportListProps {
+  onSelectType: (type: string) => void;
+}
 
+export const ReportList = ({ onSelectType }: ReportListProps) => {
+  const [reports, setReports] = useState<reportListType[]>([]);
+
+  useEffect(() => {
+    const callReportList = async () => {
+      try {
+        const data = await getReportList();
+        console.log("✅ 신고 목록 불러오기 성공:", data);
+        setReports(data);
+      } catch (err) {
+        console.error("🚨 신고 목록 불러오기 실패:", err);
+        setReports(mockReportList); // 임시 데이터
+      }
+    };
+    callReportList();
+  }, []);
 
   return (
     <div className="report-list">
@@ -31,7 +32,11 @@ export const ReportList = () => {
       ) : (
         <ul>
           {reports.map((report, index) => (
-            <li key={index}>
+            <li
+              key={index}
+              className="report-item"
+              onClick={() => onSelectType(report.type)} // 🔹 클릭 시 타입 전달
+            >
               <strong>신고자:</strong> {report.reporterName} <br />
               <strong>신고 유형:</strong> {report.type} <br />
               <strong>신고 대상 ID:</strong> {report.reportedThingId} <br />
