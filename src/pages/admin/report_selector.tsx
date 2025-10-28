@@ -36,7 +36,16 @@ export const ReportList = ({ onSelectType }: ReportListProps) => {
             <li
               key={index}
               className="report-item"
-              onClick={() => onSelectType(report.type, report.reportedThingId)} // ✅ type + ID 함께 전달
+              onClick={() => {
+                console.log("🖱️ 클릭한 신고 항목:", {
+                  type: report.type,
+                  reportedThingId: report.reportedThingId,
+                  reporterName: report.reporterName,
+                });
+
+                // 부모(Admin)에게 전달
+                onSelectType(report.type, report.reportedThingId);
+              }}
             >
               <strong>신고자:</strong> {report.reporterName} <br />
               <strong>신고 유형:</strong> {report.type} <br />

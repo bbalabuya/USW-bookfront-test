@@ -1,13 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Admin_header } from "./admin_header";
 import { ReportList } from "./report_selector";
 import { AdminChatViewer } from "./admin_chat";
-import "./admin.css"
-
-
+import "./admin.css";
+import { AdminPostViewer } from "./admin_post";
 export const Admin = () => {
   const [selectedType, setSelectedType] = useState<string>("none");
   const [selectedThingId, setSelectedThingId] = useState<string | null>(null); // ✅ 통합 ID 변수
+
+  useEffect(() => {
+    console.log("🛠️ 선택된 신고 유형:", selectedType);
+    console.log("🛠️ 선택된 대상 ID:", selectedThingId);
+  }, [selectedType, selectedThingId]);
 
   // ✅ ReportList에서 클릭 시 호출되는 콜백
   const handleSelectType = (type: string, thingId: string) => {
@@ -32,9 +36,7 @@ export const Admin = () => {
 
           {selectedType === "post" && selectedThingId && (
             <>
-              <h2>게시글 신고 내역</h2>
-              <p>게시글 ID: {selectedThingId}</p>
-              <p>게시글 신고 관련 세부 정보를 표시합니다.</p>
+              <AdminPostViewer postId={selectedThingId} />
             </>
           )}
 

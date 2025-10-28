@@ -32,7 +32,7 @@ export const fetchMessages = async (
     };
   } catch (err) {
     console.error("❌ 메시지 불러오기 실패:", err);
-    return { myId: "", messages: [] };
+    throw err;
   }
 };
 
