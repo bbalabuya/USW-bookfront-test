@@ -72,6 +72,22 @@ export const sampleBooks: Book[] = [
     status: "판매중",
     createdAt: "2025-10-10T17:50:00",
     heart: 6,
-  },
+  },{
+    id: 9,
+    postImage: "https://picsum.photos/200/300?random=8",
+    title: "머신러닝을 위한 통계학",
+    postPrice: 16000,
+    status: "판매중",
+    createdAt: "2025-10-10T17:50:00",
+    heart: 6,
+  },{
+    id: 10,
+    postImage: "https://picsum.photos/200/300?random=8",
+    title: "머신러닝을 위한 통계학",
+    postPrice: 16000,
+    status: "판매중",
+    createdAt: "2025-10-10T17:50:00",
+    heart: 6,
+  }
 ];
 

@@ -1,10 +1,11 @@
+// src/components/admin/report_selector.tsx
 import React, { useEffect, useState } from "react";
 import { reportListType } from "../../types/report";
 import { getReportList } from "../../API/adminAPI";
 import { mockReportList } from "../../mockData/report";
 
 interface ReportListProps {
-  onSelectType: (type: string) => void;
+  onSelectType: (type: string, thingId: string) => void; // ✅ 콜백 타입 수정
 }
 
 export const ReportList = ({ onSelectType }: ReportListProps) => {
@@ -35,7 +36,7 @@ export const ReportList = ({ onSelectType }: ReportListProps) => {
             <li
               key={index}
               className="report-item"
-              onClick={() => onSelectType(report.type)} // 🔹 클릭 시 타입 전달
+              onClick={() => onSelectType(report.type, report.reportedThingId)} // ✅ type + ID 함께 전달
             >
               <strong>신고자:</strong> {report.reporterName} <br />
               <strong>신고 유형:</strong> {report.type} <br />

@@ -7,6 +7,7 @@
   align-items: center;
   width: 100%;
   min-height: 100vh;
+  height: 100vh;
   background-color: #f8f8fa;
   gap: 40px;
   box-sizing: border-box;
@@ -115,13 +116,14 @@
 ============================== */
 .book-list-container {
   flex: 1;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 24px;
   padding: 10px;
   background: transparent;
-  min-height: 80vh;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .status-text {
