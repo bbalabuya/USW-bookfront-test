@@ -10,14 +10,18 @@ interface AdminChatViewerProps {
 
 export const AdminChatViewer = ({ roomId }: AdminChatViewerProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [myID, setMyID] = useState<string>("");
+  const [reportedID, setReportedID] = useState<string>("");
 
   useEffect(() => {
     const loadChat = async () => {
-        setMessages(chatExampleMessages);
+      try {
         const response = await fetchMessages(roomId);
         setMessages(response.messages);
-        setMyID(response.myId);
+        setReportedID(response.myId);
+      } catch (error) {
+        console.error("❌ 채팅 내역 불러오기 실패:", error);
+        setMessages(chatExampleMessages); // Fallback to mock data on error
+      }
     };
 
     loadChat();
@@ -31,7 +35,7 @@ export const AdminChatViewer = ({ roomId }: AdminChatViewerProps) => {
             new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
         )
         .map((msg, index, arr) => {
-          const isMine = msg.senderId === myID;
+          const reportedUserMessage = msg.senderId === reportedID;
 
           const currentDate = new Date(msg.sentAt).toLocaleDateString("ko-KR", {
             year: "numeric",
@@ -59,11 +63,21 @@ export const AdminChatViewer = ({ roomId }: AdminChatViewerProps) => {
               )}
               <div
                 className={`chat-message-row ${
-                  isMine ? "mine" : "opponent"
+                  reportedUserMessage ? "mine" : "opponent"
                 }`}
               >
                 <div className="chat-bubble-row">
-                  {isMine ? (
+                  {reportedUserMessage ? (
+                    <>
+                      <div className="chat-bubble opponent">{msg.message}</div>
+                      <div className="chat-time">
+                        {new Date(msg.sentAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </>
+                  ) : (
                     <>
                       <div className="chat-time">
                         {new Date(msg.sentAt).toLocaleTimeString([], {
@@ -72,18 +86,6 @@ export const AdminChatViewer = ({ roomId }: AdminChatViewerProps) => {
                         })}
                       </div>
                       <div className="chat-bubble mine">{msg.message}</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="chat-bubble opponent">
-                        {msg.message}
-                      </div>
-                      <div className="chat-time">
-                        {new Date(msg.sentAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
                     </>
                   )}
                 </div>
