@@ -105,8 +105,9 @@ const Chat = () => {
     try {
       // 🖼️ 1️⃣ 이미지가 있다면 먼저 REST로 전송
       if (hasImage) {
+        const senderId = myID;
         console.log("🖼️ 이미지 전송 시도:", selectedFile?.name);
-        const sentImg = await sendImageApi(roomId, selectedFile!, myID);
+        const sentImg = await sendImageApi(roomId, selectedFile!, senderId);
 
         console.log("✅ 이미지 전송 성공:", sentImg);
         setSelectedFile(null);
