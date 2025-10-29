@@ -338,13 +338,50 @@ const Chat = () => {
                             minute: "2-digit",
                           })}
                         </div>
-                        <div className="chat-bubble mine">{msg.message}</div>
+
+                        {/* 🖼️ 메시지에 이미지가 있으면 먼저 출력 */}
+                        {msg.imageUrl && (
+                          <div className="chat-image-bubble mine">
+                            <img
+                              src={msg.imageUrl}
+                              alt="전송된 이미지"
+                              className="chat-image"
+                              onError={(e) =>
+                                ((e.target as HTMLImageElement).src =
+                                  "https://via.placeholder.com/150?text=Image+Not+Found")
+                              }
+                            />
+                          </div>
+                        )}
+
+                        {/* 💬 텍스트 메시지 출력 */}
+                        {msg.message && (
+                          <div className="chat-bubble mine">{msg.message}</div>
+                        )}
                       </>
                     ) : (
                       <>
-                        <div className="chat-bubble opponent">
-                          {msg.message}
-                        </div>
+                        {/* 상대방 메시지 */}
+                        {msg.imageUrl && (
+                          <div className="chat-image-bubble opponent">
+                            <img
+                              src={msg.imageUrl}
+                              alt="상대방 이미지"
+                              className="chat-image"
+                              onError={(e) =>
+                                ((e.target as HTMLImageElement).src =
+                                  "https://via.placeholder.com/150?text=Image+Not+Found")
+                              }
+                            />
+                          </div>
+                        )}
+
+                        {msg.message && (
+                          <div className="chat-bubble opponent">
+                            {msg.message}
+                          </div>
+                        )}
+
                         <div className="chat-time">
                           {new Date(msg.sentAt).toLocaleTimeString([], {
                             hour: "2-digit",

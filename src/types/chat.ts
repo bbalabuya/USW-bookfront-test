@@ -9,6 +9,8 @@ export interface ChatMessage {
   senderId: string;
   message: string;
   sentAt: string;
+  imageUrl: string | null;
+  isRead: boolean;
 }
 
 export interface ChatHistoryResponse {

@@ -336,3 +336,25 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+.chat-image-bubble {
+  max-width: 200px;
+  margin: 4px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.chat-image-bubble.mine {
+  align-self: flex-end;
+}
+
+.chat-image-bubble.opponent {
+  align-self: flex-start;
+}
+
+.chat-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
