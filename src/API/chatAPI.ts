@@ -59,7 +59,7 @@ export const sendMessageApi = async (
   }
 };
 
-// 이미지 전송
+// ✅ 올바른 파일 업로드용 코드
 export const sendImageApi = async (
   roomId: string,
   file: File,
@@ -69,14 +69,17 @@ export const sendImageApi = async (
     const formData = new FormData();
     formData.append("image", file);
     formData.append("senderId", senderId);
+    formData.append("roomId", roomId);
 
+    // ✅ 경로 수정 (파일 업로드용)
     const res = await api.post<ChatMessage>(
-      `/api/chat/rooms/${roomId}/images`,
+      `/api/chat/rooms/images`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
     );
+
     console.log("✅ 이미지 전송 성공:", res.data);
     return res.data;
   } catch (err) {
@@ -84,6 +87,7 @@ export const sendImageApi = async (
     return null;
   }
 };
+
 
 /**
  * 📌 신고하기

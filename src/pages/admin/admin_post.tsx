@@ -7,7 +7,7 @@ import "./admin_post_css.css";
 import { Book } from "../../types/singleType";
 
 export const AdminPostViewer = ({ postId }: { postId: string }) => {
-  const [book, setBook] = useState<any>(null);
+  const [book, setBook] = useState<Book>();
 
   useEffect(() => {
     const loadPostContent = async () => {

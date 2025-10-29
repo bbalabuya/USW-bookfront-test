@@ -25,16 +25,13 @@
   flex-direction: column;
   border-right: 2px solid #ddd;
   background-color: #fff;
-
   box-sizing: border-box;
 }
 
 /* 🔹 우측 콘텐츠 영역 */
 .admin-right-container {
-  flex: 8;
-  padding: 0; /* ✅ 내부 여백 제거 (안에서 개별 패딩 처리) */
+  flex: 8; /* 화면의 약 80% */
+  padding: 30px;
   background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* ✅ 여기선 스크롤 제거 */
+  overflow-y: auto;
 }
