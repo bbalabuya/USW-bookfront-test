@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react"; // ✅ useRef import
 import { useParams } from "react-router-dom";
 import {
   enterChatRoom,
@@ -20,22 +20,21 @@ const BASE_IMAGE_URL = "https://api.stg.subook.shop/";
 
 // ✅ 상대 경로를 완전한 URL로 변환하는 유틸리티 함수
 const getImageUrl = (path: string | undefined): string | undefined => {
-    if (!path) return undefined;
+  if (!path) return undefined;
 
-    // 이미 http:// 또는 https:// 로 시작하는 완전한 URL인 경우 그대로 반환
-    if (path.startsWith("http://") || path.startsWith("https://")) {
-      return path;
-    }
+  // 이미 http:// 또는 https:// 로 시작하는 완전한 URL인 경우 그대로 반환
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
 
-    // BASE_IMAGE_URL이 슬래시(/)로 끝나고 path가 슬래시(/)로 시작하면 중복 제거
-    let combinedPath = `${BASE_IMAGE_URL}${path}`;
-    if (BASE_IMAGE_URL.endsWith("/") && path.startsWith("/")) {
-      combinedPath = `${BASE_IMAGE_URL}${path.substring(1)}`;
-    }
+  // BASE_IMAGE_URL이 슬래시(/)로 끝나고 path가 슬래시(/)로 시작하면 중복 제거
+  let combinedPath = `${BASE_IMAGE_URL}${path}`;
+  if (BASE_IMAGE_URL.endsWith("/") && path.startsWith("/")) {
+    combinedPath = `${BASE_IMAGE_URL}${path.substring(1)}`;
+  }
 
-    return combinedPath;
+  return combinedPath;
 };
-
 
 const Chat = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -50,6 +49,9 @@ const Chat = () => {
 
   const [myID, setMyID] = useState<string>("");
   const [stompClient, setStompClient] = useState<Client | null>(null); // STOMP client 상태 저장
+
+  // ✅ 1. 채팅 화면 DOM 요소를 참조하기 위한 ref 추가
+  const chatScreenRef = useRef<HTMLDivElement>(null);
 
   // 신고 사유 목록
   const reportReasons = [
@@ -277,6 +279,15 @@ const Chat = () => {
     };
   }, [roomId]);
 
+  // ✅ 3. 메시지 목록이 업데이트될 때마다 최하단으로 스크롤 (추가된 부분)
+  useEffect(() => {
+    if (chatScreenRef.current) {
+      chatScreenRef.current.scrollTop = chatScreenRef.current.scrollHeight;
+      // scrollIntoView를 사용한 부드러운 스크롤도 가능합니다:
+      // chatScreenRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [messages]);
+
   //======================================JSX 부분======================================//
 
   return (
@@ -313,7 +324,8 @@ const Chat = () => {
       </div>
 
       {/* 🔽 중앙 채팅 화면 */}
-      <div className="chat-message-screen">
+      {/* ✅ 2. ref를 chat-message-screen 요소에 연결 */}
+      <div className="chat-message-screen" ref={chatScreenRef}>
         {messages
           .sort(
             (a, b) =>
