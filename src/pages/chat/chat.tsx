@@ -15,6 +15,28 @@ import sendImg from "../../assets/send.png";
 import { chatExampleMessages } from "../../mockData/chatMessage";
 import { Client } from "@stomp/stompjs";
 
+// ✅ 이미지의 기본 경로 정의 (수정된 부분 1)
+const BASE_IMAGE_URL = "https://api.stg.subook.shop/";
+
+// ✅ 상대 경로를 완전한 URL로 변환하는 유틸리티 함수
+const getImageUrl = (path: string | undefined): string | undefined => {
+    if (!path) return undefined;
+    
+    // 이미 http:// 또는 https:// 로 시작하는 완전한 URL인 경우 그대로 반환
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
+
+    // BASE_IMAGE_URL이 슬래시(/)로 끝나고 path가 슬래시(/)로 시작하면 중복 제거
+    let combinedPath = `${BASE_IMAGE_URL}${path}`;
+    if (BASE_IMAGE_URL.endsWith('/') && path.startsWith('/')) {
+        combinedPath = `${BASE_IMAGE_URL}${path.substring(1)}`;
+    }
+    
+    return combinedPath;
+};
+
+
 const Chat = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -340,11 +362,11 @@ const Chat = () => {
                           })}
                         </div>
 
-                        {/* 🖼️ 이미지가 있는 경우 */}
+                        {/* 🖼️ 이미지가 있는 경우 (수정된 부분 2) */}
                         {msg.imageUrl && (
                           <div className="chat-image-bubble mine">
                             <img
-                              src={msg.imageUrl}
+                              src={getImageUrl(msg.imageUrl)} // 👈 getImageUrl 함수 사용
                               alt="보낸 이미지"
                               className="chat-image"
                               onError={(e) =>
@@ -362,11 +384,11 @@ const Chat = () => {
                       </>
                     ) : (
                       <>
-                        {/* 🖼️ 이미지가 있는 경우 */}
+                        {/* 🖼️ 이미지가 있는 경우 (수정된 부분 3) */}
                         {msg.imageUrl && (
                           <div className="chat-image-bubble opponent">
                             <img
-                              src={msg.imageUrl}
+                              src={getImageUrl(msg.imageUrl)} // 👈 getImageUrl 함수 사용
                               alt="상대방 이미지"
                               className="chat-image"
                               onError={(e) =>
