@@ -68,7 +68,7 @@ export const sendImageApi = async (
   try {
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("senderId", senderId);
+    //formData.append("senderId", senderId);
     formData.append("roomId", roomId);
     console.log("✅ FormData 준비 완료:", formData);
 
