@@ -1,0 +1,21 @@
+.report-list{
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 20;
+    list-style-type: none;
+
+}
+
+.report-items{
+    display: flex;
+    flex-direction: column;
+    
+    
+}
+
+.report-item{
+    border: 1px solid #ccc;
+    padding: 10px;
+    cursor: pointer;
+}

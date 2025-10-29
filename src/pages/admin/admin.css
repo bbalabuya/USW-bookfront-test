@@ -20,10 +20,12 @@
 
 /* 🔹 좌측 메뉴 (ReportList 자리) */
 .admin-selector {
+  display: flex;
   flex: 2; /* 화면의 약 20% 정도 */
+  flex-direction: column;
   border-right: 2px solid #ddd;
   background-color: #fff;
-  padding: 20px;
+
   box-sizing: border-box;
 }
 

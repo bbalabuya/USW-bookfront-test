@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { reportListType } from "../../types/report";
 import { getReportList } from "../../API/adminAPI";
 import { mockReportList } from "../../mockData/report";
+import "./report_selector.css";
 
 interface ReportListProps {
   onSelectType: (type: string, thingId: string) => void; // ✅ 콜백 타입 수정
@@ -27,13 +28,13 @@ export const ReportList = ({ onSelectType }: ReportListProps) => {
 
   return (
     <div className="report-list">
-      <h3>신고 목록</h3>
+      <h3 style={{ padding: "0 10px" }}>신고 목록</h3>
       {reports.length === 0 ? (
         <p>신고 내역이 없습니다.</p>
       ) : (
-        <ul>
+        <div className="report-items">
           {reports.map((report, index) => (
-            <li
+            <div
               key={index}
               className="report-item"
               onClick={() => {
@@ -51,9 +52,9 @@ export const ReportList = ({ onSelectType }: ReportListProps) => {
               <strong>신고 유형:</strong> {report.type} <br />
               <strong>신고 대상 ID:</strong> {report.reportedThingId} <br />
               <strong>사유:</strong> {report.resason}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
