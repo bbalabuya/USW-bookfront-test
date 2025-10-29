@@ -330,6 +330,7 @@ const Chat = () => {
                   className={`chat-message-row ${isMine ? "mine" : "opponent"}`}
                 >
                   <div className="chat-bubble-row">
+                    {/* 내가 보낸 메시지 */}
                     {isMine ? (
                       <>
                         <div className="chat-time">
@@ -339,12 +340,12 @@ const Chat = () => {
                           })}
                         </div>
 
-                        {/* 🖼️ 메시지에 이미지가 있으면 먼저 출력 */}
+                        {/* 🖼️ 이미지가 있는 경우 */}
                         {msg.imageUrl && (
                           <div className="chat-image-bubble mine">
                             <img
                               src={msg.imageUrl}
-                              alt="전송된 이미지"
+                              alt="보낸 이미지"
                               className="chat-image"
                               onError={(e) =>
                                 ((e.target as HTMLImageElement).src =
@@ -354,14 +355,14 @@ const Chat = () => {
                           </div>
                         )}
 
-                        {/* 💬 텍스트 메시지 출력 */}
+                        {/* 💬 텍스트가 있는 경우 */}
                         {msg.message && (
                           <div className="chat-bubble mine">{msg.message}</div>
                         )}
                       </>
                     ) : (
                       <>
-                        {/* 상대방 메시지 */}
+                        {/* 🖼️ 이미지가 있는 경우 */}
                         {msg.imageUrl && (
                           <div className="chat-image-bubble opponent">
                             <img
@@ -376,6 +377,7 @@ const Chat = () => {
                           </div>
                         )}
 
+                        {/* 💬 텍스트가 있는 경우 */}
                         {msg.message && (
                           <div className="chat-bubble opponent">
                             {msg.message}
