@@ -70,6 +70,7 @@ export const sendImageApi = async (
     formData.append("image", file);
     formData.append("senderId", senderId);
     formData.append("roomId", roomId);
+    console.log("✅ FormData 준비 완료:", formData);
 
     // ✅ 경로 수정 (파일 업로드용)
     const res = await api.post<ChatMessage>(
