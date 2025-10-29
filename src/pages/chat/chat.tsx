@@ -20,17 +20,20 @@ const BASE_IMAGE_URL = "https://api.stg.subook.shop/";
 
 // ✅ 상대 경로를 완전한 URL로 변환하는 유틸리티 함수
 const getImageUrl = (path: string | undefined): string | undefined => {
-  if (!path) return undefined;
+    if (!path) return undefined;
 
-  // 이미 http:// 또는 https:// 로 시작하는 완전한 URL인 경우 그대로 반환
-  if (path.startsWith("http://") || path.startsWith("https://")) {
-    return path;
-  }
+    // 이미 http:// 또는 https:// 로 시작하는 완전한 URL인 경우 그대로 반환
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+      return path;
+    }
 
-  // BASE_IMAGE_URL과 path를 연결
-  // path가 "/"로 시작하면 BASE_IMAGE_URL 뒤에 바로 붙임
-  // 예: "https://api.stg.subook.shop" + "/chat-images/..."
-  return `${BASE_IMAGE_URL}${path}`;
+    // BASE_IMAGE_URL이 슬래시(/)로 끝나고 path가 슬래시(/)로 시작하면 중복 제거
+    let combinedPath = `${BASE_IMAGE_URL}${path}`;
+    if (BASE_IMAGE_URL.endsWith("/") && path.startsWith("/")) {
+      combinedPath = `${BASE_IMAGE_URL}${path.substring(1)}`;
+    }
+
+    return combinedPath;
 };
 
 
