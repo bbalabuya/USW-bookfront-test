@@ -73,13 +73,7 @@ export const sendImageApi = async (
     console.log("✅ FormData 준비 완료:", formData);
 
     // ✅ 경로 수정 (파일 업로드용)
-    const res = await api.post<ChatMessage>(
-      `/api/chat/rooms/images`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+    const res = await api.post<ChatMessage>(`/api/chat/rooms/images`, formData);
 
     console.log("✅ 이미지 전송 성공:", res.data);
     return res.data;
