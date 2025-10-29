@@ -84,19 +84,40 @@ const Chat = () => {
     setSelectedImg(undefined);
   };
 
-  // 메시지 전송
-  const sendMessage = async () => {
-    if (!roomId) return console.log("❌ roomId 없음");
+  // 메시지 전송 함수
+const sendMessage = async () => {
+  if (!roomId) return console.error("❌ roomId 없음");
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
 
-    // 텍스트 전송 (STOMP)
-    if (inputMessage.trim() && stompClient) {
-      console.log("💬 STOMP 텍스트 메시지 전송 시도:", inputMessage);
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        console.error("❌ accessToken 없음");
-        return;
-      }
-      try {
+  const hasImage = !!selectedFile;
+  const hasText = inputMessage.trim().length > 0;
+
+  // ⚙️ 예외 처리
+  if (!hasImage && !hasText) {
+    alert("전송할 내용이 없습니다.");
+    return;
+  }
+
+  try {
+    // 🖼️ 1️⃣ 이미지가 있다면 먼저 REST로 전송
+    if (hasImage) {
+      console.log("🖼️ 이미지 전송 시도:", selectedFile?.name);
+      const sentImg = await sendImageApi(roomId, selectedFile!, myID);
+
+      console.log("✅ 이미지 전송 성공:", sentImg);
+      setSelectedFile(null);
+      setSelectedImg(undefined);
+
+      // 서버가 STOMP로 브로드캐스트하지 않는다면 직접 추가
+      // setMessages((prev) => [...prev, sentImg]);
+
+      // 💬 2️⃣ 이미지 성공 후 텍스트도 있다면 STOMP로 전송
+      if (hasText && stompClient && stompClient.connected) {
+        console.log("💬 이미지 전송 성공 후 텍스트 전송:", inputMessage);
         stompClient.publish({
           destination: "/pub/chat.send",
           body: JSON.stringify({
@@ -105,31 +126,30 @@ const Chat = () => {
             senderId: myID || "me",
           }),
         });
-        setInputMessage(""); // 입력창 초기화
-      } catch (err) {
-        console.error("❌ STOMP 텍스트 메시지 전송 실패", err);
+        setInputMessage("");
       }
+      return; // ✅ 이미지가 있었던 경우에는 여기서 종료
     }
 
-    // 이미지 전송 (REST 그대로 유지)
-    if (selectedFile) {
-      console.log("🖼️ 이미지 메시지 전송 시도:", selectedFile.name);
-      try {
-        if (!myID) throw new Error("❌ myID 없음");
-
-        const sentImg = await sendImageApi(roomId, selectedFile, myID);
-        if (sentImg) {
-          console.log("✅ 이미지 전송 성공:", sentImg);
-          setMessages((prev) => [...prev, sentImg]);
-        }
-
-        setSelectedFile(null);
-        setSelectedImg(undefined);
-      } catch (err) {
-        console.error("❌ 이미지 전송 실패", err);
-      }
+    // 💬 3️⃣ 이미지가 없고 텍스트만 있는 경우
+    if (hasText && stompClient && stompClient.connected) {
+      console.log("💬 텍스트 전송:", inputMessage);
+      stompClient.publish({
+        destination: "/pub/chat.send",
+        body: JSON.stringify({
+          roomId,
+          message: inputMessage,
+          senderId: myID || "me",
+        }),
+      });
+      setInputMessage("");
     }
-  };
+  } catch (err) {
+    console.error("❌ 메시지 전송 실패:", err);
+    alert("메시지 전송 중 오류가 발생했습니다.");
+  }
+};
+
 
   // 1️⃣ 초기 메시지 로드 (REST API)
   useEffect(() => {

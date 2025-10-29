@@ -3,7 +3,8 @@ import styled from "styled-components";
 import { Admin } from "./admin";
 
 const Admin_header_css = styled.div`
-     width: 100%;
+    width: 100%;
+    min-height: 70px;
   height: 70px;
   background-color: #f8f8f8;
   border-bottom: 3px solid rgb(255, 0, 0);
