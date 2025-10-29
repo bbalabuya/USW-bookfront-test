@@ -180,6 +180,7 @@ const Chat = () => {
           count: messages ? messages.length : 0,
         });
         setMyID(myId);
+        console.log("내 ID:", myId);
 
         // ✅ 시간순 정렬 (sentAt 기준)
         const sortedMessages = [...messages].sort(
