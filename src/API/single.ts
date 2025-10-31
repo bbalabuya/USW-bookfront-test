@@ -10,7 +10,7 @@ export const fetchBookDetail = async (postId: string): Promise<Book | null> => {
     console.groupCollapsed("📡 게시글 상세 요청 시작");
     const res = await api.get<Book>(`/api/posts/${postId}`);
     console.info("✅ 게시글 불러오기 성공");
-    console.debug("응답 데이터:", res.data);
+    console.log("응답 데이터:", res.data);
     return res.data;
   } catch (err) {
     console.error("❌ 게시글 불러오기 실패:", err);
