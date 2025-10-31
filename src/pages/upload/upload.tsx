@@ -75,15 +75,15 @@ const Upload = () => {
       const formData = new FormData();
 
       // 텍스트 데이터 추가
-      formData.append("title", title);
       formData.append("postName", postName);
+      formData.append("title", title);
       // postPrice를 int로 변환하여 추가 (숫자가 아니거나 비어있으면 0으로 처리)
       const priceInt = parseInt(postPrice.replace(/,/g, '')); // 쉼표 제거 후 파싱
       formData.append("postPrice", String(isNaN(priceInt) ? 0 : priceInt)); 
       formData.append("professor", professor);
       formData.append("courseName", courseName);
-      formData.append("grade", String(grade));
-      formData.append("semester", String(semester));
+      formData.append("grade", String(grade)); // formdata가 문자열만 허용 -> 서버에서 자동변경된다고 함
+      formData.append("semester", String(semester)); // formdata가 문자열만 허용 -> 서버에서 자동변경된다고 함
       formData.append("content", content);
       formData.append("majorId", majorId);
 
@@ -91,7 +91,7 @@ const Upload = () => {
       postImage.forEach((file) => {
         formData.append("postImage", file);
       });
-
+      console.log("✅ [handleSubmit] FormData 준비 완료:", formData);
       const res = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
         headers: {
