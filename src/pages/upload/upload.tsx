@@ -62,56 +62,64 @@ const Upload = () => {
     });
   };
 
-  /** 🧾 게시글 업로드 (이미지 필수, multipart/form-data 통일) */
-  const handleSubmit = async () => {
-    try {
-      // ✅ 이미지 필수 유효성 검사
-      if (postImage.length === 0) {
-        alert("⚠️ 최소 1장의 이미지를 등록해야 합니다.");
-        return;
-      }
+  /** 🧾 게시글 업로드 (이미지 필수, multipart/form-data 통일, 숫자 타입 유지) */
+  const handleSubmit = async () => {
+    try {
+      // ✅ 이미지 필수 유효성 검사
+      if (postImage.length === 0) {
+        alert("⚠️ 최소 1장의 이미지를 등록해야 합니다.");
+        return;
+      }
 
-      const token = localStorage.getItem("accessToken");
-      const formData = new FormData();
+      const token = localStorage.getItem("accessToken");
+      const formData = new FormData();
 
-      // 텍스트 데이터 추가
-      formData.append("postName", postName);
-      formData.append("title", title);
-      // postPrice를 int로 변환하여 추가 (숫자가 아니거나 비어있으면 0으로 처리)
-      const priceInt = parseInt(postPrice.replace(/,/g, '')); // 쉼표 제거 후 파싱
-      formData.append("postPrice", String(isNaN(priceInt) ? 0 : priceInt)); 
-      formData.append("professor", professor);
-      formData.append("courseName", courseName);
-      formData.append("grade", String(grade)); // formdata가 문자열만 허용 -> 서버에서 자동변경된다고 함
-      formData.append("semester", String(semester)); // formdata가 문자열만 허용 -> 서버에서 자동변경된다고 함
-      formData.append("content", content);
-      formData.append("majorId", majorId);
+      // 1. 숫자 타입이 필요한 필드를 포함하여 모든 텍스트 데이터를 JSON 객체로 구성
+      const priceInt = parseInt(postPrice.replace(/,/g, ''));
+      const postData = {
+        title,
+        postName,
+        // ✅ 숫자 타입 유지
+        postPrice: isNaN(priceInt) ? 0 : priceInt, 
+        professor,
+        courseName,
+        grade: grade, // Number 타입
+        semester: semester, // Number 타입
+        content,
+        majorId,
+      };
 
-      // 이미지 파일 추가 (최대 5장)
-      postImage.forEach((file) => {
-        formData.append("postImage", file);
-      });
-      console.log("✅ [handleSubmit] FormData 준비 완료:", formData);
-      const res = await fetch(`${API_URL}/api/posts`, {
-        method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-        body: formData,
-      });
+      // 2. JSON 문자열로 변환하여 'data' (혹은 'request') 필드에 추가
+      formData.append("data", JSON.stringify(postData));
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`업로드 실패: ${res.status} - ${errorText}`);
-      }
+      // 3. 이미지 파일은 별도로 추가
+      postImage.forEach((file) => {
+        formData.append("postImage", file);
+      });
+      
+      console.log("✅ [handleSubmit] FormData 준비 완료 (JSON 포함):", formData);
 
-      alert("📸 게시글이 성공적으로 업로드되었습니다.");
-      navigate("/");
-    } catch (err) {
-      alert("업로드 중 오류가 발생했습니다.");
-      console.error("❌ [handleSubmit] 업로드 실패:", err);
-    }
-  };
+      const res = await fetch(`${API_URL}/api/posts`, {
+        method: "POST",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        // 에러 로그에 서버 응답 본문 포함
+        throw new Error(`업로드 실패: ${res.status} - ${errorText}`); 
+      }
+
+      alert("📸 게시글이 성공적으로 업로드되었습니다.");
+      navigate("/");
+    } catch (err) {
+      alert("업로드 중 오류가 발생했습니다.");
+      console.error("❌ [handleSubmit] 업로드 실패:", err);
+    }
+  };
 
   /** 🎓 전공 목록 불러오기 */
   useEffect(() => {
