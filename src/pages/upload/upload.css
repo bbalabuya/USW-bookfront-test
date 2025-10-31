@@ -1,79 +1,162 @@
+/* 📦 전체 업로드 페이지 컨테이너 */
 .upload-whole-container {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   display: flex;
-  flex-direction: row; /* ✅ 가로 정렬 */
+  flex-direction: row; 
   justify-content: center;
   align-items: flex-start;
-  gap: 40px; /* 좌우 간격 */
-  width: 60%;
-  min-height: calc(100vh - 103px);
+  gap: 40px; 
+  width: 80%; /* 컨테이너 너비를 조금 넓혀 중앙 이미지 공간 확보 */
+  max-width: 1200px;
   padding: 30px;
   border: 1px solid #b516ff;
   box-sizing: border-box;
   overflow-y: auto;
 }
 
-/* 왼쪽 이미지 영역 */
+/* 🎨 왼쪽 이미지 영역 (변경) */
 .upload-left-container {
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column; /* 세로 정렬: 메인 이미지 -> 썸네일 */
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
+  max-width:700px; /* 최대 너비 제한 */
+  box-sizing: border-box;
 }
 
-.img-upload-set {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2열 */
-  grid-template-rows: repeat(2, 1fr);   /* 2행 (선택사항) */
-  width: 100%; /* ✅ 부모의 가로 공간 전부 사용 */
-  height: 100%;
-  gap: 15px; /* 박스 간 간격 */
-}
-
-.img-slot {
-  width: 100%; /* ✅ 셀 내부 가로 전부 채우기 */
-  aspect-ratio: 1 / 1; /* ✅ 정사각형 유지 (150px 대신 유연하게) */
-  border: 1px dashed gray;
-  position: relative;
-  border-radius: 10px;
+/* 🖼 중앙에 크게 표시되는 이미지 영역 */
+.main-image-display {
+  width: 100%;
+  max-width: 450px; 
+  height: 350px; 
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
+.uploaded-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 이미지가 잘리지 않고 전체 보이도록 */
+}
 
-.upload-icon {
-  position: absolute;
-  width: 50%;
-  height: 50%;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+.empty-main-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 14px;
+}
+
+.upload-icon-large {
+  width: 80px;
+  height: 80px;
+  opacity: 0.4;
+  margin-bottom: 10px;
+}
+
+/* 🔳 하단 썸네일 목록 */
+.thumbnail-upload-set {
+  display: flex;
+  flex-wrap: nowrap; 
+  gap: 5px; 
+  width: 100%;
+justify-content: center;
+  overflow-x: auto; 
+  padding-bottom: 5px;
+}
+
+.thumbnail-slot {
+  width: 80px; 
+  height: 80px; 
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0; 
+  transition: border 0.2s;
+}
+
+.thumbnail-slot.selected {
+  border: 3px solid #b516ff; /* 선택된 썸네일 강조 색상 */
+}
+
+.thumbnail-slot.empty {
+  background-color: #f9f9f9;
+}
+
+.empty-thumbnail-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
 }
 
-.uploaded-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10px;
+.upload-thumbnail-icon {
+  width: 30px;
+  height: 30px;
+  opacity: 0.5;
 }
 
+.no-upload-slot {
+  /* 5장 가득 찼을 때 빈 슬롯에 대한 스타일 */
+  width: 100%;
+  height: 100%;
+  background-color: #e0e0e0;
+}
+
+.thumbnail-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.uploaded-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+}
+
+/* ❌ 삭제 버튼 스타일 조정 */
 .delete-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 2px;
+  right: 2px;
   background: rgba(0,0,0,0.6);
   color: white;
   border: none;
   border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  font-size: 14px;
-  padding: 3px 7px;
+  z-index: 10;
+  padding: 0;
 }
 
-/* 오른쪽 입력 폼 영역 */
+.delete-btn:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* 📝 오른쪽 입력 폼 영역 (기존 스타일 유지 및 textarea 수정) */
 .upload-right-container {
   flex: 1;
   display: flex;
@@ -94,15 +177,19 @@
 }
 
 .enter-box,
-.enter-info-box,
 .enter-professor {
   border: 1px solid gray;
   border-radius: 8px;
   padding: 8px;
 }
 
+/* 📚 책의 상태: textarea로 변경 */
 .enter-info-box {
-  height: 80px;
+  border: 1px solid gray;
+  border-radius: 8px;
+  padding: 8px;
+  height: 100px; /* 높이 증가 */
+  resize: vertical; /* 세로 크기 조절 가능 */
 }
 
 .upload-select-set {
@@ -118,6 +205,7 @@
   font-size: 15px;
 }
 
+/* 💾 업로드 버튼 */
 .save-upload-button {
   margin-top: 10px;
   padding: 12px;
@@ -129,12 +217,15 @@
   cursor: pointer;
 }
 
-
 .course-professor-container {
   width: 100%;
   display: flex;
   flex-direction: row;
-  align-items: center; /* 세로 중앙 정렬 (선택사항) */
   gap: 10px;
-  justify-content: space-between; /* 좌우 끝 정렬 */
+  justify-content: space-between;
+}
+
+/* 강의명과 교수명 입력 필드가 동일한 너비를 갖도록 조정 */
+.course-professor-container .enter-title-set {
+  flex: 1;
 }

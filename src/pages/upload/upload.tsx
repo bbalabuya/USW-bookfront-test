@@ -1,98 +1,111 @@
 import React, { useEffect, useState } from "react";
 import "./upload.css";
-import imgUpload from "../../assets/imgUpload.png";
+import imgUpload from "../../assets/imgUpload.png"; // 카메라 아이콘
 import { useNavigate } from "react-router-dom";
-import {getMajorList} from "../../API/uploadAPI";
+import { getMajorList } from "../../API/uploadAPI";
 
 const API_URL = import.meta.env.VITE_DOMAIN_URL;
+const MAX_IMAGES = 5; // 최대 이미지 개수
 
 const Upload = () => {
   const [postName, setPostName] = useState("");
   const [title, setTitle] = useState("");
-  const [postPrice, setPostPrice] = useState("");
+  const [postPrice, setPostPrice] = useState(""); // 문자열로 받되, 전송 시 숫자로 변환
   const [content, setContent] = useState("");
   const [professor, setProfessor] = useState("");
   const [courseName, setCourseName] = useState("");
   const [grade, setGrade] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
-  const [postImage, setPostImage] = useState<File[]>([]);
-  const [majorList, setMajorList] = useState<{ id: string; name: string }[]>(
-    []
-  );
+  const [postImage, setPostImage] = useState<File[]>([]); // 원본 File 객체 저장
+  const [majorList, setMajorList] = useState<{ id: string; name: string }[]>([]);
   const [majorId, setMajorId] = useState("");
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null); // 중앙에 크게 보여줄 이미지 인덱스
 
   const navigate = useNavigate();
 
   /** 📸 이미지 업로드 */
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
+
     const files = Array.from(e.target.files);
-    setPostImage((prev) => [...prev, ...files].slice(0, 4)); // 최대 4장
+    // 현재 이미지 개수 + 새로 추가할 이미지 개수가 MAX_IMAGES를 넘지 않도록
+    const newImages = [...postImage, ...files].slice(0, MAX_IMAGES);
+    setPostImage(newImages);
+
+    // 새 이미지가 추가되었고, 현재 선택된 이미지가 없거나(null) 유효하지 않다면 첫 이미지를 선택
+    if (newImages.length > 0 && (selectedImageIndex === null || newImages[selectedImageIndex] === undefined)) {
+      setSelectedImageIndex(0);
+    }
+    // 인풋 파일 초기화 (동일 파일 재선택 가능하도록)
+    e.target.value = ''; 
   };
 
   /** ❌ 이미지 삭제 */
   const handleDeleteImage = (index: number) => {
-    setPostImage((prev) => prev.filter((_, i) => i !== index));
+    setPostImage((prev) => {
+      const updatedImages = prev.filter((_, i) => i !== index);
+
+      // 삭제 후 선택된 이미지 인덱스 조정 로직
+      if (selectedImageIndex === index) { // 삭제된 이미지가 현재 선택된 이미지인 경우
+        if (updatedImages.length > 0) {
+          // 남은 이미지가 있으면 첫 번째 이미지 선택
+          setSelectedImageIndex(0); 
+        } else {
+          // 이미지가 없으면 선택 해제
+          setSelectedImageIndex(null);
+        }
+      } else if (selectedImageIndex !== null && selectedImageIndex > index) {
+        // 삭제된 이미지보다 뒤에 있는 이미지가 선택되어 있었으면 인덱스 하나 줄이기
+        setSelectedImageIndex(prevIndex => (prevIndex !== null ? prevIndex - 1 : null));
+      }
+      return updatedImages;
+    });
   };
 
-  /** 🧾 게시글 업로드 */
+  /** 🧾 게시글 업로드 (이미지 필수, multipart/form-data 통일) */
   const handleSubmit = async () => {
     try {
+      // ✅ 이미지 필수 유효성 검사
+      if (postImage.length === 0) {
+        alert("⚠️ 최소 1장의 이미지를 등록해야 합니다.");
+        return;
+      }
+
       const token = localStorage.getItem("accessToken");
+      const formData = new FormData();
 
-      // 공통 데이터
-      const baseData = {
-        postName,
-        title,
-        postPrice,
-        content,
-        professor,
-        courseName,
-        grade,
-        semester,
-        majorId,
-      };
+      // 텍스트 데이터 추가
+      formData.append("title", title);
+      formData.append("postName", postName);
+      // postPrice를 int로 변환하여 추가 (숫자가 아니거나 비어있으면 0으로 처리)
+      const priceInt = parseInt(postPrice.replace(/,/g, '')); // 쉼표 제거 후 파싱
+      formData.append("postPrice", String(isNaN(priceInt) ? 0 : priceInt)); 
+      formData.append("professor", professor);
+      formData.append("courseName", courseName);
+      formData.append("grade", String(grade));
+      formData.append("semester", String(semester));
+      formData.append("content", content);
+      formData.append("majorId", majorId);
 
-      // ✅ 이미지가 있는 경우 (multipart/form-data)
-      if (postImage.length > 0) {
-        const formData = new FormData();
+      // 이미지 파일 추가 (최대 5장)
+      postImage.forEach((file) => {
+        formData.append("postImage", file);
+      });
 
-        // 최대 3장까지만 첨부
-        postImage.slice(0, 3).forEach((file) => {
-          formData.append("postImage", file);
-        });
+      const res = await fetch(`${API_URL}/api/posts`, {
+        method: "POST",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: formData,
+      });
 
-        // 나머지 텍스트 데이터 추가
-        Object.entries(baseData).forEach(([key, value]) => {
-          formData.append(key, String(value));
-        });
-
-        const res = await fetch(`${API_URL}/api/posts`, {
-          method: "POST",
-          headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-          },
-          body: formData,
-        });
-
-        if (!res.ok) throw new Error("업로드 실패 (이미지 포함)");
-        alert("📸 이미지 포함 게시글이 성공적으로 업로드되었습니다.");
-      }
-      // ✅ 이미지가 없는 경우 (application/json)
-      else {
-        const res = await fetch(`${API_URL}/api/posts`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
-          },
-          body: JSON.stringify(baseData),
-        });
-
-        if (!res.ok) throw new Error("업로드 실패 (이미지 없음)");
-        alert("📝 이미지 없이 게시글이 성공적으로 업로드되었습니다.");
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`업로드 실패: ${res.status} - ${errorText}`);
       }
 
+      alert("📸 게시글이 성공적으로 업로드되었습니다.");
       navigate("/");
     } catch (err) {
       alert("업로드 중 오류가 발생했습니다.");
@@ -104,7 +117,7 @@ const Upload = () => {
   useEffect(() => {
     const fetchMajors = async () => {
       try {
-        const list = await getMajorList(); // ✅ 배열 그대로 받음
+        const list = await getMajorList();
         setMajorList(list);
         if (list.length > 0) setMajorId(list[0].id);
       } catch (err) {
@@ -114,52 +127,75 @@ const Upload = () => {
     fetchMajors();
   }, []);
 
+  // 이미지 선택 시 중앙에 보여줄 이미지 URL (미리보기)
+  const mainImageUrl = selectedImageIndex !== null && postImage[selectedImageIndex]
+    ? URL.createObjectURL(postImage[selectedImageIndex])
+    : imgUpload; // 선택된 이미지가 없으면 기본 카메라 아이콘
+
   return (
     <div className="upload-whole-container">
-      {/* 왼쪽: 이미지 업로드 */}
+      {/* 왼쪽: 이미지 업로드 영역 */}
       <div className="upload-left-container">
-        <div className="img-upload-set">
-          {Array.from({ length: 4 }).map((_, index) => {
-            if (index === 0) {
-              return (
-                <label key={index} className="img-slot">
+        {/* 중앙에 크게 표시되는 이미지 */}
+        <div className="main-image-display">
+          {selectedImageIndex !== null && postImage[selectedImageIndex] ? (
+            <img src={mainImageUrl} alt="메인 이미지" className="uploaded-main-img" />
+          ) : (
+            <div className="empty-main-slot">
+              <img src={imgUpload} alt="이미지 없음" className="upload-icon-large" />
+              <p>최대 5장의 이미지를 등록해주세요</p>
+            </div>
+          )}
+        </div>
+
+        {/* 하단 썸네일 목록 (최대 5개) */}
+        <div className="thumbnail-upload-set">
+          {Array.from({ length: MAX_IMAGES }).map((_, index) => (
+            <div
+              key={index}
+              className={`thumbnail-slot ${postImage[index] ? "has-image" : "empty"} ${selectedImageIndex === index ? "selected" : ""}`}
+              onClick={() => {
+                if (postImage[index]) {
+                  setSelectedImageIndex(index); // 썸네일 클릭 시 메인 이미지 변경
+                }
+              }} 
+            >
+              {postImage[index] ? (
+                // 이미지가 있는 슬롯 (썸네일)
+                <div className="thumbnail-wrapper">
+                  <img
+                    src={URL.createObjectURL(postImage[index])}
+                    alt={`업로드 이미지 ${index + 1}`}
+                    className="uploaded-thumbnail-img"
+                  />
+                  <button
+                    className="delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation(); // 썸네일 선택 이벤트와 중복 방지
+                      handleDeleteImage(index);
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                // 이미지가 없는 빈 슬롯 (업로드 버튼)
+                <label className="empty-thumbnail-label">
                   <input
                     type="file"
                     accept="image/*"
-                    multiple
+                    multiple 
                     style={{ display: "none" }}
                     onChange={handleImageUpload}
+                    // 5장이 가득 찼으면 input 비활성화
+                    disabled={postImage.length >= MAX_IMAGES}
                   />
-                  <img src={imgUpload} alt="카메라" className="upload-icon" />
+                  {postImage.length < MAX_IMAGES && <img src={imgUpload} alt="카메라" className="upload-thumbnail-icon" />}
+                  {postImage.length >= MAX_IMAGES && <div className="no-upload-slot"></div>}
                 </label>
-              );
-            }
-            const file = postImage[index - 1];
-            return (
-              <div
-                key={index}
-                className={`img-slot ${file ? "has-image" : "empty"}`}
-              >
-                {file ? (
-                  <div className="img-wrapper">
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={`업로드 이미지 ${index}`}
-                      className="uploaded-img"
-                    />
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDeleteImage(index - 1)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ) : (
-                  <div className="empty-slot"></div>
-                )}
-              </div>
-            );
-          })}
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -171,8 +207,8 @@ const Upload = () => {
           <input
             className="enter-box"
             placeholder="게시글의 제목을 입력해주세요"
-            value={postName}
-            onChange={(e) => setPostName(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
         </div>
 
@@ -182,15 +218,15 @@ const Upload = () => {
           <input
             className="enter-box"
             placeholder="판매하려는 책 이름을 넣어주세요"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={postName}
+            onChange={(e) => setPostName(e.target.value)}
           />
         </div>
 
         {/* 책의 상태 */}
         <div className="enter-title-set">
           <div className="enter-title">책의 상태</div>
-          <input
+          <textarea // input 대신 textarea 사용
             className="enter-info-box"
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -266,8 +302,9 @@ const Upload = () => {
         <div className="enter-title-set">
           <div className="enter-title">가격</div>
           <input
-            placeholder="가격을 입력해주세요"
+            placeholder="가격을 입력해주세요 (숫자만)"
             className="enter-box"
+            type="number" // 숫자만 입력받도록 type 변경
             value={postPrice}
             onChange={(e) => setPostPrice(e.target.value)}
           />
@@ -282,6 +319,3 @@ const Upload = () => {
 };
 
 export default Upload;
-
-
-
