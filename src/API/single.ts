@@ -8,10 +8,10 @@ import { Book } from "../types/singleType";
 export const fetchBookDetail = async (postId: string): Promise<Book | null> => {
   try {
     console.groupCollapsed("📡 게시글 상세 요청 시작");
-    const res = await api.get<Book>(`/api/posts/${postId}`);
+    const res = await api.get(`/api/posts/${postId}`);
     console.info("✅ 게시글 불러오기 성공");
     console.log("응답 데이터:", res.data);
-    return res.data;
+    return res.data.data;
   } catch (err) {
     console.error("❌ 게시글 불러오기 실패:", err);
     return null;
