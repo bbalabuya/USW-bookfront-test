@@ -30,8 +30,9 @@ export const createChatRoom = async (postId: string)=> {
       `/api/chat/room`,
       { postId }
     );
+    console.log("응답 데이터:", res.data);
     console.info("✅ 채팅방 생성 성공");
-    console.debug("응답 roomId:", res.data.roomId);
+    console.log("응답 roomId:", res.data.roomId);
     return res.data.roomId || null;
   } catch (err) {
     console.error("❌ 채팅방 생성 실패:", err);
