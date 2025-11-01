@@ -51,11 +51,25 @@ const Single = () => {
     loadBook();
   }, [postId]);
 
-  const handleCreateChatRoom = async () => {
-    if (!postId) return alert("채팅방 이동 실패");
-    const roomId = await createChatRoom(postId);
-    if (roomId) navigate(`/chat/${roomId}`);
-  };
+const handleCreateChatRoom = async () => {
+  console.log("🟢 구매요청 버튼 클릭됨");
+
+  if (!postId) {
+    console.warn("❌ postId 없음");
+    return alert("채팅방 이동 실패");
+  }
+
+  const roomId = await createChatRoom(postId);
+  console.log("✅ 받은 roomId:", roomId);
+
+  if (roomId) {
+    console.log("🚀 navigate 실행!");
+    navigate(`/chat/${roomId}`);
+  } else {
+    console.warn("⚠️ roomId 없음, 이동 중단");
+  }
+};
+
 
   // 이미지 페이징
   const images = book
