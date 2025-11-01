@@ -5,5 +5,5 @@ export interface Book {
   postPrice: number;
   status: string;
   createdAt: string;
-  heart: number;
+  likeCount: number;
 }

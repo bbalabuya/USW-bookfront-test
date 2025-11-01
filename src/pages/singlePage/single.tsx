@@ -6,13 +6,13 @@ import sirenImg from "../../assets/siren.png";
 import handshake from "../../assets/handshake.png";
 import hearts from "../../assets/hearts.png";
 import { Book } from "../../types/singleType";
-import { fetchBookDetail, createChatRoom } from "../../API/single";
+import { fetchBookDetail, createChatRoom, tradeRequest, reportRequest } from "../../API/single";
 
 const Single = () => {
   const [book, setBook] = useState<Book | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [openReportModal, setOpenReportModal] = useState(false); // ✅ 모달 열기 상태
 
-  // 부가 정보도 상태로 관리 (나중에 사용)
   const [extraInfo, setExtraInfo] = useState({
     courseName: "",
     majorName: "",
@@ -26,61 +26,74 @@ const Single = () => {
     const loadBook = async () => {
       if (!postId) return;
       try {
-        const detail = await fetchBookDetail(postId); // Book | null
-
+        const detail = await fetchBookDetail(postId);
         if (detail) {
-          // detail은 이미 Book 타입이므로 그대로 저장
           setBook(detail);
-
           setExtraInfo({
             courseName: detail.courseName ?? "",
             majorName: detail.majorName ?? "",
             professorName: detail.professorName ?? "",
           });
-
-          // 이미지 인덱스 안전 초기화
           setCurrentImageIndex(0);
         } else {
-          // 상세가 없을 때 (404 등) 처리 — 예: 뒤로 가기나 메시지
           console.warn("상세 데이터가 없습니다.");
         }
       } catch (err) {
         console.error("게시글 로드 실패:", err);
       }
     };
-
     loadBook();
   }, [postId]);
 
-const handleCreateChatRoom = async () => {
-  console.log("🟢 구매요청 버튼 클릭됨");
+  const handleCreateChatRoom = async () => {
+    console.log("🟢 구매요청 버튼 클릭됨");
 
-  if (!postId) {
-    console.warn("❌ postId 없음");
-    return alert("채팅방 이동 실패");
-  }
+    if (!postId) {
+      console.warn("❌ postId 없음");
+      return alert("채팅방 이동 실패");
+    }
 
-  const roomId = await createChatRoom(postId);
-  console.log("✅ 받은 roomId:", roomId);
+    const roomId = await createChatRoom(postId);
+    console.log("✅ 받은 roomId:", roomId);
 
-  if (roomId) {
-    console.log("🚀 navigate 실행!");
-    navigate(`/chat/${roomId}`);
-  } else {
-    console.warn("⚠️ roomId 없음, 이동 중단");
-  }
-};
+    if (roomId) {
+      console.log("🚀 navigate 실행!");
+      navigate(`/chat/${roomId}`);
+    } else {
+      console.warn("⚠️ roomId 없음, 이동 중단");
+    }
+  };
 
+  const handleTradeRequest = async () => {
+    console.log("🟢 거래요청 버튼 클릭됨");
+    alert("정말로 이 책을 구매하시겠습니까?");
+    if (!postId) return;
+    const resultCode = await tradeRequest(postId);
+    console.log("✅ 받은 거래요청 결과 코드:", resultCode);
+  };
 
-  // 이미지 페이징
-  const images = book
-    ? Array.isArray(book.postImage)
-      ? book.postImage
-      : [book.postImage]
-    : [];
+  // ✅ 신고 요청 기본 로직
+  const handleReport = async () => {
+    console.log("🟢 신고하기 버튼 클릭됨");
+    if (!postId) return alert("게시글 ID를 찾을 수 없습니다.");
 
-  
+    try {
+      const res = await reportRequest(postId, 1); // reason: 임시로 1번 (ex. 부적절한 내용)
+      console.log("✅ 신고 요청 결과:", res);
+      alert("신고가 정상적으로 접수되었습니다.");
+    } catch (err) {
+      console.error("❌ 신고 요청 실패:", err);
+      alert("신고 중 오류가 발생했습니다.");
+    }
+  };
+
   if (!book) return <div>로딩 중...</div>;
+
+  const images = Array.isArray(book.postImage)
+    ? book.postImage
+    : book.postImage
+    ? [book.postImage]
+    : [];
 
   const mainImage = images[currentImageIndex] ?? "";
 
@@ -112,10 +125,14 @@ const handleCreateChatRoom = async () => {
           </div>
 
           <div className="siren-wrapper">
-            <img className="siren" src={handshake} alt="거래요청" />
-            <div style={{fontSize:"12px"}}>거래요청</div>
-            <img className="siren" src={sirenImg} alt="신고" />
-            <div style={{fontSize:"12px"}}>신고하기</div>
+            <label htmlFor="" onClick={handleTradeRequest}>
+              <img className="siren" src={handshake} alt="거래요청" />
+              <div style={{ fontSize: "12px" }}>거래요청</div>
+            </label>
+            <label htmlFor="" onClick={handleReport}>
+              <img className="siren" src={sirenImg} alt="신고" />
+              <div style={{ fontSize: "12px" }}>신고하기</div>
+            </label>
           </div>
         </div>
 
@@ -131,7 +148,9 @@ const handleCreateChatRoom = async () => {
         </div>
 
         <div className="price-likeCount">
-          <div className="price">{typeof book.postPrice === "number" ? `${book.postPrice.toLocaleString()}원` : "가격 미정"}</div>
+          <div className="price">
+            {typeof book.postPrice === "number" ? `${book.postPrice.toLocaleString()}원` : "가격 미정"}
+          </div>
           <img className="hearts" src={hearts} alt="찜" />
           <div className="likeCount">{book.likeCount}</div>
         </div>
@@ -142,6 +161,9 @@ const handleCreateChatRoom = async () => {
           구매요청하기
         </button>
       </div>
+
+      {/* ✅ 추후 신고 모달 자리 */}
+      {openReportModal && <div className="modal">신고 모달 자리</div>}
     </div>
   );
 };

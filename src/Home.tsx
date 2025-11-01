@@ -76,20 +76,13 @@ export default function Home() {
       // - fetchPosts가 axios response 전체를 반환하면 res.data가 실제 내용일 수 있고,
       // - fetchPosts가 response.data를 바로 반환하면 res가 바로 내용일 수 있음.
       const res = await fetchPosts(params);
-      const serverData = res?.data ?? res; // try res.data first, otherwise res
+      const serverData = res?.data; // try res.data first, otherwise res
 
       const content = serverData?.content ?? serverData ?? [];
       const tp = serverData?.totalPages ?? totalPages ?? 1;
 
       if (Array.isArray(content)) {
-        if (append) {
-          setBooks((prev) => [...prev, ...content]);
-        } else {
-          setBooks(content);
-        }
-      } else {
-        // 안전망: content가 배열이 아니면 빈 배열로 처리
-        if (!append) setBooks([]);
+        setBooks((prev) => [...prev, ...content]);
       }
 
       setTotalPages(tp);
@@ -239,8 +232,10 @@ export default function Home() {
           <div className="status-text">책이 없습니다.</div>
         ) : (
           books.map((book) => (
+            console.log(book.postImage),
             <Link to={`/single/${book.id}`} key={book.id} className="book-card">
               <img src={book.postImage} alt="책 사진" className="book-image" />
+
 
               {/* 제목 */}
               <div className="book-title">{book.title}</div>
@@ -249,7 +244,7 @@ export default function Home() {
               <div className="book-info-top">
                 <div className="book-heart">
                   <img src={heartImg} alt="heart" />
-                  {book.heart}
+                  {book.likeCount}
                 </div>
                 <div className="book-date">{getTimeAgo(book.createdAt)}</div>
               </div>
