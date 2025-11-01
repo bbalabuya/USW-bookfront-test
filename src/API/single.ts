@@ -25,11 +25,11 @@ export const fetchBookDetail = async (postId: string): Promise<Book | null> => {
  */
 export const createChatRoom = async (
   postId: string
-): Promise<string | null> => {
+)=> {
   try {
-    console.groupCollapsed("📡 채팅방 생성 요청 시작");
+    console.log("📡 채팅방 생성 요청 시작");
     const res = await api.post<{ roomId: string }>(
-      `/api/posts/${postId}/chat-rooms`,
+      `/api/chat/rooms`,
       { postId }
     );
     console.info("✅ 채팅방 생성 성공");
@@ -37,8 +37,5 @@ export const createChatRoom = async (
     return res.data.roomId || null;
   } catch (err) {
     console.error("❌ 채팅방 생성 실패:", err);
-    return null;
-  } finally {
-    console.groupEnd();
-  }
+  } 
 };
