@@ -26,13 +26,13 @@ export const fetchBookDetail = async (postId: string): Promise<Book | null> => {
 export const createChatRoom = async (postId: string)=> {
   try {
     console.log("📡 채팅방 생성 요청 시작");
-    const res = await api.post<{ roomId: string }>(
+    const res = await api.post(
       `/api/chat/room`,
       { postId }
     );
     console.log("응답 데이터:", res.data);
     console.info("✅ 채팅방 생성 성공");
-    console.log("응답 roomId:", res.data.roomId);
+    console.log("응답 roomId:", res.data.data.roomId);
     return res.data.roomId || null;
   } catch (err) {
     console.error("❌ 채팅방 생성 실패:", err);
