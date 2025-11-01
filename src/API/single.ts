@@ -33,8 +33,20 @@ export const createChatRoom = async (postId: string)=> {
     console.log("응답 데이터:", res.data);
     console.info("✅ 채팅방 생성 성공");
     console.log("응답 roomId:", res.data.data.roomId);
-    return res.data.roomId || null;
+    return res.data.data.roomId || null;
   } catch (err) {
     console.error("❌ 채팅방 생성 실패:", err);
   } 
+};
+
+export const tradeRequest = async (postId: string) => {
+  try {
+    console.log("📡 거래 요청 시작");
+    const res = await api.post(`api/posts/${postId}/complete`);
+    console.log("응답 데이터:", res.data);
+    console.info("✅ 거래 요청 성공");
+    return res.data;
+  } catch (err) {
+    console.error("❌ 거래 요청 실패:", err);
+  };
 };

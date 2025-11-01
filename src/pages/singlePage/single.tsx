@@ -3,6 +3,7 @@ import "./single.css";
 import { useParams, useNavigate } from "react-router-dom";
 import arrowImg from "../../assets/arrow.png";
 import sirenImg from "../../assets/siren.png";
+import handshake from "../../assets/handshake.png";
 import hearts from "../../assets/hearts.png";
 import { Book } from "../../types/singleType";
 import { fetchBookDetail, createChatRoom } from "../../API/single";
@@ -78,16 +79,7 @@ const handleCreateChatRoom = async () => {
       : [book.postImage]
     : [];
 
-  const handlePrevImage = () => {
-    if (!images.length) return;
-    setCurrentImageIndex((p) => (p === 0 ? images.length - 1 : p - 1));
-  };
-
-  const handleNextImage = () => {
-    if (!images.length) return;
-    setCurrentImageIndex((p) => (p === images.length - 1 ? 0 : p + 1));
-  };
-
+  
   if (!book) return <div>로딩 중...</div>;
 
   const mainImage = images[currentImageIndex] ?? "";
@@ -96,21 +88,7 @@ const handleCreateChatRoom = async () => {
     <div className="single-page-container">
       <div className="image-gallery">
         <div className="main-image-wrapper">
-          {images.length > 1 && (
-            <img
-              className="arrow-button left"
-              src={arrowImg}
-              alt="이전"
-              onClick={handlePrevImage}
-              style={{ transform: "rotate(180deg)" }}
-            />
-          )}
-
           <img className="main-image" src={mainImage} alt={`이미지 ${currentImageIndex + 1}`} />
-
-          {images.length > 1 && (
-            <img className="arrow-button right" src={arrowImg} alt="다음" onClick={handleNextImage} />
-          )}
         </div>
 
         <div className="thumbnail-container">
@@ -134,8 +112,10 @@ const handleCreateChatRoom = async () => {
           </div>
 
           <div className="siren-wrapper">
+            <img className="siren" src={handshake} alt="거래요청" />
+            <div style={{fontSize:"12px"}}>거래요청</div>
             <img className="siren" src={sirenImg} alt="신고" />
-            <div>신고하기</div>
+            <div style={{fontSize:"12px"}}>신고하기</div>
           </div>
         </div>
 
