@@ -16,7 +16,7 @@ import { chatExampleMessages } from "../../mockData/chatMessage";
 import { Client } from "@stomp/stompjs";
 
 // ✅ 이미지의 기본 경로 정의 (수정된 부분 1)
-const BASE_IMAGE_URL = "https://api.stg.subook.shop";
+const BASE_IMAGE_URL = "https://api.stg.subook.shop/";
 
 // ✅ 상대 경로를 완전한 URL로 변환하는 유틸리티 함수
 const getImageUrl = (path: string | undefined): string | undefined => {
