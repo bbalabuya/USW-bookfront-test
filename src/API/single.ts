@@ -33,7 +33,7 @@ export const createChatRoom = async (postId: string) => {
 
 /** 📌 거래 요청 */
 export const tradeRequest = async (postId: string) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
   try {
     console.log("📡 거래 요청 시작");
     const res = await axios.post(
