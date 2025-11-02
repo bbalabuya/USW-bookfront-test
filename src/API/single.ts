@@ -54,14 +54,16 @@ export const tradeRequest = async (postId: string) => {
 };
 
 /** 📌 신고 요청 (기본 구조 완성) */
-export const reportRequest = async (postId: string, reason: number) => {
+export const reportRequest = async (postId: string, reason: string) => {
   try {
-    console.log("📡 신고 요청 시작");
-    const res = await api.post(`/api/posts/report`, {
-      type: "POST",
-      postId,
-      reason,
-    });
+    const payload = {
+      type: "post", // 고정값
+      reason, // 한글 문자열
+      Id: postId, // 서버가 요구하는 필드명 'Id'
+    };
+
+    console.log("📡 신고 요청 시작:", payload);
+    const res = await api.post(`/api/posts/report`, payload);
     console.log("응답 데이터:", res.data);
     console.info("✅ 신고 요청 성공");
     return res.data;
