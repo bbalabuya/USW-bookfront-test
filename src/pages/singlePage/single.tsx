@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import "./single.css";
+import "../singlePage/single.css";
 import { useParams, useNavigate } from "react-router-dom";
 import arrowImg from "../../assets/arrow.png";
 import sirenImg from "../../assets/siren.png";
 import handshake from "../../assets/handshake.png";
 import hearts from "../../assets/hearts.png";
 import { Book } from "../../types/singleType";
+import { multiImageBook } from "../../mockData/single";
 import { fetchBookDetail, createChatRoom, tradeRequest, reportRequest } from "../../API/single";
 
 const Single = () => {
@@ -26,6 +27,7 @@ const Single = () => {
     const loadBook = async () => {
       if (!postId) return;
       try {
+        setBook(multiImageBook); /////////////// 임시: 목데이터로 대체
         const detail = await fetchBookDetail(postId);
         if (detail) {
           setBook(detail);
@@ -39,6 +41,7 @@ const Single = () => {
           console.warn("상세 데이터가 없습니다.");
         }
       } catch (err) {
+        setBook(multiImageBook); // 임시: 목데이터로 대체
         console.error("게시글 로드 실패:", err);
       }
     };
@@ -124,35 +127,39 @@ const Single = () => {
             <div>{book.sellerName ?? "이름 없음"}</div>
           </div>
 
-          <div className="siren-wrapper">
-            <label htmlFor="" onClick={handleTradeRequest}>
+          <div className="seller-info">          
+            <div onClick={handleTradeRequest}>
               <img className="siren" src={handshake} alt="거래요청" />
               <div style={{ fontSize: "12px" }}>거래요청</div>
-            </label>
-            <label htmlFor="" onClick={handleReport}>
+            </div>
+            <div onClick={handleReport}>
               <img className="siren" src={sirenImg} alt="신고" />
               <div style={{ fontSize: "12px" }}>신고하기</div>
-            </label>
+            </div>
           </div>
         </div>
 
         <div className="bookName-wrapper">
           <div className="title">{book.title}</div>
-          <div className="status">{book.PostStatus}</div>
-          <div className="created-at">
-            {(() => {
-              const d = new Date(book.createdAt);
-              return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-            })()}
-          </div>
         </div>
 
         <div className="price-likeCount">
           <div className="price">
             {typeof book.postPrice === "number" ? `${book.postPrice.toLocaleString()}원` : "가격 미정"}
           </div>
-          <img className="hearts" src={hearts} alt="찜" />
-          <div className="likeCount">{book.likeCount}</div>
+          <div className="info-set">
+            <div className="status">{book.PostStatus}</div>
+            <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "5px"}}>
+              <img className="hearts" src={hearts} alt="찜" />
+              <div className="likeCount">{book.likeCount}</div>
+            </div>
+            <div className="created-at">
+              {(() => {
+                const d = new Date(book.createdAt);
+                return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+              })()}
+            </div>
+          </div>
         </div>
 
         <div className="content">{book.content}</div>
