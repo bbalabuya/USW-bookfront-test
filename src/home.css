@@ -115,14 +115,12 @@
    📚 오른쪽 책 목록
 ============================== */
 .book-list-container {
-  flex: 1;
+  display: flex;
   height: 100%;
+  flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 24px;
-  padding: 10px;
-  background: transparent;
-  box-sizing: border-box;
   overflow-y: auto;
 }
 

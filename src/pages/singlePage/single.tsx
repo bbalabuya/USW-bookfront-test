@@ -114,14 +114,20 @@ const Single = () => {
     <div className="single-page-container">
       <div className="image-gallery">
         <div className="main-image-wrapper">
-          <img className="main-image" src={mainImage} alt={`이미지 ${currentImageIndex + 1}`} />
+          <img
+            className="main-image"
+            src={mainImage}
+            alt={`이미지 ${currentImageIndex + 1}`}
+          />
         </div>
 
         <div className="thumbnail-container">
           {images.map((img, idx) => (
             <div
               key={idx}
-              className={`thumbnail-item ${currentImageIndex === idx ? "selected" : ""}`}
+              className={`thumbnail-item ${
+                currentImageIndex === idx ? "selected" : ""
+              }`}
               onClick={() => setCurrentImageIndex(idx)}
             >
               <img src={img} alt={`썸네일 ${idx + 1}`} />
@@ -133,11 +139,15 @@ const Single = () => {
       <div className="text-section">
         <div className="seller-wrapper">
           <div className="seller-info">
-            <img className="seller-img" src={"https://via.placeholder.com/150"} alt="판매자" />
+            <img
+              className="seller-img"
+              src={"https://via.placeholder.com/150"}
+              alt="판매자"
+            />
             <div>{book.sellerName ?? "이름 없음"}</div>
           </div>
 
-          <div className="seller-info">          
+          <div className="seller-info">
             <div onClick={handleTradeRequest}>
               <img className="siren" src={handshake} alt="거래요청" />
               <div style={{ fontSize: "12px" }}>거래요청</div>
@@ -152,21 +162,36 @@ const Single = () => {
         <div className="bookName-wrapper">
           <div className="title">{book.title}</div>
         </div>
+        <div className="course-info">
+          {book.majorName},{book.professorName} 교수님의 {book.courseName}
+        </div>
 
         <div className="price-likeCount">
           <div className="price">
-            {typeof book.postPrice === "number" ? `${book.postPrice.toLocaleString()}원` : "가격 미정"}
+            {typeof book.postPrice === "number"
+              ? `${book.postPrice.toLocaleString()}원`
+              : "가격 미정"}
           </div>
+
           <div className="info-set">
             <div className="status">{book.PostStatus}</div>
-            <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "5px"}}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "5px",
+              }}
+            >
               <img className="hearts" src={hearts} alt="찜" />
               <div className="likeCount">{book.likeCount}</div>
             </div>
             <div className="created-at">
               {(() => {
                 const d = new Date(book.createdAt);
-                return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+                return `${d.getFullYear()}년 ${
+                  d.getMonth() + 1
+                }월 ${d.getDate()}일`;
               })()}
             </div>
           </div>
