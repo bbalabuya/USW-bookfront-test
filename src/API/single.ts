@@ -1,5 +1,6 @@
 import api from "./index";
 import { Book } from "../types/singleType";
+import axios from "axios";
 
 /** 📌 게시글 상세 조회 */
 export const fetchBookDetail = async (postId: string): Promise<Book | null> => {
@@ -32,9 +33,18 @@ export const createChatRoom = async (postId: string) => {
 
 /** 📌 거래 요청 */
 export const tradeRequest = async (postId: string) => {
+  const token = localStorage.getItem("token");
   try {
     console.log("📡 거래 요청 시작");
-    const res = await api.post(`/api/posts/${postId}/complete`);
+    const res = await axios.post(
+      `https://api.stg.subook.shop/api/posts/${postId}/complete`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        buyerId: token,
+      }
+    );
     console.log("응답 데이터:", res.data);
     console.info("✅ 거래 요청 성공");
     return res.data.code;
