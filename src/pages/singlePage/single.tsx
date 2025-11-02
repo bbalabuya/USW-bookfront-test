@@ -69,12 +69,22 @@ const Single = () => {
 
   const handleTradeRequest = async () => {
     console.log("🟢 거래요청 버튼 클릭됨");
-    alert("정말로 이 책을 구매하시겠습니까?");
-    if (!postId) return;
-    const resultCode = await tradeRequest(postId);
-    console.log("✅ 받은 거래요청 결과 코드:", resultCode);
-  };
 
+    // 'confirm' 함수를 사용하여 사용자에게 확인을 요청합니다.
+    if (confirm("정말로 이 책을 구매하시겠습니까?") == true) { // 확인을 선택한 경우
+        if (!postId) {
+            console.log("❌ postId가 없으므로 거래 요청을 진행할 수 없습니다.");
+            return;
+        }
+        
+        // 거래 요청을 진행합니다.
+        const resultCode = await tradeRequest(postId);
+        console.log("✅ 받은 거래요청 결과 코드:", resultCode);
+    } else { // 취소를 선택한 경우
+        console.log("🛑 사용자가 거래 요청을 취소했습니다.");
+        return; // 함수 실행을 종료합니다.
+    }
+};
   // ✅ 신고 요청 기본 로직
   const handleReport = async () => {
     console.log("🟢 신고하기 버튼 클릭됨");
