@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./my_info.css";
 import Selecter from "./selecter";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import { getMyInfo } from "../../API/my_info";
 

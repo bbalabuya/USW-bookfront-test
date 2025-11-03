@@ -1,27 +1,28 @@
 /* ==============================
-   🏠 HOME PAGE 전체 레이아웃
+   🏠 HOME PAGE 전체 레이아웃
 ============================== */
 .home-container {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  min-height: 100vh;
-  height: 100vh;
+  min-height: 100%;
+  height: 100%;
   background-color: #f8f8fa;
-  gap: 40px;
   box-sizing: border-box;
-  padding: 30px 40px;
+  gap: 30px;
+  ;
 }
 
 /* ==============================
-   🎯 왼쪽 필터 영역
+   🎯 왼쪽 필터 영역
 ============================== */
 .filter-container {
   display: flex;
   flex-direction: column;
   width: 260px;
   padding: 25px 20px;
+  margin: 30px 0 30px 20px;
   background-color: #ffffff;
   border: 1px solid #e3e3e3;
   border-radius: 16px;
@@ -112,7 +113,7 @@
 }
 
 /* ==============================
-   📚 오른쪽 책 목록
+   📚 오른쪽 책 목록
 ============================== */
 .book-list-container {
   display: flex;
@@ -120,7 +121,9 @@
   flex: 1;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  padding: 20px;
   gap: 24px;
+  box-sizing: border-box;
   overflow-y: auto;
 }
 
@@ -134,7 +137,7 @@
 }
 
 /* ==============================
-   📖 책 카드
+   📖 책 카드
 ============================== */
 .book-card {
   display: flex;
@@ -149,8 +152,11 @@
   box-sizing: border-box;
   transition: all 0.25s ease;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  min-height: 300px;
-  max-height: 400px;
+
+  /* ✅ 높이 수정: 콘텐츠에 따라 유동적으로 조정 */
+  height: 100%; /* 부모 그리드 셀에 꽉 채우도록 */
+  min-height: 360px; /* 최소 높이 설정 (필요시 조정) */
+  overflow: hidden; 
 }
 
 .book-card:hover {
@@ -159,7 +165,7 @@
 }
 
 /* ==============================
-   이미지
+   이미지
 ============================== */
 .book-image {
   width: 100%;
@@ -171,7 +177,7 @@
 }
 
 /* ==============================
-   제목 (줄바꿈 가능 + 겹침 방지)
+   제목 (✅ 말줄임표 적용)
 ============================== */
 .book-title {
   font-size: 16px;
@@ -180,19 +186,36 @@
   margin-bottom: 10px;
   line-height: 1.4;
   word-break: keep-all;
-  overflow-wrap: break-word;
+
+  /* ✅ 말줄임표 처리: 2줄까지만 표시 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; 
   white-space: normal;
-  min-height: 40px; /* ✅ 두 줄까지 안정적인 높이 확보 */
 }
 
 /* ==============================
-   💜 하트 + ⏰ 업로드 시간
+   ✅ 하단 푸터 컨테이너 (맨 아래 배치용)
+============================== */
+.book-card-footer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: auto; /* ✅ 이 속성이 푸터를 맨 아래로 밀어냅니다. */
+}
+
+
+/* ==============================
+   💜 하트 + ⏰ 업로드 시간
 ============================== */
 .book-info-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 6px;
+  /* margin-top은 book-card-footer로 옮김 */
 }
 
 .book-heart {
@@ -215,7 +238,7 @@
 }
 
 /* ==============================
-   💰 가격 + 🏷️ 판매상태
+   💰 가격 + 🏷️ 판매상태
 ============================== */
 .book-info-bottom {
   display: flex;
@@ -241,7 +264,7 @@
 
 
 /* ==============================
-   📱 반응형 디자인
+   📱 반응형 디자인
 ============================== */
 @media (max-width: 1200px) {
   .home-container {
