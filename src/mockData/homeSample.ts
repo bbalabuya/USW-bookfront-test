@@ -18,7 +18,7 @@ export const sampleBooks: Book[] = [
     status: "거래완료",
     createdAt: "2025-10-17T15:30:00",
     likeCount: 9,
-  },
+  } /*,
   {
     id: 3,
     postImage: "https://picsum.photos/200/300?random=3",
@@ -112,6 +112,5 @@ export const sampleBooks: Book[] = [
     status: "판매중",
     createdAt: "2025-10-10T17:50:00",
     likeCount: 6,
-  }
+  } */
 ];
-

@@ -156,7 +156,7 @@
   /* ✅ 높이 수정: 콘텐츠에 따라 유동적으로 조정 */
   height: 100%; /* 부모 그리드 셀에 꽉 채우도록 */
   min-height: 367px; /* 최소 높이 설정 (필요시 조정) */
-  max-width: 367px;
+  max-height: 367px;
   overflow: hidden; 
 }
 
@@ -187,6 +187,7 @@
   margin-bottom: 10px;
   line-height: 1.4;
   word-break: keep-all;
+  font-weight: semi-bold;
 
   /* ✅ 말줄임표 처리: 2줄까지만 표시 */
   display: -webkit-box;
