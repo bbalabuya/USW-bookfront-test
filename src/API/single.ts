@@ -34,10 +34,15 @@ export const createChatRoom = async (postId: string) => {
 /** 📌 거래 요청 */
 export const tradeRequest = async (postId: string) => {
   const token = localStorage.getItem("accessToken");
+  console.log("거래 요청을 위한 토큰:", token);
+  if (!token) {
+    console.warn("⚠️ 거래 요청 실패: 토큰이 없습니다.");
+    return;
+  }
   try {
     console.log("📡 거래 요청 시작");
-    const res = await axios.post(
-      `https://api.stg.subook.shop/api/posts/${postId}/complete`,
+    const res = await api.post(
+      `/api/posts/${postId}/complete`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
