@@ -8,7 +8,7 @@ export const sampleBooks: Book[] = [
     postPrice: 12000,
     status: "판매중",
     createdAt: "2025-10-18T09:10:00",
-    heart: 5,
+    likeCount: 5,
   },
   {
     id: 2,
@@ -17,7 +17,7 @@ export const sampleBooks: Book[] = [
     postPrice: 8000,
     status: "거래완료",
     createdAt: "2025-10-17T15:30:00",
-    heart: 9,
+    likeCount: 9,
   },
   {
     id: 3,
@@ -26,7 +26,7 @@ export const sampleBooks: Book[] = [
     postPrice: 15000,
     status: "판매중",
     createdAt: "2025-10-16T12:00:00",
-    heart: 12,
+    likeCount: 12,
   },
   {
     id: 4,
@@ -35,7 +35,7 @@ export const sampleBooks: Book[] = [
     postPrice: 10000,
     status: "판매중",
     createdAt: "2025-10-15T19:45:00",
-    heart: 7,
+    likeCount: 7,
   },
   {
     id: 5,
@@ -44,7 +44,7 @@ export const sampleBooks: Book[] = [
     postPrice: 18000,
     status: "거래완료",
     createdAt: "2025-10-13T08:20:00",
-    heart: 14,
+    likeCount: 14,
   },
   {
     id: 6,
@@ -53,7 +53,7 @@ export const sampleBooks: Book[] = [
     postPrice: 13000,
     status: "판매중",
     createdAt: "2025-10-12T14:10:00",
-    heart: 3,
+    likeCount: 3,
   },
   {
     id: 7,
@@ -62,7 +62,7 @@ export const sampleBooks: Book[] = [
     postPrice: 20000,
     status: "거래완료",
     createdAt: "2025-10-11T09:00:00",
-    heart: 20,
+    likeCount: 20,
   },
   {
     id: 8,
@@ -71,7 +71,7 @@ export const sampleBooks: Book[] = [
     postPrice: 16000,
     status: "판매중",
     createdAt: "2025-10-10T17:50:00",
-    heart: 6,
+    likeCount: 6,
   },{
     id: 9,
     postImage: "https://picsum.photos/200/300?random=8",
@@ -79,7 +79,7 @@ export const sampleBooks: Book[] = [
     postPrice: 16000,
     status: "판매중",
     createdAt: "2025-10-10T17:50:00",
-    heart: 6,
+    likeCount: 6,
   },{
     id: 10,
     postImage: "https://picsum.photos/200/300?random=8",
@@ -87,7 +87,7 @@ export const sampleBooks: Book[] = [
     postPrice: 16000,
     status: "판매중",
     createdAt: "2025-10-10T17:50:00",
-    heart: 6,
+    likeCount: 6,
   },{
     id: 11,
     postImage: "https://picsum.photos/200/300?random=8",
@@ -95,7 +95,7 @@ export const sampleBooks: Book[] = [
     postPrice: 16000,
     status: "판매중",
     createdAt: "2025-10-10T17:50:00",
-    heart: 6,
+    likeCount: 6,
   },{
     id: 12,
     postImage: "https://picsum.photos/200/300?random=8",
@@ -103,7 +103,7 @@ export const sampleBooks: Book[] = [
     postPrice: 16000,
     status: "판매중",
     createdAt: "2025-10-10T17:50:00",
-    heart: 6,
+    likeCount: 6,
   },{
     id: 13,
     postImage: "https://picsum.photos/200/300?random=8",
@@ -111,7 +111,7 @@ export const sampleBooks: Book[] = [
     postPrice: 16000,
     status: "판매중",
     createdAt: "2025-10-10T17:50:00",
-    heart: 6,
+    likeCount: 6,
   }
 ];
 
