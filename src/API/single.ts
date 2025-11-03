@@ -34,20 +34,20 @@ export const createChatRoom = async (postId: string) => {
 /** 📌 거래 요청 */
 export const tradeRequest = async (postId: string) => {
   const token = localStorage.getItem("accessToken");
-  console.log("거래 요청을 위한 토큰:", token);
   if (!token) {
     console.warn("⚠️ 거래 요청 실패: 토큰이 없습니다.");
     return;
   }
+
   try {
     console.log("📡 거래 요청 시작");
     const res = await api.post(
       `/api/posts/${postId}/complete`,
+      { buyerId: token }, // ✅ body
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // ✅ 헤더는 config로 분리
         },
-        buyerId: token,
       }
     );
     console.log("응답 데이터:", res.data);
@@ -57,6 +57,7 @@ export const tradeRequest = async (postId: string) => {
     console.error("❌ 거래 요청 실패:", err);
   }
 };
+
 
 /** 📌 신고 요청 (기본 구조 완성) */
 export const reportRequest = async (postId: string, reason: string) => {
