@@ -16,25 +16,40 @@ export const enterChatRoom = async (
   }
 };
 
-
-// 처음 입장하고 내역 불러오기
-export const fetchMessages = async (
-  roomId: string
-): Promise<{ myId: string; messages: ChatMessage[] }> => {
+// 채팅 메시지 불러오기
+export const fetchMessages = async (roomId: string) => {
   try {
-    const res = await api.get<ChatHistoryResponse>(
-      `/api/chat/rooms/${roomId}/messages`
-    );
+    const res = await api.get(`/api/chat/rooms/${roomId}/messages`);
     console.log("✅ 메시지 불러오기 성공:", res.data);
+
+    const myId = res.data.data.myId;
+    let messages = res.data.data.messages || [];
+
+    // ✅ 1️⃣ 시간순 정렬 (중요)
+    messages = [...messages].sort(
+      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+    );
+
+    // ✅ 2️⃣ 상대방 ID 탐색 (내 ID와 다른 senderId)
+    const opponentMessage = messages.find((msg) => msg.senderId !== myId);
+    const opponentId = opponentMessage ? opponentMessage.senderId : null;
+
+    // ✅ 3️⃣ 내가 판매자인지 여부 (첫 메시지가 상대가 보냈다면 판매자)
+    const imSeller = messages[0]?.senderId !== myId;
+
     return {
-      myId: res.data.data.myId,
-      messages: res.data.data.messages
+      myId,
+      messages,
+      opponentId,
+      imSeller,
     };
   } catch (err) {
     console.error("❌ 메시지 불러오기 실패:", err);
     throw err;
   }
 };
+
+
 
 // 메시지 전송
 export const sendMessageApi = async (
@@ -83,11 +98,13 @@ export const sendImageApi = async (
   }
 };
 
-
 /**
  * 📌 신고하기
  */
-export const reportUser = async (roomId: string, reason: number): Promise<boolean> => {
+export const reportUser = async (
+  roomId: string,
+  reason: number
+): Promise<boolean> => {
   try {
     await api.post(`/api/chat/${roomId}/report`, { reason });
     console.log("✅ 신고 성공");
@@ -95,5 +112,32 @@ export const reportUser = async (roomId: string, reason: number): Promise<boolea
   } catch (err) {
     console.error("❌ 신고 실패:", err);
     return false;
+  }
+};
+
+/** 📌 거래 요청 */
+export const tradeRequest = async (postId: string, opponentId: string) => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    console.warn("⚠️ 거래 요청 실패: 토큰이 없습니다.");
+    return;
+  }
+
+  try {
+    console.log("📡 거래 요청 시작");
+    const res = await api.post(
+      `/api/posts/${postId}/complete`,
+      { buyerId: opponentId }, // ✅ body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ 헤더는 config로 분리
+        },
+      }
+    );
+    console.log("응답 데이터:", res.data);
+    console.info("✅ 거래 요청 성공");
+    return res.data.code;
+  } catch (err) {
+    console.error("❌ 거래 요청 실패:", err);
   }
 };

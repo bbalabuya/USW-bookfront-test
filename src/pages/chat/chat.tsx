@@ -5,6 +5,7 @@ import {
   fetchMessages,
   sendImageApi,
   reportUser,
+  tradeRequest,
 } from "../../API/chatAPI";
 import { ChatMessage } from "../../types/chat";
 import "./chat.css";
@@ -48,7 +49,10 @@ const Chat = () => {
   const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined);
 
   const [myID, setMyID] = useState<string>("");
+  const [opponentID, setOpponentID] = useState<string>("");
   const [stompClient, setStompClient] = useState<Client | null>(null); // STOMP client 상태 저장
+  const [postId, setPostId] = useState<string | null>(null); // 거래 요청용 postId 상태
+  const [sellerTF, setSellerTF] = useState<boolean>(false); // 본인이 판매자인지 여부
 
   // ✅ 1. 채팅 화면 DOM 요소를 참조하기 위한 ref 추가
   const chatScreenRef = useRef<HTMLDivElement>(null);
@@ -87,6 +91,21 @@ const Chat = () => {
     } catch (err) {
       console.error("❌ 신고 전송 실패", err);
       alert("신고 전송 실패");
+    }
+  };
+
+  // 거래 요청 (확인 대화상자 포함)
+  const handleTradeRequest = async () => {
+    if (!postId) return alert("게시글 ID가 없습니다.");
+    if (!confirm("정말로 이 책을 구매하시겠습니까?")) return;
+
+    try {
+      const result = await tradeRequest(postId, opponentID);
+      console.log("거래 요청 결과:", result);
+      alert("거래 요청이 전송되었습니다.");
+    } catch (err) {
+      console.error("거래 요청 실패:", err);
+      alert("거래 요청 중 오류가 발생했습니다.");
     }
   };
 
@@ -191,6 +210,7 @@ const Chat = () => {
         const postId = await enterChatRoom(roomId);
         if (postId) {
           console.log("✅ 채팅방 입장 성공, postId:", postId);
+          setPostId(postId); // 거래 요청용 postId 상태 설정
         } else {
           console.warn("⚠️ 채팅방 입장 실패");
           alert("⚠️ 채팅방 입장에 실패했습니다.");
@@ -205,20 +225,20 @@ const Chat = () => {
     const fetchHistory = async () => {
       try {
         console.log("⏳ 메시지 불러오는 중...");
-        const { myId, messages } = await fetchMessages(roomId);
+        const { myId, messages, opponentId, imSeller } = await fetchMessages(
+          roomId
+        );
         console.log("✅ 메시지 불러오기 성공:", {
           myId,
+          opponentId,
           count: messages ? messages.length : 0,
         });
         setMyID(myId);
+        setOpponentID(opponentId);
+        setSellerTF(imSeller);
         console.log("내 ID:", myId);
 
-        // ✅ 시간순 정렬 (sentAt 기준)
-        const sortedMessages = [...messages].sort(
-          (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-        );
-
-        setMessages(sortedMessages || []);
+        setMessages(messages || []);
       } catch (err) {
         console.error("❌ 메시지 불러오기 실패:", err);
         setMessages(chatExampleMessages);
@@ -316,9 +336,13 @@ const Chat = () => {
                 차단 & 신고
               </div>
             </div>
-            <div className="indi-buttonSet">
-              <div className="buttonSet">거래하기</div>
-            </div>
+            {sellerTF && (
+              <div className="indi-buttonSet">
+                <div className="buttonSet" onClick={handleTradeRequest}>
+                  거래하기
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

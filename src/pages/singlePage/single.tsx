@@ -10,7 +10,6 @@ import { multiImageBook } from "../../mockData/single";
 import {
   fetchBookDetail,
   createChatRoom,
-  tradeRequest,
   reportRequest,
 } from "../../API/single";
 
@@ -65,21 +64,6 @@ const Single: React.FC = () => {
     } catch (err) {
       console.error("채팅방 생성 실패:", err);
       alert("채팅방 생성 중 오류가 발생했습니다.");
-    }
-  };
-
-  // 거래 요청 (확인 대화상자 포함)
-  const handleTradeRequest = async () => {
-    if (!postId) return alert("게시글 ID가 없습니다.");
-    if (!confirm("정말로 이 책을 구매하시겠습니까?")) return;
-
-    try {
-      const result = await tradeRequest(postId);
-      console.log("거래 요청 결과:", result);
-      alert("거래 요청이 전송되었습니다.");
-    } catch (err) {
-      console.error("거래 요청 실패:", err);
-      alert("거래 요청 중 오류가 발생했습니다.");
     }
   };
 
@@ -163,78 +147,64 @@ const Single: React.FC = () => {
             />
             <div>{book.sellerName ?? "이름 없음"}</div>
           </div>
-
-          <div style={{ display: "flex", gap: 12 }}>
-            <div
-              onClick={handleTradeRequest}
-              style={{ cursor: "pointer", textAlign: "center" }}
-            >
-              <img className="siren" src={handshake} alt="거래요청" />
-              <div style={{ fontSize: 12 }}>거래요청</div>
-            </div>
-
-            <div
-              onClick={handleOpenReportModal}
-              style={{ cursor: "pointer", textAlign: "center" }}
-            >
-              <img className="siren" src={sirenImg} alt="신고" />
-              <div style={{ fontSize: 12 }}>신고하기</div>
-            </div>
+          <div
+            onClick={handleOpenReportModal}
+            style={{ cursor: "pointer", textAlign: "center" }}
+          >
+            <img className="siren" src={sirenImg} alt="신고" />
+            <div style={{ fontSize: 12 }}>신고하기</div>
           </div>
         </div>
-
-        <div className="bookName-wrapper">
-          <div className="title">{book.title}</div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          <div style={{ fontSize: 20, fontWeight: "bold" }}>
-            {book.postName}
-          </div>
-          <div className="course-info">
-            {book.majorName}, {book.professorName} 교수님의 {book.courseName}
-          </div>
-        </div>
-
-        <div className="price-likeCount">
-          <div className="price">
-            {typeof book.postPrice === "number"
-              ? `${book.postPrice.toLocaleString()}원`
-              : "가격 미정"}
-          </div>
-
-          <div className="info-set">
-            <div className="status">{book.PostStatus}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <img className="hearts" src={hearts} alt="찜" />
-              <div className="likeCount">{book.likeCount}</div>
-            </div>
-            <div className="created-at">
-              {(() => {
-                const d = new Date(book.createdAt);
-                return `${d.getFullYear()}년 ${
-                  d.getMonth() + 1
-                }월 ${d.getDate()}일`;
-              })()}
-            </div>
-          </div>
-        </div>
-
-        <div className="content">{book.content}</div>
-
-        <button className="buy-button" onClick={handleCreateChatRoom}>
-          판매자와 대화하기
-        </button>
       </div>
 
-      {/* 신고 모달 */}
+      <div className="bookName-wrapper">
+        <div className="title">{book.title}</div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        <div style={{ fontSize: 20, fontWeight: "bold" }}>{book.postName}</div>
+        <div className="course-info">
+          {book.majorName}, {book.professorName} 교수님의 {book.courseName}
+        </div>
+      </div>
+
+      <div className="price-likeCount">
+        <div className="price">
+          {typeof book.postPrice === "number"
+            ? `${book.postPrice.toLocaleString()}원`
+            : "가격 미정"}
+        </div>
+
+        <div className="info-set">
+          <div className="status">{book.PostStatus}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <img className="hearts" src={hearts} alt="찜" />
+            <div className="likeCount">{book.likeCount}</div>
+          </div>
+          <div className="created-at">
+            {(() => {
+              const d = new Date(book.createdAt);
+              return `${d.getFullYear()}년 ${
+                d.getMonth() + 1
+              }월 ${d.getDate()}일`;
+            })()}
+          </div>
+        </div>
+      </div>
+
+      <div className="content">{book.content}</div>
+
+      <button className="buy-button" onClick={handleCreateChatRoom}>
+        판매자와 대화하기
+      </button>
+
       {openReportModal && (
         <div className="modal-overlay" onClick={handleCloseReportModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

@@ -31,32 +31,7 @@ export const createChatRoom = async (postId: string) => {
   }
 };
 
-/** 📌 거래 요청 */
-export const tradeRequest = async (postId: string) => {
-  const token = localStorage.getItem("accessToken");
-  if (!token) {
-    console.warn("⚠️ 거래 요청 실패: 토큰이 없습니다.");
-    return;
-  }
 
-  try {
-    console.log("📡 거래 요청 시작");
-    const res = await api.post(
-      `/api/posts/${postId}/complete`,
-      { buyerId: token }, // ✅ body
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ 헤더는 config로 분리
-        },
-      }
-    );
-    console.log("응답 데이터:", res.data);
-    console.info("✅ 거래 요청 성공");
-    return res.data.code;
-  } catch (err) {
-    console.error("❌ 거래 요청 실패:", err);
-  }
-};
 
 
 /** 📌 신고 요청 (기본 구조 완성) */
