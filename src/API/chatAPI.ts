@@ -1,6 +1,7 @@
 import api from "./index";
 import { ChatMessage, ChatHistoryResponse } from "../types/chat";
 import { Client } from "@stomp/stompjs"; // 👈 STOMP Client import
+import { read } from "fs";
 
 // ✅ STOMP WebSocket 설정
 const STOMP_BROKER_URL = "wss://api.stg.subook.shop/ws-chat";
@@ -43,7 +44,16 @@ export const fetchMessages = async (roomId: string) => {
     // 내가 판매자인지 여부 (첫 메시지가 상대가 보냈다면 판매자)
     const imSeller = messages[0]?.senderId !== myId;
 
-    console.log("✅ 메시지 이력 및 ID 불러오기 성공");
+    console.log("✅ 메시지 이력 및 ID 불러오기 성공", res.data);
+    const latestMessage = messages[messages.length - 1];
+    let lastReadAt = "";
+    if (latestMessage) {
+      const lastReadAt = latestMessage.sentAt;
+      console.log("마지막 메시지 시각:", lastReadAt);
+    }
+    console.log("읽음처리 시도");
+    await readRequest(roomId, lastReadAt);
+    
     return {
       myId,
       messages,
@@ -52,6 +62,19 @@ export const fetchMessages = async (roomId: string) => {
     };
   } catch (err) {
     console.error("❌ 메시지 불러오기 실패:", err);
+    throw err;
+  }
+};
+
+const readRequest = async (roomId: string, lastReadAt: string) => {
+  try {
+    const res = await api.post(`/api/chat/rooms/${roomId}/read`, {
+      lastReadAt,
+    });
+    console.log("✅ 채팅방 읽음 처리 성공");
+    return res.data;
+  } catch (err) {
+    console.error("❌ 채팅방 읽음 처리 실패:", err);
     throw err;
   }
 };
