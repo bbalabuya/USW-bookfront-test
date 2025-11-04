@@ -101,19 +101,26 @@ export const sendImageApi = async (
 /**
  * 📌 신고하기
  */
-export const reportUser = async (
-  roomId: string,
-  reason: number
-): Promise<boolean> => {
+/** 📌 신고 요청 (기본 구조 완성) */
+export const reportRequest = async (postId: string, reason: string) => {
   try {
-    await api.post(`/api/chat/${roomId}/report`, { reason });
-    console.log("✅ 신고 성공");
-    return true;
+    const payload = {
+      type: "post", // 고정값
+      reason, // 한글 문자열
+      Id: postId, // 서버가 요구하는 필드명 'Id'
+    };
+
+    console.log("📡 신고 요청 시작:", payload);
+    const res = await api.post(`/api/posts/report`, payload);
+    console.log("응답 데이터:", res.data);
+    console.info("✅ 신고 요청 성공");
+    return res.data;
   } catch (err) {
-    console.error("❌ 신고 실패:", err);
-    return false;
+    console.error("❌ 신고 요청 실패:", err);
+    throw err;
   }
 };
+
 
 /** 📌 거래 요청 */
 export const tradeRequest = async (postId: string, opponentId: string) => {

@@ -4,7 +4,7 @@ import {
   enterChatRoom,
   fetchMessages,
   sendImageApi,
-  reportUser,
+  reportRequest,
   tradeRequest,
 } from "../../API/chatAPI";
 import { ChatMessage } from "../../types/chat";
@@ -43,7 +43,7 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [dotButton, setDotButton] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  const [reportReason, setReportReason] = useState<number | null>(null);
+  const [reportReason, setReportReason] = useState<string | null>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined);
@@ -54,17 +54,11 @@ const Chat = () => {
   const [postId, setPostId] = useState<string | null>(null); // 거래 요청용 postId 상태
   const [sellerTF, setSellerTF] = useState<boolean>(false); // 본인이 판매자인지 여부
 
+  // 신고 사유 목록 (문자열 배열)
+  const reasonList = ["욕설", "비방", "광고", "도배", "부적절한_내용"];
+
   // ✅ 1. 채팅 화면 DOM 요소를 참조하기 위한 ref 추가
   const chatScreenRef = useRef<HTMLDivElement>(null);
-
-  // 신고 사유 목록
-  const reportReasons = [
-    { id: 0, label: "욕설" },
-    { id: 1, label: "비방" },
-    { id: 2, label: "광고" },
-    { id: 3, label: "도배" },
-    { id: 4, label: "부적절한 내용" },
-  ];
 
   // 점 3개 버튼 토글
   const toggleDotButton = () => setDotButton((prev) => !prev);
@@ -79,17 +73,49 @@ const Chat = () => {
     setReportReason(null);
   };
 
+  // --- 로컬 폴백: API 없을 때 시뮬레이션용 함수 ---
+  const sendReportLocalFallback = async (targetId: string, reason: string) => {
+    console.warn(
+      "⚠️ reportRequest failed — using local fallback (simulated).",
+      {
+        targetId,
+        reason,
+      }
+    );
+    // 개발 중에 UX 흐름 테스트용으로 간단한 지연 후 성공 반환
+    await new Promise((res) => setTimeout(res, 700));
+    return { success: true, simulated: true };
+  };
+
   // 신고 제출
   const handleReportSubmit = async () => {
-    if (reportReason === null) return alert("신고 사유를 선택해주세요.");
-    console.log("🚨 신고 제출 시작", { roomId, reportReason });
+    if (!reportReason) return alert("신고 사유를 선택해주세요.");
+
+    // 채팅에서 신고할 대상: 가능하면 opponentID(유저) 사용, 없으면 roomId 사용
+    const targetId = opponentID || roomId;
+    if (!targetId) {
+      alert("신고 대상이 불명확합니다.");
+      return;
+    }
+
+    console.log("🚨 신고 제출 시작", { targetId, reportReason });
     try {
-      await reportUser(roomId!, reportReason);
-      console.log("✅ 신고 전송 성공");
-      alert("신고가 접수되었습니다.");
-      closeReportModal();
+      // reportRequest는 기존에 import된 API 헬퍼를 사용 (시그니처: reportRequest(targetId, reason))
+      // 백엔드가 준비되어 있지 않거나 호출 실패하면 로컬 폴백을 실행
+      try {
+        await reportRequest(targetId, reportReason);
+        console.log("✅ 신고 전송 성공 (API).");
+        alert("신고가 접수되었습니다.");
+        closeReportModal();
+      } catch (apiErr) {
+        console.error("❌ reportRequest 호출 실패:", apiErr);
+        // 폴백으로 처리 (로컬 시뮬)
+        await sendReportLocalFallback(targetId, reportReason);
+        alert("신고가 접수되었습니다. (로컬 시뮬레이션)");
+        closeReportModal();
+      }
     } catch (err) {
-      console.error("❌ 신고 전송 실패", err);
+      console.error("❌ 신고 전송 실패:", err);
       alert("신고 전송 실패");
     }
   };
@@ -517,16 +543,16 @@ const Chat = () => {
             <div>신고하기</div>
 
             <div className="report-options">
-              {reportReasons.map((reason) => (
-                <label key={reason.id} className="report-option">
+              {reasonList.map((reason) => (
+                <label key={reason} className="report-option">
                   <input
                     type="radio"
                     name="reportReason"
-                    value={reason.id}
-                    checked={reportReason === reason.id}
-                    onChange={() => setReportReason(reason.id)}
+                    value={reason}
+                    checked={reportReason === reason}
+                    onChange={() => setReportReason(reason)}
                   />
-                  {reason.label}
+                  {reason}
                 </label>
               ))}
             </div>

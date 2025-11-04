@@ -147,64 +147,70 @@ const Single: React.FC = () => {
             />
             <div>{book.sellerName ?? "이름 없음"}</div>
           </div>
-          <div
-            onClick={handleOpenReportModal}
-            style={{ cursor: "pointer", textAlign: "center" }}
-          >
-            <img className="siren" src={sirenImg} alt="신고" />
-            <div style={{ fontSize: 12 }}>신고하기</div>
+
+          <div style={{ display: "flex", gap: 12 }}>
+            <div
+              onClick={handleOpenReportModal}
+              style={{ cursor: "pointer", textAlign: "center" }}
+            >
+              <img className="siren" src={sirenImg} alt="신고" />
+              <div style={{ fontSize: 12 }}>신고하기</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="bookName-wrapper">
-        <div className="title">{book.title}</div>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <div style={{ fontSize: 20, fontWeight: "bold" }}>{book.postName}</div>
-        <div className="course-info">
-          {book.majorName}, {book.professorName} 교수님의 {book.courseName}
-        </div>
-      </div>
-
-      <div className="price-likeCount">
-        <div className="price">
-          {typeof book.postPrice === "number"
-            ? `${book.postPrice.toLocaleString()}원`
-            : "가격 미정"}
+        <div className="bookName-wrapper">
+          <div className="title">{book.title}</div>
         </div>
 
-        <div className="info-set">
-          <div className="status">{book.PostStatus}</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <img className="hearts" src={hearts} alt="찜" />
-            <div className="likeCount">{book.likeCount}</div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <div style={{ fontSize: 20, fontWeight: "bold" }}>
+            {book.postName}
           </div>
-          <div className="created-at">
-            {(() => {
-              const d = new Date(book.createdAt);
-              return `${d.getFullYear()}년 ${
-                d.getMonth() + 1
-              }월 ${d.getDate()}일`;
-            })()}
+          <div className="course-info">
+            {book.majorName}, {book.professorName} 교수님의 {book.courseName}
           </div>
         </div>
+
+        <div className="price-likeCount">
+          <div className="price">
+            {typeof book.postPrice === "number"
+              ? `${book.postPrice.toLocaleString()}원`
+              : "가격 미정"}
+          </div>
+
+          <div className="info-set">
+            <div className="status">{book.PostStatus}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <img className="hearts" src={hearts} alt="찜" />
+              <div className="likeCount">{book.likeCount}</div>
+            </div>
+            <div className="created-at">
+              {(() => {
+                const d = new Date(book.createdAt);
+                return `${d.getFullYear()}년 ${
+                  d.getMonth() + 1
+                }월 ${d.getDate()}일`;
+              })()}
+            </div>
+          </div>
+        </div>
+
+        <div className="content">{book.content}</div>
+
+        <button className="buy-button" onClick={handleCreateChatRoom}>
+          판매자와 대화하기
+        </button>
       </div>
 
-      <div className="content">{book.content}</div>
-
-      <button className="buy-button" onClick={handleCreateChatRoom}>
-        판매자와 대화하기
-      </button>
-
+      {/* 신고 모달 */}
       {openReportModal && (
         <div className="modal-overlay" onClick={handleCloseReportModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
