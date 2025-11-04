@@ -68,7 +68,8 @@ export const fetchMessages = async (roomId: string) => {
 
 const readRequest = async (roomId: string, lastReadAt: string) => {
   try {
-    const res = await api.post(`/api/chat/rooms/${roomId}/read`, {
+    const res = await api.post(`/api/chat/rooms/read`, {
+      roomId,
       lastReadAt,
     });
     console.log("✅ 채팅방 읽음 처리 성공");
