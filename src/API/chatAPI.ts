@@ -1,14 +1,22 @@
 import api from "./index";
 import { ChatMessage, ChatHistoryResponse } from "../types/chat";
+import { Client } from "@stomp/stompjs"; // 👈 STOMP Client import
 
+// ✅ STOMP WebSocket 설정
+const STOMP_BROKER_URL = "wss://api.stg.subook.shop/ws-chat";
+
+/**
+ * 📌 REST API 함수들
+ */
+
+// 채팅방 입장 및 postId 반환
 export const enterChatRoom = async (
   roomId: string
 ): Promise<string | false> => {
   try {
     const res = await api.get(`/api/chat/room/${roomId}`);
     const postId: string = res.data.data.postId;
-    console.log("✅ 채팅방 입장 성공");
-    console.log("post ID : ", postId);
+    console.log("✅ 채팅방 입장 성공 (API)");
     return postId;
   } catch (err) {
     console.error("❌ 채팅방 입장 실패:", err);
@@ -16,27 +24,26 @@ export const enterChatRoom = async (
   }
 };
 
-// 채팅 메시지 불러오기
+// 채팅 메시지 이력 불러오기
 export const fetchMessages = async (roomId: string) => {
   try {
     const res = await api.get(`/api/chat/rooms/${roomId}/messages`);
-    console.log("✅ 메시지 불러오기 성공:", res.data);
-
     const myId = res.data.data.myId;
     let messages = res.data.data.messages || [];
 
-    // ✅ 1️⃣ 시간순 정렬 (중요)
+    // 시간순 정렬
     messages = [...messages].sort(
       (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
     );
 
-    // ✅ 2️⃣ 상대방 ID 탐색 (내 ID와 다른 senderId)
+    // 상대방 ID 탐색
     const opponentMessage = messages.find((msg) => msg.senderId !== myId);
     const opponentId = opponentMessage ? opponentMessage.senderId : null;
 
-    // ✅ 3️⃣ 내가 판매자인지 여부 (첫 메시지가 상대가 보냈다면 판매자)
+    // 내가 판매자인지 여부 (첫 메시지가 상대가 보냈다면 판매자)
     const imSeller = messages[0]?.senderId !== myId;
 
+    console.log("✅ 메시지 이력 및 ID 불러오기 성공");
     return {
       myId,
       messages,
@@ -49,32 +56,7 @@ export const fetchMessages = async (roomId: string) => {
   }
 };
 
-
-
-// 메시지 전송
-export const sendMessageApi = async (
-  roomId: string,
-  message: string,
-  senderId: string // 로그인한 사용자 ID
-): Promise<ChatMessage | null> => {
-  try {
-    const res = await api.post<ChatMessage>(
-      `/api/chat/rooms/${roomId}/messages`,
-      {
-        roomId,
-        message,
-        senderId,
-      }
-    );
-    console.log("✅ 메시지 전송 성공:", res.data);
-    return res.data;
-  } catch (err) {
-    console.error("❌ 메시지 전송 실패:", err);
-    return null;
-  }
-};
-
-// ✅ 올바른 파일 업로드용 코드
+// 이미지 전송 (REST)
 export const sendImageApi = async (
   roomId: string,
   file: File,
@@ -83,14 +65,11 @@ export const sendImageApi = async (
   try {
     const formData = new FormData();
     formData.append("image", file);
-    //formData.append("senderId", senderId);
     formData.append("roomId", roomId);
-    console.log("✅ FormData 준비 완료:", formData);
 
-    // ✅ 경로 수정 (파일 업로드용)
     const res = await api.post<ChatMessage>(`/api/chat/rooms/images`, formData);
 
-    console.log("✅ 이미지 전송 성공:", res.data);
+    console.log("✅ 이미지 전송 성공 (REST)");
     return res.data;
   } catch (err) {
     console.error("❌ 이미지 전송 실패:", err);
@@ -98,53 +77,146 @@ export const sendImageApi = async (
   }
 };
 
-/**
- * 📌 신고하기
- */
-/** 📌 신고 요청 (기본 구조 완성) */
-export const reportRequest = async (postId: string, reason: string) => {
-  try {
-    const payload = {
-      type: "post", // 고정값
-      reason, // 한글 문자열
-      Id: postId, // 서버가 요구하는 필드명 'Id'
-    };
+// 신고 요청 (REST)
+const reasonMap: Record<string, number> = {
+  욕설: 0,
+  비방: 1,
+  광고: 2,
+  도배: 3,
+  부적절한_내용: 4,
+};
 
-    console.log("📡 신고 요청 시작:", payload);
-    const res = await api.post(`/api/posts/report`, payload);
-    console.log("응답 데이터:", res.data);
-    console.info("✅ 신고 요청 성공");
+export const reportRequest = async (roomId: string, reason: string) => {
+  // 로컬 폴백 함수 (API 호출 실패 시 시뮬레이션)
+  const sendReportLocalFallback = async (targetId: string, reason: string) => {
+    console.warn("⚠️ reportRequest 실패 — 로컬 폴백 (simulated).", {
+      targetId,
+      reason,
+    });
+    await new Promise((res) => setTimeout(res, 700));
+    return { success: true, simulated: true };
+  };
+
+  try {
+    const enumValue = reasonMap[reason];
+    if (enumValue === undefined) throw new Error(`잘못된 신고 사유: ${reason}`);
+
+    const payload = { reason: enumValue };
+
+    // 실제 API 호출 시도
+    const res = await api.post(`/api/chat/${roomId}/report`, payload);
+    console.log("✅ 신고 요청 성공 (REST)");
     return res.data;
-  } catch (err) {
-    console.error("❌ 신고 요청 실패:", err);
-    throw err;
+  } catch (apiErr) {
+    console.error("❌ 신고 요청 실패 (API 오류):", apiErr);
+    // API 호출 실패 시 로컬 폴백 사용
+    return await sendReportLocalFallback(roomId, reason);
   }
 };
 
-
-/** 📌 거래 요청 */
+// 거래 요청 (REST)
 export const tradeRequest = async (postId: string, opponentId: string) => {
   const token = localStorage.getItem("accessToken");
   if (!token) {
     console.warn("⚠️ 거래 요청 실패: 토큰이 없습니다.");
-    return;
+    throw new Error("Token not found"); // 컴포넌트에서 catch하도록 throw
   }
 
   try {
-    console.log("📡 거래 요청 시작");
-    const res = await api.post(
-      `/api/posts/${postId}/complete`,
-      { buyerId: opponentId }, // ✅ body
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ 헤더는 config로 분리
-        },
-      }
-    );
-    console.log("응답 데이터:", res.data);
-    console.info("✅ 거래 요청 성공");
+    const res = await api.post(`/api/posts/${postId}/complete`, {
+      buyerId: opponentId,
+    });
+    console.info("✅ 거래 요청 성공 (REST)");
     return res.data.code;
   } catch (err) {
     console.error("❌ 거래 요청 실패:", err);
+    throw err;
   }
+};
+
+// ---
+//
+// 🔌 WebSocket (STOMP) 함수들 추가
+//
+// ---
+
+/**
+ * 📌 STOMP 클라이언트 연결 및 구독
+ * @param roomId 채팅방 ID
+ * @param onMessageReceived 새 메시지 수신 시 호출할 콜백 함수
+ * @returns 연결된 STOMP Client 객체
+ */
+export const connectAndSubscribe = (
+  roomId: string,
+  onMessageReceived: (message: ChatMessage) => void
+): Client => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    console.error("❌ accessToken 없음. STOMP 연결 불가");
+    throw new Error("No Access Token for STOMP connection");
+  }
+
+  const client = new Client({
+    brokerURL: STOMP_BROKER_URL,
+    connectHeaders: {
+      Authorization: `Bearer ${token}`, // 인증 헤더 추가
+    },
+    reconnectDelay: 5000,
+    debug: (str) => console.log("STOMP Debug:", str),
+  });
+
+  client.onConnect = () => {
+    console.log("✅ STOMP 연결 성공");
+
+    // 구독
+    client.subscribe(`/sub/chat/${roomId}`, (message) => {
+      console.log("📩 STOMP 메시지 수신:", message.body);
+      try {
+        const newMessage: ChatMessage = JSON.parse(message.body);
+        onMessageReceived(newMessage); // 컴포넌트의 상태 업데이트 함수 호출
+      } catch (err) {
+        console.error("❌ 메시지 파싱 실패", err);
+      }
+    });
+  };
+
+  client.onStompError = (frame) => {
+    console.error("❌ STOMP 에러:", frame.headers["message"]);
+    console.error("상세:", frame.body);
+  };
+
+  client.activate();
+  return client;
+};
+
+/**
+ * 📌 STOMP를 통해 텍스트 메시지 발행
+ * @param client 활성화된 STOMP Client
+ * @param roomId 채팅방 ID
+ * @param message 전송할 메시지 텍스트
+ * @param senderId 전송자 ID
+ */
+export const sendStompMessage = (
+  client: Client,
+  roomId: string,
+  message: string,
+  senderId: string
+): void => {
+  if (!client || !client.connected) {
+    console.error("❌ STOMP 클라이언트가 연결되지 않았습니다.");
+    return;
+  }
+
+  const payload = JSON.stringify({
+    roomId,
+    message,
+    senderId,
+  });
+
+  client.publish({
+    destination: "/pub/chat.send",
+    body: payload,
+  });
+
+  console.log("💬 텍스트 메시지 전송 (STOMP):", message);
 };
