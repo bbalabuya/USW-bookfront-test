@@ -56,7 +56,7 @@ const Chatlist = () => {
             <div className="list-middle">
               <div className="list-middle-top">
                 <div className="purchaser-nickname">{room.name}</div>
-                <div className="board-title">{room.name2}</div>
+                <div className="board-title">{room.postName}</div>
               </div>
               <div className="chatlist-lastMessage">{room.lastMessage}</div>
             </div>
