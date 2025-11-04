@@ -30,7 +30,7 @@ const readRequest = async (roomId: string, lastReadAt: string) => {
   try {
     // 백엔드 API 경로가 /read로 끝난다면 roomId는 body에 포함되어야 합니다.
     // 만약 경로가 /api/chat/rooms/{roomId}/read라면 roomId를 URL에서 사용해야 합니다.
-    const res = await api.post(`/api/chat/rooms/read`, {
+    const res = await api.post(`/api/chat/rooms/messages/read`, {
       roomId,
       lastReadAt,
     });
