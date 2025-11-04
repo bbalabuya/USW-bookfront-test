@@ -26,6 +26,25 @@ export const enterChatRoom = async (
 };
 
 // 채팅 메시지 이력 불러오기
+const readRequest = async (roomId: string, lastReadAt: string) => {
+  try {
+    // 백엔드 API 경로가 /read로 끝난다면 roomId는 body에 포함되어야 합니다.
+    // 만약 경로가 /api/chat/rooms/{roomId}/read라면 roomId를 URL에서 사용해야 합니다.
+    const res = await api.post(`/api/chat/rooms/read`, {
+      roomId,
+      lastReadAt,
+    });
+    console.log("✅ 채팅방 읽음 처리 성공");
+    return res.data;
+  } catch (err) {
+    // ❌ 읽음 처리 실패 시 fetchMessages 전체가 실패하는 것을 방지하기 위해
+    // 여기에서 에러를 throw하지 않고, 로그만 남기는 것이 더 안전합니다.
+    console.error("❌ 채팅방 읽음 처리 실패:", err);
+    // throw err; // 주석 처리 또는 제거
+  }
+};
+
+// ✅ 채팅 메시지 이력 불러오기 (수정됨)
 export const fetchMessages = async (roomId: string) => {
   try {
     const res = await api.get(`/api/chat/rooms/${roomId}/messages`);
@@ -37,23 +56,27 @@ export const fetchMessages = async (roomId: string) => {
       (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
     );
 
-    // 상대방 ID 탐색
+    // 상대방 ID 탐색, 판매자 여부 로직 (생략 없이 유지)
     const opponentMessage = messages.find((msg) => msg.senderId !== myId);
     const opponentId = opponentMessage ? opponentMessage.senderId : null;
-
-    // 내가 판매자인지 여부 (첫 메시지가 상대가 보냈다면 판매자)
     const imSeller = messages[0]?.senderId !== myId;
 
     console.log("✅ 메시지 이력 및 ID 불러오기 성공", res.data);
+
     const latestMessage = messages[messages.length - 1];
-    let lastReadAt = "";
+
     if (latestMessage) {
+      // ✅ 1. 스코프 문제 해결: lastReadAt 변수를 바로 할당하거나, const/let 사용 방식을 통일
       const lastReadAt = latestMessage.sentAt;
       console.log("마지막 메시지 시각:", lastReadAt);
+
+      console.log("읽음처리 시도");
+      // ✅ 2. readRequest 호출: await를 사용하되, readRequest는 throw하지 않도록 수정
+      await readRequest(roomId, lastReadAt);
+    } else {
+      console.log("읽을 메시지가 없어 읽음 처리를 건너뜁니다.");
     }
-    console.log("읽음처리 시도");
-    await readRequest(roomId, lastReadAt);
-    
+
     return {
       myId,
       messages,
@@ -61,21 +84,8 @@ export const fetchMessages = async (roomId: string) => {
       imSeller,
     };
   } catch (err) {
+    // fetchMessages 자체에서 발생한 에러는 다시 던집니다.
     console.error("❌ 메시지 불러오기 실패:", err);
-    throw err;
-  }
-};
-
-const readRequest = async (roomId: string, lastReadAt: string) => {
-  try {
-    const res = await api.post(`/api/chat/rooms/read`, {
-      roomId,
-      lastReadAt,
-    });
-    console.log("✅ 채팅방 읽음 처리 성공");
-    return res.data;
-  } catch (err) {
-    console.error("❌ 채팅방 읽음 처리 실패:", err);
     throw err;
   }
 };
