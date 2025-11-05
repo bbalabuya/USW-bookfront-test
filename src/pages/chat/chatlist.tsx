@@ -51,6 +51,7 @@ const Chatlist = () => {
             to={`/chat/${room.roomId}`}
             key={room.roomId}
             className="roomlist"
+            state={{ name: room.name, postName: room.postName, img: room.img }}
           >
             <img className="list-img" src={room.img} alt="프로필 이미지" />
             <div className="list-middle">
