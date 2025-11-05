@@ -5,6 +5,9 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Book } from "./types/homeType";
 import { fetchPosts } from "./API/homeAPI";
 import { sampleBooks } from "./mockData/homeSample";
+import { likeRequest, unlikeRequest } from "./API/commonAPI";
+import like from "./assets/like.png";
+import unlike from "./assets/unlike.png";
 
 export function getTimeAgo(createdAt: string): string {
   const createdDate = new Date(createdAt);
@@ -231,38 +234,57 @@ export default function Home() {
         ) : books.length === 0 ? (
           <div className="status-text">책이 없습니다.</div>
         ) : (
-          books.map((book) => (
-            console.log(book.postImage),
-            <Link to={`/single/${book.id}`} key={book.id} className="book-card">
-  <img src={book.postImage} alt="책 사진" className="book-image" />
+          books.map(
+            (book) => (
+              console.log(book.postImage),
+              (
+                <Link
+                  to={`/single/${book.id}`}
+                  key={book.id}
+                  className="book-card"
+                >
+                  <img
+                    src={book.postImage}
+                    alt="책 사진"
+                    className="book-image"
+                  />
 
-  {/* 제목 */}
-  <div className="book-title">{book.title}</div>
+                  {/* 제목 */}
+                  <div className="book-title">{book.title}</div>
 
-  {/* ✅ 하단 푸터 영역: 제목이나 이미지 길이에 상관없이 하단에 위치 */}
-  <div className="book-card-footer">
-    {/* 하트 + 작성시간 */}
-    <div className="book-info-top">
-      <div className="book-heart">
-        <img src={heartImg} alt="heart" />
-        {book.likeCount}
-      </div>
-      <div className="book-date">{getTimeAgo(book.createdAt)}</div>
-    </div>
+                  {/* ✅ 하단 푸터 영역: 제목이나 이미지 길이에 상관없이 하단에 위치 */}
+                  <div className="book-card-footer">
+                    {/* 하트 + 작성시간 */}
+                    <div className="book-info-top">
+                      <div
+                        className="book-heart"
+                        onClick={() => {
+                          likeRequest(book.id);
+                        }}
+                      >
+                        <img src={unlike} alt="heart" />
+                        {book.likeCount}
+                      </div>
+                      <div className="book-date">
+                        {getTimeAgo(book.createdAt)}
+                      </div>
+                    </div>
 
-    {/* 가격 + 판매상태 */}
-    <div className="book-info-bottom">
-      <div className="book-price">
-        {book.postPrice.toLocaleString()}원
-      </div>
-      {/* "판매중"이 아닐 때만 "거래완료" 표시 */}
-      {book.status !== "판매중" && (
-        <div className="book-status">거래완료</div>
-      )}
-    </div>
-  </div>
-</Link>
-          ))
+                    {/* 가격 + 판매상태 */}
+                    <div className="book-info-bottom">
+                      <div className="book-price">
+                        {book.postPrice.toLocaleString()}원
+                      </div>
+                      {/* "판매중"이 아닐 때만 "거래완료" 표시 */}
+                      {book.status !== "판매중" && (
+                        <div className="book-status">거래완료</div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              )
+            )
+          )
         )}
 
         {/* 관찰 요소: 이 요소가 보이면 다음 페이지를 불러옵니다 */}
