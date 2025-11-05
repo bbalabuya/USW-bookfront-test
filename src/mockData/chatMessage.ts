@@ -8,6 +8,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "안녕하세요! 책 아직 판매 중인가요?",
     sentAt: "2025-08-01T07:00:00.000Z",
+    imageUrl: null,
+    isRead: false,
   },
   {
     messageId: "2",
@@ -15,6 +17,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "네, 아직 판매 중이에요!",
     sentAt: "2025-08-01T07:01:00.000Z",
+    imageUrl: null,
+    isRead: false,
   },
   {
     messageId: "3",
@@ -22,6 +26,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "혹시 직거래 가능할까요?",
     sentAt: "2025-08-01T07:02:00.000Z",
+    imageUrl: null,
+    isRead: false,
   },
   {
     messageId: "4",
@@ -29,6 +35,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "네, 어디서 만나면 될까요?",
     sentAt: "2025-08-01T07:03:00.000Z",
+    imageUrl: null,
+    isRead: false,
   },
   {
     messageId: "5",
@@ -36,6 +44,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "홍대입구역 근처 괜찮으세요?",
     sentAt: "2025-08-01T07:04:00.000Z",
+    imageUrl: null,
+    isRead: false,
   },
   {
     messageId: "6",
@@ -43,6 +53,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "좋습니다! 오늘 저녁에 가능해요.",
     sentAt: "2025-08-01T07:05:00.000Z",
+    imageUrl: null,
+    isRead: false,
   },
   {
     messageId: "7",
@@ -50,6 +62,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "그럼 7시쯤 뵐게요 😊",
     sentAt: "2025-08-01T07:06:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "8",
@@ -57,6 +71,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "알겠습니다. 조심히 오세요!",
     sentAt: "2025-08-01T07:07:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   // 반복해서 20~30개 정도 생성
   {
@@ -65,6 +81,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "오늘 날씨 진짜 좋네요.",
     sentAt: "2025-08-01T07:08:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "10",
@@ -72,6 +90,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "맞아요, 산책하기 딱 좋네요.",
     sentAt: "2025-08-01T07:09:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "11",
@@ -79,6 +99,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "책 내용도 궁금해요.",
     sentAt: "2025-08-01T07:10:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "12",
@@ -86,6 +108,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "사진도 같이 보내드릴게요.",
     sentAt: "2025-08-01T07:11:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "13",
@@ -93,6 +117,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "감사합니다!",
     sentAt: "2025-08-01T07:12:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "14",
@@ -100,6 +126,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "천만에요.",
     sentAt: "2025-08-01T07:13:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "15",
@@ -107,6 +135,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "혹시 추가 사진도 있나요?",
     sentAt: "2025-08-01T07:14:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "16",
@@ -114,6 +144,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "네, 바로 보내드릴게요.",
     sentAt: "2025-08-01T07:15:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "17",
@@ -121,6 +153,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "좋아요, 확인했습니다.",
     sentAt: "2025-08-01T07:16:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "18",
@@ -128,6 +162,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "그럼 거래는 언제 하실까요?",
     sentAt: "2025-08-01T07:17:00.000Z",
+    imageUrl: null,
+    isRead: true,
   },
   {
     messageId: "19",
@@ -135,6 +171,8 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "me",
     message: "오늘 저녁 7시로 할게요.",
     sentAt: "2025-08-01T07:18:00.000Z",
+    imageUrl: null,
+    isRead: false,
   },
   {
     messageId: "20",
@@ -142,5 +180,9 @@ export const chatExampleMessages: ChatMessage[] = [
     senderId: "other",
     message: "좋습니다. 그때 뵐게요!",
     sentAt: "2025-08-01T07:19:00.000Z",
+    imageUrl: null,
+    isRead: false,
   },
 ];
+
+

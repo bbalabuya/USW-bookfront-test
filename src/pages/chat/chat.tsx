@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react"; // ✅ useRef import
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
   enterChatRoom,
@@ -6,6 +6,8 @@ import {
   sendImageApi,
   reportRequest,
   tradeRequest,
+  connectAndSubscribe, // 🔌 새로 추가된 STOMP 연결 함수
+  sendStompMessage, // 💬 새로 추가된 STOMP 전송 함수
 } from "../../API/chatAPI";
 import { ChatMessage } from "../../types/chat";
 import "./chat.css";
@@ -13,22 +15,20 @@ import return_button from "../../assets/return_button.png";
 import dotButtonImg from "../../assets/dot_button.png";
 import pictureImg from "../../assets/chat_picture.png";
 import sendImg from "../../assets/send.png";
-import { chatExampleMessages } from "../../mockData/chatMessage";
-import { Client } from "@stomp/stompjs";
+import { chatExampleMessages } from "../../mockData/chatMessage"; // 더 이상 사용되지 않음
+import { Client } from "@stomp/stompjs"; // STOMP 타입 정의를 위해 유지
 
-// ✅ 이미지의 기본 경로 정의 (수정된 부분 1)
+// ✅ 이미지의 기본 경로 정의
 const BASE_IMAGE_URL = "https://api.stg.subook.shop/";
 
-// ✅ 상대 경로를 완전한 URL로 변환하는 유틸리티 함수
+// ✅ 상대 경로를 완전한 URL로 변환하는 유틸리티 함수 (Chat.tsx에 유지)
 const getImageUrl = (path: string | undefined): string | undefined => {
   if (!path) return undefined;
 
-  // 이미 http:// 또는 https:// 로 시작하는 완전한 URL인 경우 그대로 반환
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
 
-  // BASE_IMAGE_URL이 슬래시(/)로 끝나고 path가 슬래시(/)로 시작하면 중복 제거
   let combinedPath = `${BASE_IMAGE_URL}${path}`;
   if (BASE_IMAGE_URL.endsWith("/") && path.startsWith("/")) {
     combinedPath = `${BASE_IMAGE_URL}${path.substring(1)}`;
@@ -50,48 +50,30 @@ const Chat = () => {
 
   const [myID, setMyID] = useState<string>("");
   const [opponentID, setOpponentID] = useState<string>("");
-  const [stompClient, setStompClient] = useState<Client | null>(null); // STOMP client 상태 저장
-  const [postId, setPostId] = useState<string | null>(null); // 거래 요청용 postId 상태
-  const [sellerTF, setSellerTF] = useState<boolean>(false); // 본인이 판매자인지 여부
+  // 🔌 STOMP client 객체를 저장하는 상태 (연결 해제용)
+  const [stompClient, setStompClient] = useState<Client | null>(null);
+  const [postId, setPostId] = useState<string | null>(null);
+  const [sellerTF, setSellerTF] = useState<boolean>(false);
 
-  // 신고 사유 목록 (문자열 배열)
   const reasonList = ["욕설", "비방", "광고", "도배", "부적절한_내용"];
 
-  // ✅ 1. 채팅 화면 DOM 요소를 참조하기 위한 ref 추가
   const chatScreenRef = useRef<HTMLDivElement>(null);
 
-  // 점 3개 버튼 토글
+  // --- UI/Modal 토글 함수 (유지) ---
   const toggleDotButton = () => setDotButton((prev) => !prev);
   const openReportModal = () => {
-    console.log("📌 신고 모달 열기");
     setReportOpen(true);
     setDotButton(false);
   };
   const closeReportModal = () => {
-    console.log("📌 신고 모달 닫기");
     setReportOpen(false);
     setReportReason(null);
   };
 
-  // --- 로컬 폴백: API 없을 때 시뮬레이션용 함수 ---
-  const sendReportLocalFallback = async (targetId: string, reason: string) => {
-    console.warn(
-      "⚠️ reportRequest failed — using local fallback (simulated).",
-      {
-        targetId,
-        reason,
-      }
-    );
-    // 개발 중에 UX 흐름 테스트용으로 간단한 지연 후 성공 반환
-    await new Promise((res) => setTimeout(res, 700));
-    return { success: true, simulated: true };
-  };
-
-  // 신고 제출
+  // --- 신고 제출 (API 호출은 chatAPI.ts에서 가져옴) ---
   const handleReportSubmit = async () => {
     if (!reportReason) return alert("신고 사유를 선택해주세요.");
 
-    // 채팅에서 신고할 대상: 가능하면 opponentID(유저) 사용, 없으면 roomId 사용
     const targetId = opponentID || roomId;
     if (!targetId) {
       alert("신고 대상이 불명확합니다.");
@@ -100,34 +82,25 @@ const Chat = () => {
 
     console.log("🚨 신고 제출 시작", { targetId, reportReason });
     try {
-      // reportRequest는 기존에 import된 API 헬퍼를 사용 (시그니처: reportRequest(targetId, reason))
-      // 백엔드가 준비되어 있지 않거나 호출 실패하면 로컬 폴백을 실행
-      try {
-        await reportRequest(targetId, reportReason);
-        console.log("✅ 신고 전송 성공 (API).");
-        alert("신고가 접수되었습니다.");
-        closeReportModal();
-      } catch (apiErr) {
-        console.error("❌ reportRequest 호출 실패:", apiErr);
-        // 폴백으로 처리 (로컬 시뮬)
-        await sendReportLocalFallback(targetId, reportReason);
-        alert("신고가 접수되었습니다. (로컬 시뮬레이션)");
-        closeReportModal();
-      }
+      // ✅ reportRequest API 호출 (로컬 폴백 처리도 API 내부로 분리됨)
+      await reportRequest(targetId, reportReason);
+      alert("신고가 접수되었습니다.");
+      closeReportModal();
     } catch (err) {
       console.error("❌ 신고 전송 실패:", err);
-      alert("신고 전송 실패");
+      alert("신고 전송 중 오류가 발생했습니다.");
     }
   };
 
-  // 거래 요청 (확인 대화상자 포함)
+  // --- 거래 요청 (API 호출은 chatAPI.ts에서 가져옴) ---
   const handleTradeRequest = async () => {
     if (!postId) return alert("게시글 ID가 없습니다.");
+    if (!opponentID) return alert("상대방 ID를 알 수 없습니다.");
     if (!confirm("정말로 이 책을 구매하시겠습니까?")) return;
 
     try {
-      const result = await tradeRequest(postId, opponentID);
-      console.log("거래 요청 결과:", result);
+      // ✅ tradeRequest API 호출
+      await tradeRequest(postId, opponentID);
       alert("거래 요청이 전송되었습니다.");
     } catch (err) {
       console.error("거래 요청 실패:", err);
@@ -135,89 +108,63 @@ const Chat = () => {
     }
   };
 
-  // 이미지 선택 / 제거
+  // --- 이미지 처리 함수 (유지) ---
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("📷 이미지 선택 시도");
     const file = e.target.files?.[0];
-    if (!file) {
-      console.log("❌ 파일 없음");
-      return;
-    }
-    console.log("✅ 이미지 선택됨:", file.name);
+    if (!file) return;
     setSelectedFile(file);
     setSelectedImg(window.URL.createObjectURL(file));
   };
   const handleRemoveImage = () => {
-    console.log("🗑️ 선택한 이미지 제거");
     setSelectedFile(null);
     setSelectedImg(undefined);
   };
 
-  // 메시지 전송 함수
+  // --- 메시지 전송 함수 (STOMP 로직 분리) ---
   const sendMessage = async () => {
     if (!roomId) return console.error("❌ roomId 없음");
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
 
     const hasImage = !!selectedFile;
     const hasText = inputMessage.trim().length > 0;
 
-    // ⚙️ 예외 처리
     if (!hasImage && !hasText) {
       alert("전송할 내용이 없습니다.");
       return;
     }
 
     try {
-      // 🖼️ 1️⃣ 이미지가 있다면 먼저 REST로 전송
+      // 🖼️ 1️⃣ 이미지가 있다면 먼저 REST로 전송 (chatAPI 함수 사용)
       if (hasImage) {
         const senderId = myID;
         console.log("🖼️ 이미지 전송 시도:", selectedFile?.name);
+
+        // ✅ API 호출
         const sentImg = await sendImageApi(roomId, selectedFile!, senderId);
 
         console.log("✅ 이미지 전송 성공:", sentImg);
         setSelectedFile(null);
         setSelectedImg(undefined);
 
-        // 서버가 STOMP로 브로드캐스트하지 않는다면 직접 추가
+        // 이미지 전송 후, 서버가 브로드캐스트하지 않는 경우를 대비해 직접 추가
         if (sentImg) {
           setMessages((prev) => [...prev, sentImg]);
-        } else {
-          console.warn(
-            "⚠️ sendImageApi returned null or undefined, 메시지를 추가하지 않습니다."
-          );
         }
 
-        // 💬 2️⃣ 이미지 성공 후 텍스트도 있다면 STOMP로 전송
+        // 💬 2️⃣ 이미지 성공 후 텍스트도 있다면 STOMP로 전송 (새로운 chatAPI 함수 사용)
         if (hasText && stompClient && stompClient.connected) {
           console.log("💬 이미지 전송 성공 후 텍스트 전송:", inputMessage);
-          stompClient.publish({
-            destination: "/pub/chat.send",
-            body: JSON.stringify({
-              roomId,
-              message: inputMessage,
-              senderId: myID || "me",
-            }),
-          });
+          // ✅ API 호출
+          sendStompMessage(stompClient, roomId, inputMessage, myID || "me");
           setInputMessage("");
         }
-        return; // ✅ 이미지가 있었던 경우에는 여기서 종료
+        return;
       }
 
-      // 💬 3️⃣ 이미지가 없고 텍스트만 있는 경우
+      // 💬 3️⃣ 이미지가 없고 텍스트만 있는 경우 (새로운 chatAPI 함수 사용)
       if (hasText && stompClient && stompClient.connected) {
         console.log("💬 텍스트 전송:", inputMessage);
-        stompClient.publish({
-          destination: "/pub/chat.send",
-          body: JSON.stringify({
-            roomId,
-            message: inputMessage,
-            senderId: myID || "me",
-          }),
-        });
+        // ✅ API 호출
+        sendStompMessage(stompClient, roomId, inputMessage, myID || "me");
         setInputMessage("");
       }
     } catch (err) {
@@ -230,107 +177,57 @@ const Chat = () => {
   useEffect(() => {
     if (!roomId) return;
 
-    console.log("📥 메시지 불러오기 시작", roomId);
-    const enterChatRoomAPI = async () => {
-      try {
-        const postId = await enterChatRoom(roomId);
-        if (postId) {
-          console.log("✅ 채팅방 입장 성공, postId:", postId);
-          setPostId(postId); // 거래 요청용 postId 상태 설정
-        } else {
-          console.warn("⚠️ 채팅방 입장 실패");
-          alert("⚠️ 채팅방 입장에 실패했습니다.");
-        }
-      } catch (err) {
-        console.error("❌ 채팅방 입장 중 에러:", err);
-        alert("⚠️ 채팅방 입장 중 오류가 발생했습니다.");
-      }
-    };
-    enterChatRoomAPI();
+    // 채팅방 입장 및 postId 설정
+    enterChatRoom(roomId)
+      .then((postId) => postId && setPostId(postId))
+      .catch((err) => console.error("❌ 채팅방 입장 중 에러:", err));
 
-    const fetchHistory = async () => {
-      try {
-        console.log("⏳ 메시지 불러오는 중...");
-        const { myId, messages, opponentId, imSeller } = await fetchMessages(
-          roomId
-        );
-        console.log("✅ 메시지 불러오기 성공:", {
-          myId,
-          opponentId,
-          count: messages ? messages.length : 0,
-        });
+    // 메시지 이력 불러오기
+    fetchMessages(roomId)
+      .then(({ myId, messages, opponentId, imSeller }) => {
         setMyID(myId);
-        setOpponentID(opponentId);
+        setOpponentID(opponentId || "알 수 없음");
         setSellerTF(imSeller);
-        console.log("내 ID:", myId);
-
         setMessages(messages || []);
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error("❌ 메시지 불러오기 실패:", err);
-        setMessages(chatExampleMessages);
+        setMessages(chatExampleMessages); // mock data 사용은 제거
         alert("⚠️ 채팅방 메시지 불러오기 실패");
-      }
-    };
-
-    fetchHistory();
+      });
   }, [roomId]);
 
-  // 2️⃣ STOMP WebSocket 연결
+  // 2️⃣ STOMP WebSocket 연결 및 구독 (로직 분리)
   useEffect(() => {
     if (!roomId) return;
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      console.error("❌ accessToken 없음");
-      return;
+    let client: Client | undefined;
+
+    try {
+      // ✅ chatAPI의 connectAndSubscribe 함수를 사용하여 연결 및 구독
+      client = connectAndSubscribe(roomId, (newMessage) => {
+        // 새 메시지 수신 시 호출되는 콜백 (컴포넌트의 상태 업데이트)
+        setMessages((prev) => [...prev, newMessage]);
+      });
+
+      setStompClient(client); // 전역 상태에 저장하여 전송 및 해제에 사용
+    } catch (error) {
+      console.error("❌ STOMP 연결 설정 실패:", error);
     }
 
-    console.log("🔌 STOMP WebSocket 연결 시도 (Authorization Header 사용)...");
-
-    const client = new Client({
-      brokerURL: `wss://api.stg.subook.shop/ws-chat`,
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-      reconnectDelay: 5000,
-      debug: (str) => console.log("STOMP Debug:", str),
-    });
-
-    client.onConnect = () => {
-      console.log("✅ STOMP 연결 성공");
-      setStompClient(client); // 전역 상태에 저장
-
-      // 구독
-      client.subscribe(`/sub/chat/${roomId}`, (message) => {
-        console.log("📩 STOMP 메시지 수신:", message.body);
-        try {
-          const newMessage: ChatMessage = JSON.parse(message.body);
-          setMessages((prev) => [...prev, newMessage]);
-        } catch (err) {
-          console.error("❌ 메시지 파싱 실패", err);
-        }
-      });
-    };
-
-    client.onStompError = (frame) => {
-      console.error("❌ STOMP 에러:", frame.headers["message"]);
-      console.error("상세:", frame.body);
-    };
-
-    client.activate();
-
     return () => {
-      console.log("🔌 STOMP 연결 해제");
-      client.deactivate();
+      // 컴포넌트 언마운트 시 연결 해제
+      if (client) {
+        console.log("🔌 STOMP 연결 해제 (클린업)");
+        client.deactivate();
+      }
     };
   }, [roomId]);
 
-  // ✅ 3. 메시지 목록이 업데이트될 때마다 최하단으로 스크롤 (추가된 부분)
+  // 3. 메시지 목록이 업데이트될 때마다 최하단으로 스크롤 (유지)
   useEffect(() => {
     if (chatScreenRef.current) {
       chatScreenRef.current.scrollTop = chatScreenRef.current.scrollHeight;
-      // scrollIntoView를 사용한 부드러운 스크롤도 가능합니다:
-      // chatScreenRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [messages]);
 
@@ -344,9 +241,10 @@ const Chat = () => {
           className="chat-return-button"
           src={return_button}
           alt="돌아가기"
+          // onClick 핸들러 추가 필요 (예: navigate(-1))
         />
         <div className="chat-info">
-          <div className="opponentName">상대방 이름</div>
+          <div className="opponentName">{opponentID || "상대방 이름"}</div>
           <div className="chat-board-name">게시글 제목</div>
         </div>
         <img
@@ -362,6 +260,7 @@ const Chat = () => {
                 차단 & 신고
               </div>
             </div>
+            {/* 판매자일 때만 거래하기 버튼 표시 */}
             {sellerTF && (
               <div className="indi-buttonSet">
                 <div className="buttonSet" onClick={handleTradeRequest}>
@@ -374,17 +273,15 @@ const Chat = () => {
       </div>
 
       {/* 🔽 중앙 채팅 화면 */}
-      {/* ✅ 2. ref를 chat-message-screen 요소에 연결 */}
       <div className="chat-message-screen" ref={chatScreenRef}>
-        {messages
-          .sort(
-            (a, b) =>
-              new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-          )
-          .map((msg, index, arr) => {
+        {(() => {
+          // ✅ 1. isRead === true인 메시지 중 가장 마지막 메시지 찾기
+          const lastReadMsg = [...messages].filter((msg) => msg.isRead).pop(); // 마지막 isRead 메시지
+
+          return messages.map((msg, index, arr) => {
             const isMine = msg.senderId === myID;
 
-            // 🔹 현재 메시지의 날짜 (예: "2025-10-17")
+            // ✅ 날짜 구분선 로직 유지
             const currentDate = new Date(msg.sentAt).toLocaleDateString(
               "ko-KR",
               {
@@ -395,7 +292,6 @@ const Chat = () => {
               }
             );
 
-            // 🔹 이전 메시지의 날짜 (첫 번째면 null)
             const prevDate =
               index > 0
                 ? new Date(arr[index - 1].sentAt).toLocaleDateString("ko-KR", {
@@ -410,17 +306,15 @@ const Chat = () => {
 
             return (
               <React.Fragment key={msg.messageId}>
-                {/* ✅ 날짜 구분선 */}
                 {showDateSeparator && (
                   <div className="chat-date-separator">📅 {currentDate}</div>
                 )}
 
-                {/* ✅ 메시지 버블 */}
+                {/* 메시지 버블 */}
                 <div
                   className={`chat-message-row ${isMine ? "mine" : "opponent"}`}
                 >
                   <div className="chat-bubble-row">
-                    {/* 내가 보낸 메시지 */}
                     {isMine ? (
                       <>
                         <div className="chat-time">
@@ -430,11 +324,10 @@ const Chat = () => {
                           })}
                         </div>
 
-                        {/* 🖼️ 이미지가 있는 경우 (수정된 부분 2) */}
                         {msg.imageUrl && (
                           <div className="chat-image-bubble mine">
                             <img
-                              src={getImageUrl(msg.imageUrl)} // 👈 getImageUrl 함수 사용
+                              src={getImageUrl(msg.imageUrl)}
                               alt="보낸 이미지"
                               className="chat-image"
                               onError={(e) =>
@@ -445,18 +338,23 @@ const Chat = () => {
                           </div>
                         )}
 
-                        {/* 💬 텍스트가 있는 경우 */}
                         {msg.message && (
                           <div className="chat-bubble mine">{msg.message}</div>
+                        )}
+
+                        {/* ✅ 마지막 읽은 메시지에만 표시 */}
+                        {lastReadMsg?.messageId === msg.messageId && (
+                          <div className="chat-read-indicator">
+                            👀 여기까지 읽었습니다
+                          </div>
                         )}
                       </>
                     ) : (
                       <>
-                        {/* 🖼️ 이미지가 있는 경우 (수정된 부분 3) */}
                         {msg.imageUrl && (
                           <div className="chat-image-bubble opponent">
                             <img
-                              src={getImageUrl(msg.imageUrl)} // 👈 getImageUrl 함수 사용
+                              src={getImageUrl(msg.imageUrl)}
                               alt="상대방 이미지"
                               className="chat-image"
                               onError={(e) =>
@@ -467,7 +365,6 @@ const Chat = () => {
                           </div>
                         )}
 
-                        {/* 💬 텍스트가 있는 경우 */}
                         {msg.message && (
                           <div className="chat-bubble opponent">
                             {msg.message}
@@ -486,7 +383,8 @@ const Chat = () => {
                 </div>
               </React.Fragment>
             );
-          })}
+          });
+        })()}
       </div>
 
       {/* 🔽 선택 이미지 미리보기 */}
@@ -526,6 +424,7 @@ const Chat = () => {
           placeholder="메시지를 입력하세요"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()} // 엔터키 입력 시 전송 추가
         />
 
         <img

@@ -358,3 +358,28 @@
   height: auto;
   border-radius: 12px;
 }
+
+/* ==============================
+ 마지막 읽은 메시지 표시
+============================== */
+.chat-read-indicator {
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+  margin-top: 4px;
+  margin-right: 4px;
+  align-self: flex-end;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 🔹 fadeIn 애니메이션 (이미 위에서 사용 중이지만 없을 경우 대비) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

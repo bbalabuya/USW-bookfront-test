@@ -50,18 +50,18 @@ export const fetchMessages = async (roomId: string) => {
     const res = await api.get(`/api/chat/rooms/${roomId}/messages`);
     const myId = res.data.data.myId;
     let messages = res.data.data.messages || [];
+       console.log("✅ 메시지 이력 및 ID 불러오기 성공", res.data);
 
-    // 시간순 정렬
-    messages = [...messages].sort(
-      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-    );
+       // 시간순 정렬
+       messages = [...messages].sort(
+         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+       );
+       console.log("정렬된 메시지:", messages);
 
     // 상대방 ID 탐색, 판매자 여부 로직 (생략 없이 유지)
     const opponentMessage = messages.find((msg) => msg.senderId !== myId);
     const opponentId = opponentMessage ? opponentMessage.senderId : null;
     const imSeller = messages[0]?.senderId !== myId;
-
-    console.log("✅ 메시지 이력 및 ID 불러오기 성공", res.data);
 
     const latestMessage = messages[messages.length - 1];
 
