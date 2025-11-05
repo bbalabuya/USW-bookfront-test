@@ -25,7 +25,7 @@ const Like = () => {
   useEffect(() => {
     const getLikeBook = async () => {
       try{
-        const response = await api.get("/api/me/posts/likes");
+        const response = await api.get("/api/user/likePost");
         console.log("찜한 책 목록 불러오기 성공");
         setBooks(response.data.data);
       }catch(err){
@@ -44,27 +44,57 @@ const Like = () => {
       <div className="like-right-container">
         <div className="like-book-list-container">
           {books.length === 0 ? (
-            <div style={{ textAlign: "center", fontSize: "20px", fontWeight: "bold", color: "gray" }}>
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "20px",
+                fontWeight: "bold",
+                color: "gray",
+              }}
+            >
               책이 없습니다.
             </div>
           ) : (
             books.map((book) => (
-              <Link to={`/single/${book.id}`} key={book.id} className="like-book-card">
-                <img src={book.postImage} alt="책 사진" className="like-book-image" />
-                <div className="like-book-title">{book.title}</div>
+              <Link
+                to={`/single/${book.id}`}
+                key={book.id}
+                className="like-book-card"
+              >
+                <img
+                  src={book.postImage}
+                  alt="책 사진"
+                  className="like-book-image"
+                />
+                <div className="like-book-title">{book.postTitle}</div>
                 <div className="like-info-status-wrapper">
                   <div style={{ display: "flex", alignItems: "center" }}>
                     {book.status !== "판매중" && (
                       <div className="like-book-status">거래완료</div>
                     )}
-                    <div className="like-book-price">{book.postPrice.toLocaleString()}원</div>
+                    <div className="like-book-price">
+                      {book.price.toLocaleString()}원
+                    </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <div style={{ marginRight: "5px", color: "#AE00FF", display: "flex", alignItems: "center" }}>
-                      <img src={heartImg} alt="heart" style={{ marginRight: "2px" }} />
-                      {book.heart}
+                    <div
+                      style={{
+                        marginRight: "5px",
+                        color: "#AE00FF",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <img
+                        src={heartImg}
+                        alt="heart"
+                        style={{ marginRight: "2px" }}
+                      />
+                      {book.likeCount}
                     </div>
-                    <div className="like-book-date">{getTimeAgo(book.createdAt)}</div>
+                    <div className="like-book-date">
+                      {getTimeAgo(book.createdAt)}
+                    </div>
                   </div>
                 </div>
               </Link>

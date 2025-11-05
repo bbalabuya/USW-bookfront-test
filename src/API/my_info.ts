@@ -2,7 +2,7 @@ import api from "../API/index";
 
 export const getMyInfo = async () => {
   try {
-    const response = await api.get("/api/user/infomation", {
+    const response = await api.get("/api/user/information", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         "Content-Type": "application/json",
