@@ -258,13 +258,16 @@ export default function Home() {
                     <div className="book-info-top">
                       <div
                         className="book-heart"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault(); // ✅ 링크 이동 막기
+                          e.stopPropagation(); // ✅ 상위로 이벤트 전파 막기
                           likeRequest(book.id);
                         }}
                       >
                         <img src={unlike} alt="heart" />
                         {book.likeCount}
                       </div>
+
                       <div className="book-date">
                         {getTimeAgo(book.createdAt)}
                       </div>
