@@ -140,31 +140,27 @@ const Chat = () => {
 
     try {
       // 🖼️ 1️⃣ 이미지가 있다면 먼저 REST로 전송 (chatAPI 함수 사용)
-      if (hasImage) {
-        const senderId = myID;
-        console.log("🖼️ 이미지 전송 시도:", selectedFile?.name);
+     if (hasImage) {
+       console.log("🖼️ 이미지 전송 시도:", selectedFile?.name);
+       const sentImgMsg = await sendImageApi(roomId, selectedFile!, myID);
 
-        // ✅ API 호출
-        const sentImg = await sendImageApi(roomId, selectedFile!, senderId);
+       if (sentImgMsg) {
+         console.log("✅ 이미지 전송 성공:", sentImgMsg);
+         setMessages((prev) => [...prev, sentImgMsg]); // 바로 메시지에 추가
+       }
 
-        console.log("✅ 이미지 전송 성공:", sentImg);
-        setSelectedFile(null);
-        setSelectedImg(undefined);
+       setSelectedFile(null);
+       setSelectedImg(undefined);
 
-        // 이미지 전송 후, 서버가 브로드캐스트하지 않는 경우를 대비해 직접 추가
-        if (sentImg) {
-          setMessages((prev) => [...prev, sentImg]);
-        }
+       // 이미지 전송 후 텍스트도 있으면 STOMP로 전송
+       if (hasText && stompClient && stompClient.connected) {
+         sendStompMessage(stompClient, roomId, inputMessage, myID || "me");
+         setInputMessage("");
+       }
 
-        // 💬 2️⃣ 이미지 성공 후 텍스트도 있다면 STOMP로 전송 (새로운 chatAPI 함수 사용)
-        if (hasText && stompClient && stompClient.connected) {
-          console.log("💬 이미지 전송 성공 후 텍스트 전송:", inputMessage);
-          // ✅ API 호출
-          sendStompMessage(stompClient, roomId, inputMessage, myID || "me");
-          setInputMessage("");
-        }
-        return;
-      }
+       return;
+     }
+
 
       // 💬 3️⃣ 이미지가 없고 텍스트만 있는 경우 (새로운 chatAPI 함수 사용)
       if (hasText && stompClient && stompClient.connected) {

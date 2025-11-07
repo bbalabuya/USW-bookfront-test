@@ -159,6 +159,17 @@
   gap: 6px;
 }
 
+/* 내 메시지 줄: 시간 왼쪽, 말풍선 오른쪽 */
+.chat-bubble-row.mine {
+  flex-direction: row-reverse; /* 말풍선 오른쪽, 시간 왼쪽 */
+}
+
+/* 상대방 메시지 줄: 말풍선 왼쪽, 시간 오른쪽 (기본 방향) */
+.chat-bubble-row.opponent {
+  flex-direction: row; /* 기본값 명시 */
+}
+
+
 /* 내 메시지 */
 .chat-bubble.mine {
   background: white;

@@ -91,25 +91,23 @@ export const fetchMessages = async (roomId: string) => {
 };
 
 // 이미지 전송 (REST)
-export const sendImageApi = async (
-  roomId: string,
-  file: File,
-  senderId: string
-): Promise<ChatMessage | null> => {
+// 이미지 전송 (REST)
+export const sendImageApi = async (roomId: string, file: File, senderId: string) => {
   try {
     const formData = new FormData();
     formData.append("image", file);
     formData.append("roomId", roomId);
 
-    const res = await api.post<ChatMessage>(`/api/chat/rooms/images`, formData);
+    const res = await api.post(`/api/chat/rooms/images`, formData);
 
     console.log("✅ 이미지 전송 성공 (REST)");
-    return res.data;
+    return res.data.data; // ✅ 메시지 객체만 반환하도록 수정
   } catch (err) {
     console.error("❌ 이미지 전송 실패:", err);
     return null;
   }
 };
+
 
 // 신고 요청 (REST)
 const reasonMap: Record<string, number> = {
