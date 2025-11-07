@@ -91,7 +91,6 @@ export const fetchMessages = async (roomId: string) => {
 };
 
 // 이미지 전송 (REST)
-// 이미지 전송 (REST)
 export const sendImageApi = async (roomId: string, file: File, senderId: string) => {
   try {
     const formData = new FormData();
@@ -165,6 +164,20 @@ export const tradeRequest = async (postId: string, opponentId: string) => {
     throw err;
   }
 };
+
+// API 요청 함수
+export const getOutRequest = async (roomId: string) => {
+  try {
+    const res = await api.post(`/api/chat/rooms/leave`, { roomId }); // ✅ await 추가 + 슬래시 보정
+    console.log("✅ 나가기 응답:", res);
+    return res;
+  } catch (err) {
+    console.error("❌ 채팅방 나가기 실패:", err);
+    throw err;
+  }
+};
+
+
 
 // ---
 //

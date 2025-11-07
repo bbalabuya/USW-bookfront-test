@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
   enterChatRoom,
   fetchMessages,
@@ -8,6 +8,7 @@ import {
   tradeRequest,
   connectAndSubscribe, // 🔌 새로 추가된 STOMP 연결 함수
   sendStompMessage, // 💬 새로 추가된 STOMP 전송 함수
+  getOutRequest,
 } from "../../API/chatAPI";
 import { ChatMessage } from "../../types/chat";
 import "./chat.css";
@@ -39,6 +40,7 @@ const getImageUrl = (path: string | undefined): string | undefined => {
 
 const Chat = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { roomName, postName, img } = location.state || {
     roomName: "",
     postName: "",
@@ -140,27 +142,26 @@ const Chat = () => {
 
     try {
       // 🖼️ 1️⃣ 이미지가 있다면 먼저 REST로 전송 (chatAPI 함수 사용)
-     if (hasImage) {
-       console.log("🖼️ 이미지 전송 시도:", selectedFile?.name);
-       const sentImgMsg = await sendImageApi(roomId, selectedFile!, myID);
+      if (hasImage) {
+        console.log("🖼️ 이미지 전송 시도:", selectedFile?.name);
+        const sentImgMsg = await sendImageApi(roomId, selectedFile!, myID);
 
-       if (sentImgMsg) {
-         console.log("✅ 이미지 전송 성공:", sentImgMsg);
-         setMessages((prev) => [...prev, sentImgMsg]); // 바로 메시지에 추가
-       }
+        if (sentImgMsg) {
+          console.log("✅ 이미지 전송 성공:", sentImgMsg);
+          setMessages((prev) => [...prev, sentImgMsg]); // 바로 메시지에 추가
+        }
 
-       setSelectedFile(null);
-       setSelectedImg(undefined);
+        setSelectedFile(null);
+        setSelectedImg(undefined);
 
-       // 이미지 전송 후 텍스트도 있으면 STOMP로 전송
-       if (hasText && stompClient && stompClient.connected) {
-         sendStompMessage(stompClient, roomId, inputMessage, myID || "me");
-         setInputMessage("");
-       }
+        // 이미지 전송 후 텍스트도 있으면 STOMP로 전송
+        if (hasText && stompClient && stompClient.connected) {
+          sendStompMessage(stompClient, roomId, inputMessage, myID || "me");
+          setInputMessage("");
+        }
 
-       return;
-     }
-
+        return;
+      }
 
       // 💬 3️⃣ 이미지가 없고 텍스트만 있는 경우 (새로운 chatAPI 함수 사용)
       if (hasText && stompClient && stompClient.connected) {
@@ -172,6 +173,18 @@ const Chat = () => {
     } catch (err) {
       console.error("❌ 메시지 전송 실패:", err);
       alert("메시지 전송 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 채팅방 나가기 버튼 함수
+  const getOut = async () => {
+    try {
+      const res = await getOutRequest(roomId);
+      console.log(res?.data);
+      alert("채팅방에서 나갔습니다. 홈으로 이동합니다.");
+      navigate("/");
+    } catch (err) {
+      console.error("나가기 중 오류:", err);
     }
   };
 
@@ -270,6 +283,11 @@ const Chat = () => {
                 </div>
               </div>
             )}
+            <div className="indi-buttonSet">
+              <div className="buttonSet" onClick={getOut}>
+                채팅방 나가기
+              </div>
+            </div>
           </div>
         )}
       </div>
