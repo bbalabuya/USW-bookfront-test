@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import {
   enterChatRoom,
   fetchMessages,
@@ -17,6 +17,13 @@ import pictureImg from "../../assets/chat_picture.png";
 import sendImg from "../../assets/send.png";
 import { chatExampleMessages } from "../../mockData/chatMessage"; // 더 이상 사용되지 않음
 import { Client } from "@stomp/stompjs"; // STOMP 타입 정의를 위해 유지
+
+const location = useLocation();
+const { roomName, postName, img } = location.state || {
+  roomName: "",
+  postName: "",
+  img: "",
+};
 
 // ✅ 이미지의 기본 경로 정의
 const BASE_IMAGE_URL = "https://api.stg.subook.shop/";
@@ -45,8 +52,8 @@ const Chat = () => {
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState<string | null>(null);
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // 실제 이미지 파일
+  const [selectedImg, setSelectedImg] = useState<string | undefined>(undefined); // 이미지 미리보기
 
   const [myID, setMyID] = useState<string>("");
   const [opponentID, setOpponentID] = useState<string>("");
@@ -139,16 +146,15 @@ const Chat = () => {
         console.log("🖼️ 이미지 전송 시도:", selectedFile?.name);
 
         // ✅ API 호출
-        const sentImg = await sendImageApi(roomId, selectedFile!, senderId);
+        const imgResponse = await sendImageApi(roomId, selectedFile!, senderId);
 
-        console.log("✅ 이미지 전송 성공:", sentImg);
+        // 이미지 전송 후, 이미지를 메시지에 추가
+        if (imgResponse.data) {
+          setMessages((prev) => [...prev, imgResponse.data]);
+        }
+        console.log("✅ 이미지 전송 성공:", imgResponse.data);
         setSelectedFile(null);
         setSelectedImg(undefined);
-
-        // 이미지 전송 후, 서버가 브로드캐스트하지 않는 경우를 대비해 직접 추가
-        if (sentImg) {
-          setMessages((prev) => [...prev, sentImg]);
-        }
 
         // 💬 2️⃣ 이미지 성공 후 텍스트도 있다면 STOMP로 전송 (새로운 chatAPI 함수 사용)
         if (hasText && stompClient && stompClient.connected) {
@@ -244,8 +250,8 @@ const Chat = () => {
           // onClick 핸들러 추가 필요 (예: navigate(-1))
         />
         <div className="chat-info">
-          <div className="opponentName">{opponentID || "상대방 이름"}</div>
-          <div className="chat-board-name">게시글 제목</div>
+          <div className="opponentName">{roomName || "상대방 이름"}</div>
+          <div className="chat-board-name">{postName || "게시글 제목"}</div>
         </div>
         <img
           className="chat-dot-button"
