@@ -282,6 +282,8 @@ const Chat = () => {
 
           return messages.map((msg, index, arr) => {
             const isMine = msg.senderId === myID;
+            // ✅ 현재 메시지가 마지막으로 읽은 메시지인지 확인
+            const isLastRead = lastReadMsg?.messageId === msg.messageId;
 
             // ✅ 날짜 구분선 로직 유지
             const currentDate = new Date(msg.sentAt).toLocaleDateString(
@@ -318,7 +320,15 @@ const Chat = () => {
                 >
                   <div className="chat-bubble-row">
                     {isMine ? (
+                      // ➡️ 내 메시지: '읽음' 표시를 시간 앞에 배치
                       <>
+                        {/* ✅ 내 메시지일 때 시간 왼쪽에 표시 */}
+                        {isLastRead && (
+                          <div className="chat-read-indicator">
+                            👀 여기까지 읽었습니다
+                          </div>
+                        )}
+
                         <div className="chat-time">
                           {new Date(msg.sentAt).toLocaleTimeString([], {
                             hour: "2-digit",
@@ -343,15 +353,9 @@ const Chat = () => {
                         {msg.message && (
                           <div className="chat-bubble mine">{msg.message}</div>
                         )}
-
-                        {/* ✅ 마지막 읽은 메시지에만 표시 */}
-                        {lastReadMsg?.messageId === msg.messageId && (
-                          <div className="chat-read-indicator">
-                            👀 여기까지 읽었습니다
-                          </div>
-                        )}
                       </>
                     ) : (
+                      // ⬅️ 상대방 메시지: '읽음' 표시를 시간 뒤에 배치
                       <>
                         {msg.imageUrl && (
                           <div className="chat-image-bubble opponent">
@@ -379,6 +383,13 @@ const Chat = () => {
                             minute: "2-digit",
                           })}
                         </div>
+
+                        {/* ✅ 상대방 메시지일 때 시간 오른쪽에 표시 */}
+                        {isLastRead && (
+                          <div className="chat-read-indicator">
+                            👀 여기까지 읽었습니다
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
