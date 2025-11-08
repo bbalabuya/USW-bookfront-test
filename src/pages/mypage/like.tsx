@@ -26,8 +26,8 @@ const Like = () => {
         const response = await api.get("/api/user/likePost");
         console.log("찜한 책 목록 불러오기 성공");
         console.log(response.data);
-        if (response.data?.data && Array.isArray(response.data.data)) {
-          setBooks(response.data.data);
+        if(response){
+          setBooks(response.data.data.content);
         } else {
           console.warn("서버 응답 데이터 형식이 예상과 다릅니다.");
           setBooks([]);
