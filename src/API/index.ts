@@ -41,7 +41,7 @@ const PUBLIC_APIS = [
   "/api/auth/signup",
   "/api/auth/reissue",
   "/api/posts",
-  "/api/posts/", // 다ㄴ건 게시물 조회
+  "/api/posts", // 다ㄴ건 게시물 조회
 ];
 
 // 📡 요청 인터셉터

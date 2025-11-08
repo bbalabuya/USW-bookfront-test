@@ -211,7 +211,7 @@ const Single: React.FC = () => {
           <div className="info-set">
             <div className="status">{book.PostStatus}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }} onClick={likeRequestAPI}>
-               <img src={isLiked ? like : unlike} />
+               <img className="hearts" src={isLiked ? like : unlike} />
               <div className="likeCount">{likeCount}</div>
             </div>
             <div className="created-at">
