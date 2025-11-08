@@ -56,10 +56,18 @@ export const reportRequest = async (postId: string, reason: string) => {
 
 export const likeRequest = async(postId:string)=>{
   try{
-    const res = await api.post(`/api/posts/${postId}/like`)
-    
+    const res = await api.post(`/api/posts/${postId}/likes`)
     return res.data
   }catch(err){
-    console.error("좋아요 에러",error)
+    console.error("좋아요 에러",err)
+  }
+}
+
+export const unlikeRequest = async(postId:string)=>{
+  try{
+    const res = await api.delete(`/api/posts/${postId}/likes`)
+    return res.data
+  }catch(err){
+    console.error("좋아요 에러",err)
   }
 }
