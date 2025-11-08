@@ -5,12 +5,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import handshake from "../../assets/handshake.png";
 import sirenImg from "../../assets/siren.png";
 import hearts from "../../assets/hearts.png";
+import like from "../../assets/like.png"
+import unlike from "../../assets/unlike.png"
 import { Book } from "../../types/singleType";
 import { multiImageBook } from "../../mockData/single";
 import {
   fetchBookDetail,
   createChatRoom,
   reportRequest,
+  likeRequest
 } from "../../API/single";
 
 const reasonList = ["욕설", "비방", "광고", "도배", "부적절한_내용"];
@@ -18,10 +21,12 @@ const reasonList = ["욕설", "비방", "광고", "도배", "부적절한_내용
 const Single: React.FC = () => {
   const [book, setBook] = useState<Book | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLiked,setIsLiked ] = useState(false);
 
   // 신고 모달 관련 상태
   const [openReportModal, setOpenReportModal] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
+  const [likeCount,setLikeCount] = useState(0);
 
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
@@ -38,6 +43,7 @@ const Single: React.FC = () => {
         if (detail) {
           setBook(detail);
           setCurrentImageIndex(0);
+          setLikeCount(detail.likeCount)
         } else {
           console.warn("상세 데이터가 없습니다. (API가 빈값 반환)");
         }
@@ -50,6 +56,22 @@ const Single: React.FC = () => {
 
     loadBook();
   }, [postId]);
+
+  const likeRequestAPI = async () => {
+  if (!postId) return;
+
+  try {
+    const res = await likeRequest(postId);
+    if (res) {
+      setIsLiked((prev) => !prev);
+      setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
+    }
+  } catch (err) {
+    console.error("좋아요 에러:", err);
+    alert("좋아요 처리 중 오류가 발생했습니다.");
+  }
+};
+
 
   // 채팅방 생성 / 이동
   const handleCreateChatRoom = async () => {
@@ -188,9 +210,9 @@ const Single: React.FC = () => {
 
           <div className="info-set">
             <div className="status">{book.PostStatus}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <img className="hearts" src={hearts} alt="찜" />
-              <div className="likeCount">{book.likeCount}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }} onClick={likeRequestAPI}>
+               <img src={isLiked ? like : unlike} />
+              <div className="likeCount">{likeCount}</div>
             </div>
             <div className="created-at">
               {(() => {
