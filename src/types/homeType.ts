@@ -1,5 +1,5 @@
 export interface Book {
-  id: number;
+  id: string;
   postImage: string;
   title: string;
   postPrice: number;

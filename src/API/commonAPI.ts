@@ -1,9 +1,9 @@
 import React from "react";
 import api from "./index";
 
-export const likeRequest = async (postId) => {
+export const likeRequest = async (postId:string) => {
   try {
-    const res = await api.post(`/api/posts/${postId}/like`);
+    const res = await api.post(`/api/posts/${postId}/likes`);
     console.log("✅ 좋아요 저장하기 성공");
     return res.data;
   } catch (err) {
@@ -12,9 +12,9 @@ export const likeRequest = async (postId) => {
   }
 };
 
-export const unlikeRequest = async (postId) => {
+export const unlikeRequest = async (postId:string) => {
   try {
-    const res = await api.delete(`/api/posts/${postId}/like`);
+    const res = await api.delete(`/api/posts/${postId}/likes`);
     console.log("✅ 좋아요 취소 요청 성공");
     return res.data;
   } catch (err) {

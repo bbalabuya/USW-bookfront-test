@@ -1,10 +1,10 @@
 export interface likeBook {
   id: string;
-  postTitle: string;
+  title: string;
   sellerName: string;
   postImage: string;
   createdAt: string;
-  price: number;
+  postPrice: string;
   status: string;
   likeCount: number;
 };
