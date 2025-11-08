@@ -13,7 +13,7 @@ import {
   fetchBookDetail,
   createChatRoom,
   reportRequest,
-  likeRequest
+  likeRequest,
 } from "../../API/single";
 
 const reasonList = ["욕설", "비방", "광고", "도배", "부적절한_내용"];

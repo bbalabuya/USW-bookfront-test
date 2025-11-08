@@ -53,3 +53,13 @@ export const reportRequest = async (postId: string, reason: string) => {
     throw err;
   }
 };
+
+export const likeRequest = async(postId:string)=>{
+  try{
+    const res = await api.post(`/api/posts/${postId}/like`)
+    
+    return res.data
+  }catch(err){
+    console.error("좋아요 에러",error)
+  }
+}
