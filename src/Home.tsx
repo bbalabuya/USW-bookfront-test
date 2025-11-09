@@ -55,50 +55,57 @@ export default function Home() {
 
   // ---------- 공통 페치 함수 ----------
   const fetchPage = async (page: number, append = false) => {
-    // page는 0-based로 서버에 전달합니다.
-    setLoading(true);
-    try {
-      const params: any = {
-        page: pageNumber,
-        size: 8,
-        sort: "createdAt,desc",
-      };
+  setLoading(true);
+  try {
+    const params: any = {
+      page: page,
+      size: 8,
+      sort: "createdAt,desc",
+    };
 
-      if (keyword.trim()) {
-        if (searchType === "bookName") params.bookName = keyword;
-        else if (searchType === "className") params.className = keyword;
-      }
-
-      if (grade) params.grade = grade;
-      if (semester) params.semester = semester;
-      if (status) params.status = status;
-      if (priceMin || priceMin === 0) params.priceMin = priceMin;
-      if (priceMax || priceMax === 0) params.priceMax = priceMax;
-
-      // 서버 응답 형태에 따라 유연하게 처리:
-      // - fetchPosts가 axios response 전체를 반환하면 res.data가 실제 내용일 수 있고,
-      // - fetchPosts가 response.data를 바로 반환하면 res가 바로 내용일 수 있음.
-      const res = await fetchPosts(params);
-      const serverData = res?.data; // try res.data first, otherwise res
-
-      const content = serverData?.content ?? serverData ?? [];
-      const tp = serverData?.totalPages ?? totalPages ?? 1;
-
-      if (Array.isArray(content)) {
-        setBooks((prev) => [...prev, ...content]);
-      }
-
-      setTotalPages(tp);
-      setPageNumber(page);
-    } catch (err) {
-      console.error("API 요청 에러:", err);
-      if (!append) {
-        setBooks(sampleBooks); // 초기 로드 실패 시 목데이터로 대체
-      }
-    } finally {
-      setLoading(false);
+    // 🔹 검색 필터 적용
+    if (keyword.trim()) {
+      if (searchType === "bookName") params.bookName = keyword;
+      else if (searchType === "className") params.className = keyword;
     }
-  };
+
+    if (grade) params.grade = grade;
+    if (semester) params.semester = semester;
+
+    // 🔹 판매 상태(status) 필터 적용
+    // ✅ '판매중'일 경우 서버에 status=판매중 으로 전달
+    if (status === "판매중") {
+      params.status = "판매중";
+    } else if (status === "거래완료") {
+      params.status = "거래완료";
+    }
+
+    if (priceMin || priceMin === 0) params.priceMin = priceMin;
+    if (priceMax || priceMax === 0) params.priceMax = priceMax;
+
+    // 🔹 서버 요청
+    const res = await fetchPosts(params);
+    const serverData = res?.data ?? res;
+
+    const content = serverData?.content ?? [];
+    const tp = serverData?.totalPages ?? totalPages ?? 1;
+
+    if (Array.isArray(content)) {
+      setBooks((prev) => [...prev, ...content]);
+    }
+
+    setTotalPages(tp);
+    setPageNumber(page);
+  } catch (err) {
+    console.error("API 요청 에러:", err);
+    if (!append) {
+      setBooks(sampleBooks); // 초기 로드 실패 시 목데이터로 대체
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // ---------- 필터/검색어 변경 시: 페이지 초기화 후 첫 페이지 로드 ----------
   useEffect(() => {

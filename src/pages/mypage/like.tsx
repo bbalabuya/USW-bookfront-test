@@ -97,7 +97,7 @@ const Like = () => {
                       }}
                     >
                       <img
-                        src={book.isLiked ? like : unlike}
+                        src={like}
                         alt="좋아요"
                         className="heart-icon"
                       />
