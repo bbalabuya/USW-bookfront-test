@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Selecter from "./selecter";
 import "./selling_book.css";
 import axios from "axios";
+import api from "../../API/index";
 import heartImg from "../../assets/hearts.png";
 import { Link } from "react-router-dom";
 import { SellingBook } from "../../types/selling_bookType";
@@ -25,9 +26,9 @@ const Selling_book = () => {
     useEffect(() => {
         const getSellingBooks = async () => {
             try{
-                const response = await axios.get(`${API_URL}/api/user/post`);
+                const response = await api.get(`${API_URL}/api/user/post`);
                 console.log("판매중인 책 목록 불러오기 성공");
-                setSellingBook(response.data.data);
+                setSellingBook(response.data.data.content);
             }catch(err){
                 console.error("판매중인 책 목록 불러오기 실패, 예시데이터 사용", err);
                 setSellingBook(selling_bookExample);
