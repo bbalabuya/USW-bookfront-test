@@ -4,6 +4,7 @@ import "./selling_book.css";
 import axios from "axios";
 import api from "../../API/index";
 import heartImg from "../../assets/hearts.png";
+import unlike from "../../assets/unlike.png";
 import { Link } from "react-router-dom";
 import { SellingBook } from "../../types/selling_bookType";
 import { selling_bookExample } from "../../mockData/selling_bookExample";
@@ -37,52 +38,64 @@ const Selling_book = () => {
         getSellingBooks();
     }, []);
 
-    return (
-        <div className="selling-whole-container">
-            <div className="selling-left-container">
-                <Selecter />
-            </div>
+    const deletePost = async (postId) => {
+      try {
+        const res = await api.delete(`api/posts${postId}`);
+      } catch (err) {
+        console.error("게시글 삭제 실패", err);
+      }
+    };
 
-            <div className="selling-right-container">
-                <div className="sell-container">
-                    {sellingBook.map((book) => (
-                        <div className="sell-plate" key={book.id}>
-                            <img
-                                className="sell-picture"
-                                src={book.postImage}
-                                alt={book.title}
-                            />
-                            <div className="middle-set">
-                                <div className="middle-upper-set">
-                                    <div className="title-set">
-                                        <div className="book-title">{book.title}</div>
-                                        <div className="sell-book-status">{book.status}</div>
-                                        <div className="book-price">{book.price}</div>
-                                        <div className="upload-date">
-                                            {formatDate(book.createdAt)}
-                                    </div>
-                                    </div>
-                                    <div className="like-set">
-                                        <img
-                                            className="heart-img"
-                                            src={heartImg}
-                                            alt="하트 이미지"
-                                        />
-                                        <div className="book-heart">찜 개수</div>
-                                    </div>
-                                </div>
-                                <div className="middle-down-set">설명칸</div>
-                            </div>
-                            <div className="plate-button-set">
-                                <Link to={`/single/${book.id}`} className="sell-button">게시글로 이동하기</Link>
-                                <button className="sell-button">글 수정하기</button>
-                                <button className="sell-button">글 삭제하기</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+    return (
+      <div className="selling-whole-container">
+        <div className="selling-left-container">
+          <Selecter />
         </div>
+
+        <div className="selling-right-container">
+          <div className="sell-container">
+            {sellingBook.map((book) => (
+              <div className="sell-plate" key={book.id}>
+                <img
+                  className="sell-picture"
+                  src={book.postImage}
+                  alt={book.postTitle}
+                />
+                <div className="middle-set">
+                  <div className="middle-upper-set">
+                    <div className="title-set">
+                      <div className="book-title">{book.postTitle}</div>
+                      <div className="sell-book-status">{book.status}</div>
+                      <div className="book-price">{book.price}</div>
+                      <div className="upload-date">
+                        {formatDate(book.createdAt)}
+                      </div>
+                    </div>
+                    <div className="like-set">
+                      <img
+                        className="heart-img"
+                        src={unlike}
+                        alt="하트 이미지"
+                      />
+                      <div className="book-heart">{book.likeCount}</div>
+                    </div>
+                  </div>
+                  <div className="middle-down-set">설명칸</div>
+                </div>
+                <div className="plate-button-set">
+                  <Link to={`/single/${book.id}`} className="sell-button">
+                    게시글로 이동하기
+                  </Link>
+                  <button className="sell-button">글 수정하기</button>
+                  <button className="sell-button" onClick={deletePost}>
+                    글 삭제하기
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     );
 };
 
