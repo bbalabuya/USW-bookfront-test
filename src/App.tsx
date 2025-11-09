@@ -56,7 +56,7 @@ function AppContent() {
               <Route path="/mypage/edit_my_info" element={<EditMyInfo />} />
               <Route path="/mypage/withdrawal" element={<Withdrawal />} />
               <Route path="/upload" element={<Upload />} />
-              <Route path="/editpost" element={<EditPost />} />
+              <Route path="/editpost/:postId" element={<EditPost />} />
               <Route path="/chatlist" element={<Chatlist />} />
               <Route path="/chat/:roomId" element={<Chat />} />
               <Route path="/find_password" element={<Find_password />} />
