@@ -1,19 +1,29 @@
+/* 🎨 메인 컬러 팔레트
+   Primary(포인트): #B516FF
+   Secondary(연보라): #E3B8FF
+   Background(흰보라): #FBF8FF
+   Border(보라톤 경계): #CBA8FF
+   Text(진회색): #3A3A3A
+   Sub-accent(hover/보조): #9E12E8
+*/
+
 /* ✅ 판매 도서 전체 영역 (헤더 아래 공간을 꽉 채움) */
 .selling-whole-container {
   width: 100%;
-  height: 100%; /* 부모(app-main)의 전체 높이 채우기 */
+  height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: center; /* 상하 공간 꽉 채우기 */
+  align-items: center;
+  background-color: #FBF8FF; /* 은은한 흰보라톤 배경 */
 }
 
 /* ✅ 왼쪽 필터 영역 */
 .selling-left-container {
   display: flex;
   position: relative;
-  flex: 0 0 200px; /* 고정 너비 200px */
+  flex: 0 0 200px;
   margin-left: 20px;
   align-items: flex-start;
   justify-content: center;
@@ -26,12 +36,8 @@
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
-
-  /* ✅ 오직 오른쪽 영역만 세로 스크롤 가능 */
   overflow-y: auto;
   overflow-x: hidden;
-
-  /* ✅ 화면 높이에 맞춰 확실히 채우기 */
   height: 100%;
   min-height: 100%;
 }
@@ -49,13 +55,21 @@
 /* ✅ 각 도서 박스 */
 .sell-plate {
   display: flex;
-  width: 1100px;
-  background-color: #f6e3ff;
+  width: 100%;
+  background-color: #FFFFFF;
   border-radius: 30px;
   padding: 20px;
   box-sizing: border-box;
   justify-content: space-between;
   align-items: center;
+  border: 1px solid #CBA8FF;
+  box-shadow: 0 2px 8px rgba(181, 22, 255, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.sell-plate:hover {
+  background-color: #FBF8FF;
+  box-shadow: 0 4px 12px rgba(181, 22, 255, 0.15);
 }
 
 /* ✅ 책 이미지 */
@@ -65,7 +79,7 @@
   max-width: 162px;
   height: 162px;
   object-fit: cover;
-  border: 1px solid #b516ff;
+  border: 2px solid #B516FF;
   border-radius: 10px;
 }
 
@@ -93,30 +107,34 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
 }
 
 .book-title {
   font-size: 20px;
   font-weight: bold;
+  color: #3A3A3A;
+  margin: 0;
 }
 
 .sell-book-status {
   padding: 3px 8px;
-  background-color: #b516ff;
+  background-color: #B516FF;
   color: white;
-  font-weight: semi-bold;
+  font-weight: 600;
   border-radius: 5px;
+  font-size: 14px;
 }
 
-.book-price{
+.book-price {
   font-size: 18px;
   font-weight: bold;
+  color: #3A3A3A;
 }
 
 .upload-date {
   font-size: 14px;
-  color: gray;
+  color: #7A7A7A;
 }
 
 /* 찜 영역 */
@@ -125,7 +143,8 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
+  color: #B516FF;
 }
 
 .heart-img {
@@ -144,16 +163,18 @@
   width: 100%;
   height: 100%;
   padding: 5px;
-  background-color: #f6f6f6;
+  background-color: #F3E6FF; /* 연보라톤 배경 */
   align-items: flex-start;
   box-sizing: border-box;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #CBA8FF;
   border-radius: 10px;
 }
 
 .book-explain {
   padding: 10px;
   font-size: 15px;
+  color: #3A3A3A;
+  line-height: 1.5;
 }
 
 /* 버튼 묶음 */
@@ -163,17 +184,23 @@
   gap: 10px;
 }
 
+/* 버튼 */
 .sell-button {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 8px 0px;
   width: 150px;
-  background-color: #da8aff;
+  background-color: #B516FF;
   color: white;
   font-weight: bold;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.sell-button:hover {
+  background-color: #9E12E8;
 }

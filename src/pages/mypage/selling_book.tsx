@@ -27,7 +27,7 @@ const Selling_book = () => {
         const getSellingBooks = async () => {
             try{
                 const response = await api.get(`${API_URL}/api/user/post`);
-                console.log("판매중인 책 목록 불러오기 성공");
+                console.log("판매중인 책 목록 불러오기 성공", response.data);
                 setSellingBook(response.data.data.content);
             }catch(err){
                 console.error("판매중인 책 목록 불러오기 실패, 예시데이터 사용", err);
