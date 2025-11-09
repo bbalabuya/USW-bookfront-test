@@ -55,7 +55,7 @@ const Selling_book = () => {
         <div className="selling-right-container">
           <div className="sell-container">
             {sellingBook.map((book) => (
-              <div className="sell-plate" key={book.id}>
+              <div className="sell-plate" key={book.postId}>
                 <img
                   className="sell-picture"
                   src={book.postImage}
@@ -66,7 +66,7 @@ const Selling_book = () => {
                     <div className="title-set">
                       <div className="book-title">{book.postTitle}</div>
                       <div className="sell-book-status">{book.status}</div>
-                      <div className="book-price">{book.price}</div>
+                      <div className="book-price">{book.price}원</div>
                       <div className="upload-date">
                         {formatDate(book.createdAt)}
                       </div>
@@ -83,10 +83,16 @@ const Selling_book = () => {
                   <div className="middle-down-set">설명칸</div>
                 </div>
                 <div className="plate-button-set">
-                  <Link to={`/single/${book.id}`} className="sell-button">
+                  <Link to={`/single/${book.postId}`} className="sell-button">
                     게시글로 이동하기
                   </Link>
-                  <button className="sell-button">글 수정하기</button>
+                  <Link
+                    to={`/editpost/${book.postId}`}
+                    className="sell-button"
+                    state={{ PostId: book.postId }}
+                  >
+                    글 수정하기
+                  </Link>
                   <button className="sell-button" onClick={deletePost}>
                     글 삭제하기
                   </button>

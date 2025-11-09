@@ -1,5 +1,5 @@
 export interface SellingBook {
-  id: string; // UUID
+  postId: string; // UUID
   postTitle: string;
   status: string; // "판매완료", "판매중" 등
   price: string;

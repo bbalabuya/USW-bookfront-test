@@ -17,6 +17,7 @@ import Chat from "./pages/chat/chat";
 import Find_password from "./pages/login & join/find_password";
 import Withdrawal from "./pages/mypage/withdrawal";
 import { Admin } from "./pages/admin/admin";
+import EditPost from "./pages/upload/editPost";
 import "./App.css";
 
 function AppContent() {
@@ -34,10 +35,9 @@ function AppContent() {
   return (
     <div className="app-container">
       {isAdminPage ? (
-  
-          <Routes>
-            <Route path="/admin" element={<Admin />} />
-          </Routes>
+        <Routes>
+          <Route path="/admin" element={<Admin />} />
+        </Routes>
       ) : (
         // ✅ 일반 사용자용 레이아웃
         <>
@@ -56,6 +56,7 @@ function AppContent() {
               <Route path="/mypage/edit_my_info" element={<EditMyInfo />} />
               <Route path="/mypage/withdrawal" element={<Withdrawal />} />
               <Route path="/upload" element={<Upload />} />
+              <Route path="/editpost" element={<EditPost />} />
               <Route path="/chatlist" element={<Chatlist />} />
               <Route path="/chat/:roomId" element={<Chat />} />
               <Route path="/find_password" element={<Find_password />} />
