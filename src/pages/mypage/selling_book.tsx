@@ -25,7 +25,7 @@ const Selling_book = () => {
     useEffect(() => {
         const getSellingBooks = async () => {
             try{
-                const response = await axios.get(`${API_URL}/api/me/posts/sell`);
+                const response = await axios.get(`${API_URL}/api/user/post`);
                 console.log("판매중인 책 목록 불러오기 성공");
                 setSellingBook(response.data.data);
             }catch(err){
