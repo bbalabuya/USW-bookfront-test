@@ -18,7 +18,7 @@ const EditPost = () => {
   const [grade, setGrade] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
   const [postImage, setPostImage] = useState<File[]>([]);
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]); // 원본 이미지 URL 미리보기
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [majorList, setMajorList] = useState<{ id: string; name: string }[]>(
     []
   );
@@ -26,21 +26,22 @@ const EditPost = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const willEditPostId = location.state?.PostId;
 
-  /** 🎓 전공 목록 + 게시글 원본 불러오기 */
+  /** 🎓 전공 목록 + 원본 게시글 불러오기 */
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1️⃣ 전공 목록 먼저 불러오기
+        // 1️⃣ 전공 목록 불러오기
         const majors = await getMajorList();
         setMajorList(majors);
         if (majors.length > 0) setMajorId(majors[0].id);
 
-        // 2️⃣ 원본 게시글 불러오기
+        // 2️⃣ 수정 대상 게시글 불러오기
         if (!willEditPostId) return;
         const { data } = await axios.get(
           `${API_URL}/api/posts/${willEditPostId}`
@@ -49,20 +50,26 @@ const EditPost = () => {
 
         console.log("📥 원본 게시글:", post);
 
-        // 3️⃣ 원본 게시글 데이터 상태로 저장
+        // 3️⃣ 상태 세팅
         setPostName(post.postName || "");
         setTitle(post.title || "");
         setPostPrice(post.postPrice ? String(post.postPrice) : "");
         setContent(post.content || "");
-        setProfessor(post.professor || "");
+        setProfessor(post.professorName || "");
         setCourseName(post.courseName || "");
         setGrade(post.grade || 1);
         setSemester(post.semester || 1);
-        setMajorId(post.majorId || majors[0]?.id || "");
 
-        // 4️⃣ 기존 이미지 URL (서버 경로) 저장
-        if (post.postImageUrls && Array.isArray(post.postImageUrls)) {
+        // 전공 매칭 (name → id)
+        const matchedMajor = majors.find((m) => m.name === post.majorName);
+        setMajorId(matchedMajor ? matchedMajor.id : majors[0]?.id || "");
+
+        // 이미지 URL
+        if (Array.isArray(post.postImageUrls)) {
           setImagePreviewUrls(post.postImageUrls);
+          setSelectedImageIndex(0);
+        } else if (typeof post.postImage === "string") {
+          setImagePreviewUrls([post.postImage]);
           setSelectedImageIndex(0);
         }
       } catch (err) {
@@ -99,13 +106,29 @@ const EditPost = () => {
   const handleDeleteImage = (index: number) => {
     setPostImage((prev) => prev.filter((_, i) => i !== index));
     setImagePreviewUrls((prev) => prev.filter((_, i) => i !== index));
-    if (selectedImageIndex === index) {
-      setSelectedImageIndex(0);
-    }
+    setSelectedImageIndex((prev) => {
+      if (prev === null) return null;
+      if (index === prev) return 0;
+      if (index < prev) return prev - 1;
+      return prev;
+    });
   };
 
   /** 🧾 게시글 수정 요청 */
   const handleSubmit = async () => {
+    // ✅ 입력 유효성 검사
+    if (!title.trim() || !postName.trim()) {
+      alert("책 제목과 게시글 제목은 반드시 입력해야 합니다!");
+      return;
+    }
+
+    if (Number(postPrice) < 0) {
+      alert("가격은 0 이상으로 입력해주세요!");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
       const token = localStorage.getItem("accessToken");
       const formData = new FormData();
@@ -125,24 +148,35 @@ const EditPost = () => {
         formData.append("postImage", file);
       });
 
-      const res = await fetch(`${API_URL}/api/posts/${willEditPostId}`, {
-        method: "PUT",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-        body: formData,
-      });
+      const res = await axios.patch(
+        `${API_URL}/api/posts/${willEditPostId}`,
+        formData,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`수정 실패: ${res.status} - ${errorText}`);
+      if (res.status === 200) {
+        alert("✅ 게시글이 성공적으로 수정되었습니다!");
+        navigate(`/single/${willEditPostId}`, { replace: true });
+      } else {
+        alert("⚠️ 수정 중 문제가 발생했습니다.");
       }
-
-      alert("✅ 게시글이 성공적으로 수정되었습니다!");
-      navigate(`/single/${willEditPostId}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ [handleSubmit] 수정 실패:", err);
-      alert("게시글 수정 중 오류가 발생했습니다.");
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        if (status === 401) alert("로그인이 필요합니다.");
+        else if (status === 404) alert("게시글을 찾을 수 없습니다.");
+        else alert("게시글 수정 중 오류가 발생했습니다.");
+      } else {
+        alert("알 수 없는 오류가 발생했습니다.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -158,13 +192,13 @@ const EditPost = () => {
       <div className="upload-left-container">
         <div className="main-image-display">
           <img
-            src={mainImageUrl}
+            src={mainImageUrl ?? imgUpload}
             alt="메인 이미지"
             className="uploaded-main-img"
           />
         </div>
 
-        {/* 썸네일 */}
+        {/* 썸네일 목록 */}
         <div className="thumbnail-upload-set">
           {Array.from({ length: MAX_IMAGES }).map((_, index) => (
             <div
@@ -173,9 +207,7 @@ const EditPost = () => {
                 imagePreviewUrls[index] ? "has-image" : "empty"
               } ${selectedImageIndex === index ? "selected" : ""}`}
               onClick={() => {
-                if (imagePreviewUrls[index]) {
-                  setSelectedImageIndex(index);
-                }
+                if (imagePreviewUrls[index]) setSelectedImageIndex(index);
               }}
             >
               {imagePreviewUrls[index] ? (
@@ -318,8 +350,12 @@ const EditPost = () => {
           />
         </div>
 
-        <button className="save-upload-button" onClick={handleSubmit}>
-          수정하기
+        <button
+          className="save-upload-button"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "수정 중..." : "수정하기"}
         </button>
       </div>
     </div>
