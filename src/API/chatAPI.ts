@@ -166,7 +166,7 @@ export const tradeRequest = async (postId: string, opponentId: string) => {
 };
 
 // API 요청 함수
-export const getOutRequest = async (roomId: string) => {
+export const getOutRequest = async (roomId) => {
   try {
     const res = await api.post(`/api/chat/rooms/leave`, { roomId }); // ✅ await 추가 + 슬래시 보정
     console.log("✅ 나가기 응답:", res);

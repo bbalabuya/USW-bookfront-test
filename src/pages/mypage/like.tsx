@@ -70,8 +70,8 @@ const Like = () => {
           ) : (
             books.map((book) => (
               <Link
-                to={`/single/${book.id}`}
-                key={book.id}
+                to={`/single/${book.postId}`}
+                key={book.postId}
                 className="book-card"
               >
                 {/* 📘 책 이미지 */}
@@ -93,7 +93,7 @@ const Like = () => {
                       onClick={(e) => {
                         e.preventDefault(); // 링크 이동 방지
                         e.stopPropagation(); // 상위 이벤트 차단
-                        likeRequest(book.id);
+                        likeRequest(book.postId);
                       }}
                     >
                       <img

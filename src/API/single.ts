@@ -44,7 +44,13 @@ export const reportRequest = async (postId: string, reason: string) => {
     };
 
     console.log("📡 신고 요청 시작:", payload);
-    const res = await api.post(`/api/posts/report`, payload);
+    const token = localStorage.getItem("accessToken");
+    const res = await axios.post(`/api/posts/report`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
     console.log("응답 데이터:", res.data);
     console.info("✅ 신고 요청 성공");
     return res.data;

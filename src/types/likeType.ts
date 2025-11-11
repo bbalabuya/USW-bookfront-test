@@ -1,5 +1,5 @@
 export interface likeBook {
-  id: string;
+  postId: string;
   postTitle: string;
   sellerName: string;
   postImage: string;
