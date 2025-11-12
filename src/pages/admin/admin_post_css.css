@@ -1,162 +1,161 @@
-.single-page-container {
-  position: absolute;
-  width: 100%;
-  height: calc(100vh - 103px);
+.admin-page-container {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  background-color: #f5f5f5;
-  padding: 20px;
+  gap: 50px;
+  padding: 40px 80px;
+  background-color: #f8f8fb;
+  height: 100vh;
   box-sizing: border-box;
 }
 
-.imgset {
-  position: relative;
-  width: 700px;
-  height: 700px;
-  max-height: 700px;
-  justify-content: center;
-  align-items: center;
-}
-
-.img-wrapper {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* 이미지 영역 */
+.admin-img-section {
   flex: 1;
-}
-
-.arrow-button {
-  width: 100px;
-  height: 100px;
-}
-
-.img-section {
-  position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
+  align-items: flex-start;
 }
 
-.text-section {
-  position: relative;
+.admin-post-img {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 정보 영역 */
+.admin-info-section {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  gap: 20px;
+  background: white;
+  border-radius: 16px;
   padding: 30px;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.seller-wrapper {
+/* 판매자 정보 */
+.admin-seller-info {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  max-height: 50px;
+  gap: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
 }
 
-.seller-info {
-  align-items: center;
+.admin-seller-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.seller-name {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.seller-id {
+  font-size: 14px;
+  color: #888;
+}
+
+/* 신고 박스 */
+.admin-report-box {
+  display: flex;
+  align-items: flex-start;
   gap: 10px;
+  background-color: #fff3f6;
+  border: 1px solid #ffb3c1;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.report-icon {
+  width: 35px;
+  height: 35px;
+}
+
+.report-title {
+  font-weight: bold;
+  color: #d10000;
+}
+
+.report-content {
+  font-size: 14px;
+  color: #555;
+}
+
+/* 게시글 세부정보 */
+.admin-post-detail {
+  background-color: #f7f4ff;
+  padding: 15px;
+  border-radius: 10px;
+  line-height: 1.6;
+}
+
+.post-title {
+  font-size: 22px;
   font-weight: bold;
 }
 
-.seller-img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50px;
+.post-date,
+.post-status,
+.post-price {
+  font-size: 15px;
+  color: #555;
 }
 
-.seller-info {
-  display: flex;
-  font-size: 20px;
-}
-
-.siren-wrapper {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column; /* 위아래 배치 */
-  justify-content: center; /* 수직 가운데 정렬 */
-  align-items: center; /* 수평 가운데 정렬 */
-  gap: 5px; /* 이미지와 텍스트 사이 간격 */
-}
-
-.siren {
-  width: 50px;
-  height: 50px;
-}
-
-.bookName-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-  padding: 10px 0px 10px 0px;
-  /* 또는 적절한 높이 설정 */
-}
-
-.price-likeCount {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.title {
-  font-size: 30px;
-  font-weight: bold;
-}
-
-.status {
+/* 본문 */
+.admin-post-content {
   border: 1px solid #b516ff;
-  border-radius: 15px;
-  padding: 5px;
+  border-radius: 12px;
+  padding: 20px;
+  color: #333;
+  line-height: 1.6;
+  min-height: 150px;
+}
+
+/* 관리자 조치 버튼 */
+.admin-action-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.admin-action-btns button {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-btn {
+  background-color: #ff3b3b;
+  color: white;
+}
+
+.ban-btn {
   background-color: #b516ff;
   color: white;
-  font-weight: bold;
 }
 
-.price {
-  font-weight: bold;
-  font-size: 25px;
+.cancel-btn {
+  background-color: #ddd;
+  color: #333;
 }
 
-.created-at {
-  color: gray;
-  font-size: 13px;
+.delete-btn:hover {
+  background-color: #e22a2a;
 }
 
-.hearts {
-  width: 16px;
-  height: 16px;
+.ban-btn:hover {
+  background-color: #9912d9;
 }
 
-.likeCount {
-  font-weight: bold;
-}
-
-.content {
-  position: relative;
-  border: 1px solid #b516ff;
-  border-radius: 20px;
-  padding: 15px;
-  flex-grow: 1;
-  box-sizing: border-box;
-  margin-top: 10px;
-}
-
-.buy-button {
-  position: relative;
-  width: 100%;
-  height: 40px;
-  border: 1px solid #b516ff;
-  background-color: #b516ff;
-  color: #f5f5f5;
-  font-weight: bold;
-  margin-top: 20px;
+.cancel-btn:hover {
+  background-color: #bbb;
 }

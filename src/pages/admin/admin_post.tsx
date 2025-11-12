@@ -1,23 +1,22 @@
+// 📁 src/pages/admin/AdminPostViewer.tsx
 import React, { useEffect, useState } from "react";
-import arrowImg from "../../assets/arrow.png";
-import sirenImg from "../../assets/siren.png";
-import hearts from "../../assets/hearts.png";
 import "./admin_post_css.css";
-import { AdminBook } from "../../types/report"; // ✅ 변경된 타입
+import sirenImg from "../../assets/siren.png";
+import { AdminBook } from "../../types/report";
 import { fetchBookDetail } from "../../API/single";
+import { mockAdminBook } from "../../mockData/report";
+import { userBan } from "../../API/adminAPI";
+import { deletePost } from "../../API/adminAPI";
 
 export const AdminPostViewer = ({ postId }: { postId: string }) => {
   const [book, setBook] = useState<AdminBook | null>(null);
 
   useEffect(() => {
-    const loadPostContent = async () => {
+    const loadPost = async () => {
       try {
         const response = await fetchBookDetail(postId);
-
         if (!response) {
-          console.warn(
-            "⚠️ fetchBookDetail() 결과가 null이거나 undefined입니다."
-          );
+          setBook(mockAdminBook);
           return;
         }
 
@@ -36,75 +35,102 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
             profileImage: response.profileImage,
           },
         });
-      } catch (error) {
-        console.error("❌ 게시글 불러오기 실패:", error);
+      } catch (err) {
+        console.error("❌ 게시글 불러오기 실패:", err);
+        setBook(mockAdminBook);
       }
     };
-    loadPostContent();
+
+    loadPost();
   }, [postId]);
 
+  // 🚨 관리자 조치 함수
+  const handleDeletePost = async () => {
+    if (window.confirm("정말 이 게시글을 삭제하시겠습니까?")) {
+      try {
+        await deletePost(postId);
+        alert("게시글이 삭제되었습니다.");
+      } catch (error) {
+        console.error("게시글 삭제 실패:", error);
+      }
+    }
+  };
+
+  const handleBanSeller = async () => {
+    if (window.confirm("정말 판매자를 밴 처리하시겠습니까?")) {
+      try {
+        await userBan(book?.seller.id);
+        alert("판매자가 밴 처리되었습니다.");
+      } catch (error) {
+        console.error("판매자 밴 실패:", error);
+      }
+    }
+  };
+
+  if (!book) return <div className="loading">게시글 정보를 불러오는 중...</div>;
+
   return (
-    <>
-      {!book ? (
-        <div className="loading">게시글 불러오는 중...</div>
-      ) : (
-        <div className="single-page-container">
-          <div className="img-wrapper">
-            <img
-              className="arrow-button left"
-              src={arrowImg}
-              alt="이전 화살표"
-              style={{ transform: "rotate(180deg)" }}
-            />
-            <img className="imgset" src={book.postImage} alt="책 이미지" />
-            <img
-              className="arrow-button right"
-              src={arrowImg}
-              alt="다음 화살표"
-            />
-          </div>
+    <div className="admin-page-container">
+      {/* 왼쪽: 이미지 */}
+      <div className="admin-img-section">
+        <img
+          className="admin-post-img"
+          src={book.postImage || "https://via.placeholder.com/400"}
+          alt="상품 이미지"
+        />
+      </div>
 
-          <div className="text-section">
-            <div className="seller-wrapper">
-              <div className="seller-info">
-                <img
-                  className="seller-img"
-                  src={
-                    book.seller?.profileImage ||
-                    "https://via.placeholder.com/150"
-                  }
-                  alt="판매자 사진"
-                />
-                <div>{book.seller?.name || "이름 없음"}</div>
-              </div>
-              <div className="siren-wrapper">
-                <img className="siren" src={sirenImg} alt="신고 이미지" />
-                <div>신고하기</div>
-              </div>
-            </div>
-
-            <div className="bookName-wrapper">
-              <div className="title">{book.title}</div>
-              <div className="status">{book.status}</div>
-              <div className="created-at">
-                {new Date(book.createdAt).toLocaleDateString("ko-KR")}
-              </div>
-            </div>
-
-            <div className="price-likeCount">
-              <div className="price">
-                {typeof book.postPrice === "number"
-                  ? `${book.postPrice.toLocaleString()}원`
-                  : "가격 미정"}
-              </div>
-              <img className="hearts" src={hearts} alt="찜 이미지" />
-              <div className="likeCount">{book.likeCount}</div>
-            </div>
-
-            <div className="content">{book.content}</div>
+      {/* 오른쪽: 내용 */}
+      <div className="admin-info-section">
+        {/* 판매자 정보 */}
+        <div className="admin-seller-info">
+          <img
+            className="admin-seller-img"
+            src={book.seller?.profileImage || "https://via.placeholder.com/100"}
+            alt="판매자 사진"
+          />
+          <div className="admin-seller-text">
+            <div className="seller-name">{book.seller?.name}</div>
+            <div className="seller-id">ID: {book.seller?.id}</div>
           </div>
         </div>
-      )}
-    </>
+
+        {/* 신고 내역 (예시용) */}
+        <div className="admin-report-box">
+          <img src={sirenImg} alt="신고" className="report-icon" />
+          <div>
+            <div className="report-title">신고 내역</div>
+            <div className="report-content">
+              사용자가 게시글을 광고성 내용으로 신고했습니다.
+            </div>
+          </div>
+        </div>
+
+        {/* 게시글 정보 */}
+        <div className="admin-post-detail">
+          <div className="post-title">{book.title}</div>
+          <div className="post-date">
+            작성일: {new Date(book.createdAt).toLocaleDateString("ko-KR")}
+          </div>
+          <div className="post-status">상태: {book.status}</div>
+          <div className="post-price">
+            가격:{" "}
+            {typeof book.postPrice === "number"
+              ? `${book.postPrice.toLocaleString()}원`
+              : "가격 미정"}
+          </div>
+        </div>
+
+        {/* 본문 */}
+        <div className="admin-post-content">{book.content}</div>
+
+        {/* 조치 버튼 */}
+        <div className="admin-action-btns">
+          <button onClick={handleDeletePost}>게시글 삭제</button>
+          <button onClick={handleBanSeller}>판매자 밴</button>
+          <button className="cancel-btn">조치 반려</button>
+        </div>
+      </div>
+    </div>
   );
 };

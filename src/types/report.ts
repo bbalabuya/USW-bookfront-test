@@ -33,7 +33,7 @@ export interface AdminBook {
   likeCount: number;
   status: string;
   createdAt: string;
-  seller?: {
+  seller: {
     id: string;
     name: string;
     profileImage?: string;
