@@ -14,6 +14,11 @@ export interface Book {
   sellerName: string; // 판매자 이름
   createdAt: string; // 작성일
   comments: any[]; // 댓글 배열 (현재는 빈 배열)
+  seller: string;
+
+  profileImage: string;
+  name: string;
+  staus: string;
 }
 
 // src/types/api.ts

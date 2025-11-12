@@ -1,20 +1,41 @@
-import React, { use, useEffect, useState } from "react";
-import { fetchPosts } from "../../API/homeAPI";
+import React, { useEffect, useState } from "react";
 import arrowImg from "../../assets/arrow.png";
 import sirenImg from "../../assets/siren.png";
 import hearts from "../../assets/hearts.png";
 import "./admin_post_css.css";
-import { Book } from "../../types/singleType";
+import { AdminBook } from "../../types/report"; // ✅ 변경된 타입
+import { fetchBookDetail } from "../../API/single";
 
 export const AdminPostViewer = ({ postId }: { postId: string }) => {
-  const [book, setBook] = useState<Book>();
+  const [book, setBook] = useState<AdminBook | null>(null);
 
   useEffect(() => {
     const loadPostContent = async () => {
       try {
-        const response = await fetchPosts({ postId });
-        setBook(response);
-        console.log("✅ 게시글 데이터:", response);
+        const response = await fetchBookDetail(postId);
+
+        if (!response) {
+          console.warn(
+            "⚠️ fetchBookDetail() 결과가 null이거나 undefined입니다."
+          );
+          return;
+        }
+
+        setBook({
+          postId: response.id,
+          title: response.title,
+          content: response.content,
+          postImage: response.postImage,
+          postPrice: response.postPrice,
+          likeCount: response.likeCount,
+          status: response.PostStatus,
+          createdAt: response.createdAt,
+          seller: {
+            id: response.sellerId,
+            name: response.sellerName,
+            profileImage: response.profileImage,
+          },
+        });
       } catch (error) {
         console.error("❌ 게시글 불러오기 실패:", error);
       }
@@ -22,7 +43,6 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
     loadPostContent();
   }, [postId]);
 
-  // bookImage typeError 해결 필요
   return (
     <>
       {!book ? (
@@ -50,12 +70,12 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
                 <img
                   className="seller-img"
                   src={
-                    book?.seller?.profileImage ||
+                    book.seller?.profileImage ||
                     "https://via.placeholder.com/150"
                   }
                   alt="판매자 사진"
                 />
-                <div>{book?.seller?.name || "이름 없음"}</div>
+                <div>{book.seller?.name || "이름 없음"}</div>
               </div>
               <div className="siren-wrapper">
                 <img className="siren" src={sirenImg} alt="신고 이미지" />
@@ -67,13 +87,7 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
               <div className="title">{book.title}</div>
               <div className="status">{book.status}</div>
               <div className="created-at">
-                {(() => {
-                  const date = new Date(book.createdAt);
-                  const year = date.getFullYear();
-                  const month = date.getMonth() + 1;
-                  const day = date.getDate();
-                  return `${year}년 ${month}월 ${day}일`;
-                })()}
+                {new Date(book.createdAt).toLocaleDateString("ko-KR")}
               </div>
             </div>
 
@@ -83,7 +97,6 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
                   ? `${book.postPrice.toLocaleString()}원`
                   : "가격 미정"}
               </div>
-
               <img className="hearts" src={hearts} alt="찜 이미지" />
               <div className="likeCount">{book.likeCount}</div>
             </div>

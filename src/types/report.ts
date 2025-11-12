@@ -22,3 +22,20 @@ export interface ReportBook {
     profileImage?: string;
   };
 }
+
+
+export interface AdminBook {
+  postId: string;
+  title: string;
+  content: string;
+  postImage: string;
+  postPrice: number;
+  likeCount: number;
+  status: string;
+  createdAt: string;
+  seller?: {
+    id: string;
+    name: string;
+    profileImage?: string;
+  };
+}
