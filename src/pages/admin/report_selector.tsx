@@ -1,22 +1,17 @@
+// src/components/admin/report_selector.tsx
 import React, { useEffect, useState } from "react";
-import { reportListType } from "../../types/report";
 import { getReportList } from "../../API/adminAPI";
 import { mockReportList } from "../../mockData/report";
 import "./report_selector.css";
 
-interface ReportListProps {
-  onSelectType: (type: string, thingId: string) => void;
-}
-
-export const ReportList = ({ onSelectType }: ReportListProps) => {
-  const [reports, setReports] = useState<reportListType[]>([]);
+export const ReportList = ({ onSelectType }) => {
+  const [reports, setReports] = useState<any[]>([]);
 
   useEffect(() => {
     const callReportList = async () => {
       try {
         const res = await getReportList();
-        console.log("✅ 신고 목록 불러오기 성공:", res);
-        setReports(res.data); // ✅ 수정된 부분
+        setReports(res);
       } catch (err) {
         console.error("🚨 신고 목록 불러오기 실패:", err);
         setReports(mockReportList);
@@ -37,12 +32,7 @@ export const ReportList = ({ onSelectType }: ReportListProps) => {
               key={index}
               className="report-item"
               onClick={() => {
-                console.log("🖱️ 클릭한 신고 항목:", {
-                  type: report.type,
-                  reportedThingId: report.reportedThingId,
-                  reporterName: report.reporterName,
-                  reason: report.reason,
-                });
+                console.log("🖱️ 클릭한 신고 항목:", report);
                 onSelectType(report.type, report.reportedThingId);
               }}
             >
