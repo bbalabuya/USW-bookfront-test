@@ -9,6 +9,7 @@ export const getReportList = async () => {
 
 
 export const deletePost = async (postId: string) => {
+    console.log("postId:", postId);
   const response = await api.delete("/api/admin/posts", {
     data: { postId },
     headers: {

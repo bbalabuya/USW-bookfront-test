@@ -35,6 +35,7 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
             profileImage: response.profileImage,
           },
         });
+        console.log("불러온 글 내용", book);
       } catch (err) {
         console.error("❌ 게시글 불러오기 실패:", err);
         setBook(mockAdminBook);
@@ -45,7 +46,7 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
   }, [postId]);
 
   // 🚨 관리자 조치 함수
-  const handleDeletePost = async () => {
+  const handleDeletePost = async (postId) => {
     if (window.confirm("정말 이 게시글을 삭제하시겠습니까?")) {
       try {
         await deletePost(postId);
