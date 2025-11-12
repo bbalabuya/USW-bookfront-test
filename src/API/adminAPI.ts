@@ -12,9 +12,6 @@ export const deletePost = async (postId: string) => {
     console.log("postId:", postId);
   const response = await api.delete("/api/admin/posts", {
     data: { postId },
-    headers: {
-      "Content-Type": "application/json",
-    },
   });
   console.log("📡 관리자 게시글 삭제 성공:", response.data);
   return response.data;
