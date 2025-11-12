@@ -1,4 +1,3 @@
-// src/components/admin/report_selector.tsx
 import React, { useEffect, useState } from "react";
 import { reportListType } from "../../types/report";
 import { getReportList } from "../../API/adminAPI";
@@ -6,7 +5,7 @@ import { mockReportList } from "../../mockData/report";
 import "./report_selector.css";
 
 interface ReportListProps {
-  onSelectType: (type: string, thingId: string) => void; // ✅ 콜백 타입 수정
+  onSelectType: (type: string, thingId: string) => void;
 }
 
 export const ReportList = ({ onSelectType }: ReportListProps) => {
@@ -15,12 +14,12 @@ export const ReportList = ({ onSelectType }: ReportListProps) => {
   useEffect(() => {
     const callReportList = async () => {
       try {
-        const data = await getReportList();
-        console.log("✅ 신고 목록 불러오기 성공:", data);
-        setReports(data);
+        const res = await getReportList();
+        console.log("✅ 신고 목록 불러오기 성공:", res);
+        setReports(res.data); // ✅ 수정된 부분
       } catch (err) {
         console.error("🚨 신고 목록 불러오기 실패:", err);
-        setReports(mockReportList); // 임시 데이터
+        setReports(mockReportList);
       }
     };
     callReportList();
@@ -42,16 +41,15 @@ export const ReportList = ({ onSelectType }: ReportListProps) => {
                   type: report.type,
                   reportedThingId: report.reportedThingId,
                   reporterName: report.reporterName,
+                  reason: report.reason,
                 });
-
-                // 부모(Admin)에게 전달
                 onSelectType(report.type, report.reportedThingId);
               }}
             >
               <strong>신고자:</strong> {report.reporterName} <br />
               <strong>신고 유형:</strong> {report.type} <br />
               <strong>신고 대상 ID:</strong> {report.reportedThingId} <br />
-              <strong>사유:</strong> {report.resason}
+              <strong>사유:</strong> {report.reason}
             </div>
           ))}
         </div>
