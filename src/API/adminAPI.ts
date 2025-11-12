@@ -9,7 +9,7 @@ export const getReportList = async () => {
 
 
 export const deletePost = async (postId: string) => {
-    console.log("postId:", postId);
+  console.log("postId:", postId);
   const response = await api.delete("/api/admin/posts", {
     data: { postId },
   });
@@ -17,10 +17,8 @@ export const deletePost = async (postId: string) => {
   return response.data;
 };
 
-export const userBan = async (sellerId) => {
-  const response = await api.post("api/admin/ban", {
-    userName: sellerId,
-  });
+export const userBan = async (sellerId: string) => {
+  const response = await api.post("/api/admin/ban", { userName: sellerId }); // ✅ '/' 추가
   console.log("유저 밴 성공", response.data);
   return response.data;
 };

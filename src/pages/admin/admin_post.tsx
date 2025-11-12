@@ -46,7 +46,7 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
   }, [postId]);
 
   // 🚨 관리자 조치 함수
-  const handleDeletePost = async (postId) => {
+  const handleDeletePost = async (postId: string) => {
     if (window.confirm("정말 이 게시글을 삭제하시겠습니까?")) {
       try {
         await deletePost(postId);
@@ -58,9 +58,10 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
   };
 
   const handleBanSeller = async () => {
+    const sellerId = book?.seller.id;
     if (window.confirm("정말 판매자를 밴 처리하시겠습니까?")) {
       try {
-        await userBan(book?.seller.id);
+        await userBan(sellerId as any);
         alert("판매자가 밴 처리되었습니다.");
       } catch (error) {
         console.error("판매자 밴 실패:", error);
@@ -127,8 +128,16 @@ export const AdminPostViewer = ({ postId }: { postId: string }) => {
 
         {/* 조치 버튼 */}
         <div className="admin-action-btns">
-          <button onClick={handleDeletePost}>게시글 삭제</button>
-          <button onClick={handleBanSeller}>판매자 밴</button>
+          <button onClick={() => handleDeletePost(book.postId)}>
+            게시글 삭제
+          </button>
+          <button
+            onClick={() => {
+              handleBanSeller;
+            }}
+          >
+            판매자 밴
+          </button>
           <button className="cancel-btn">조치 반려</button>
         </div>
       </div>
