@@ -10,7 +10,7 @@ export const getReportList = async () => {
 
 export const deletePost = async (postId: string) => {
   console.log("postId:", postId);
-  const response = await api.delete("/api/admin/posts", {
+  const response = await api.delete(`/api/admin/posts/${postId}`, {
     data: { postId },
   });
   console.log("📡 관리자 게시글 삭제 성공:", response.data);
