@@ -76,7 +76,7 @@ export const checkEmailVerification = async (
 // 회원가입 (이미지 업로드 처리 없이 JSON 전송)
 export const join = async (userInfo: JoinRequest) => {
   return api.post("/api/auth/signup", userInfo, {
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "multipart/form-data" },
   });
 };
 
