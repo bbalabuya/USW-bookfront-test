@@ -132,6 +132,7 @@ const Join: React.FC = () => {
       majorId,
       grade: Number(grade),
       semester: Number(semester),
+      profileImage: profileFile,
     };
 
     console.log("가입 전 userInfo:", userInfo);
