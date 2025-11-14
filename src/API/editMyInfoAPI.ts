@@ -4,7 +4,7 @@ import api from "./index";
 // ✅ 내 정보 불러오기
 export const getMyInfo = async () => {
   try {
-    const response = await api.get("/api/user/infomation");
+    const response = await api.get("/api/user/information");
     console.log("유저 정보 불러오기 성공");
     return response.data.data;
   } catch (err) {
