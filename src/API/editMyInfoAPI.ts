@@ -12,34 +12,43 @@ export const getMyInfo = async () => {
   }
 };
 
-// ✅ 내 정보 수정 (프로필 이미지 + 정보)
-export const updateMyInfo = async (
-  userInfo: any,
-  profileFile: File | null,
-  profileImage: string
-) => {
-  // 1️⃣ 이미지 파일이 있으면 → multipart/form-data로 전송
-  if (profileFile) {
-    const formData = new FormData();
-
-    formData.append(
-      "changeInfoRequest",
-      new Blob([JSON.stringify(userInfo)], { type: "application/json" })
-    );
-
-    formData.append("profileImage", profileFile);
-
-    return api.patch("/api/user/information", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-  }
-
-  // 2️⃣ 이미지 파일이 없으면 → JSON으로 전송
-  return api.patch("/api/user/information", userInfo, {
+// ✅ 회원 정보 수정 (name, majorId, grade, semester)
+export const updateMyInfo = async (userInfo: {
+  name: string;
+  majorId: string;
+  grade: number;
+  semester: number;
+}) => {
+  const res = await api.patch("/api/user/information", userInfo, {
     headers: { "Content-Type": "application/json" },
   });
+
+  return res.data;
 };
 
+// ✅ 프로필 이미지 URL 적용
+export const updateProfileImage = async (url: string) => {
+  const res = await api.patch(
+    "/api/user/profile-image-url",
+    { profileImageUrl: url },
+    { headers: { "Content-Type": "application/json" } }
+  );
+  return res.data;
+};
+
+// ✅ 이미지 파일 업로드 (임시 URL 발급)
+export const uploadProfileImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await api.post("/api/upload/profile", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data.data.url; // 업로드 후 URL 리턴
+};
 
 // ✅ 전공 리스트 가져오기
 export const getMajorList = async () => {

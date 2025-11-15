@@ -27,7 +27,7 @@ const Selling_book = () => {
     useEffect(() => {
         const getSellingBooks = async () => {
             try{
-                const response = await api.get(`${API_URL}/api/user/post`);
+                const response = await api.get(`api/user/post`);
                 console.log("판매중인 책 목록 불러오기 성공", response.data);
                 setSellingBook(response.data.data.content);
             }catch(err){
@@ -38,7 +38,7 @@ const Selling_book = () => {
         getSellingBooks();
     }, []);
 
-    const deletePost = async (postId) => {
+    const deletePost = async (postId : string) => {
       try {
         const res = await api.delete(`api/posts${postId}`);
       } catch (err) {
@@ -93,7 +93,7 @@ const Selling_book = () => {
                   >
                     글 수정하기
                   </Link>
-                  <button className="sell-button" onClick={deletePost}>
+                  <button className="sell-button" onClick={()=>{deletePost(book.postId)}}>
                     글 삭제하기
                   </button>
                 </div>

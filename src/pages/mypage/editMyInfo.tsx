@@ -1,56 +1,50 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./editMyInfo.css";
 import { useNavigate } from "react-router-dom";
-import { getMyInfo, updateMyInfo, getMajorList } from "../../API/editMyInfoAPI";
+import {
+  getMyInfo,
+  updateMyInfo,
+  uploadProfileImage,
+  updateProfileImage,
+  getMajorList,
+} from "../../API/editMyInfoAPI";
 
 const EditMyInfo = () => {
   const navigate = useNavigate();
 
-  // ✅ 사용자 정보 상태
   const [profileImage, setProfileImage] = useState<string>("");
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>("");
+
   const [nickname, setNickname] = useState<string>("");
   const [grade, setGrade] = useState<string>("1");
   const [semester, setSemester] = useState<string>("1");
-  const [majorId, setMajorId] = useState<string>(""); // ✅ 전공 UUID 저장
+  const [majorId, setMajorId] = useState<string>("");
 
-  // ✅ 전공 목록 상태
-  const [majorList, setMajorList] = useState<{ id: string; name: string }[]>(
-    []
-  );
+  const [majorList, setMajorList] = useState<{ id: string; name: string }[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ✅ 1️⃣ 전공 목록 먼저, 그 다음 사용자 정보
+  // 초기 데이터 로드
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 1️⃣ 전공 목록 불러오기
-        const majors = await getMajorList();
-        setMajorList(majors);
+    const load = async () => {
+      const majors = await getMajorList();
+      setMajorList(majors);
 
-        // 2️⃣ 사용자 정보 불러오기
-        const myInfo = await getMyInfo();
+      const my = await getMyInfo();
+      setNickname(my.name || "");
+      setGrade(my.grade?.toString() || "1");
+      setSemester(my.semester?.toString() || "1");
+      setProfileImage(my.img || "");
 
-        // 3️⃣ input/select 기본값 세팅
-        setProfileImage(myInfo.img || "");
-        setNickname(myInfo.name || "");
-        setGrade(myInfo.grade?.toString() || "1");
-        setSemester(myInfo.semester?.toString() || "1");
-
-        // 전공 이름을 통해 UUID 찾기
-        const matchedMajor = majors.find((m) => m.name === myInfo.major);
-        setMajorId(matchedMajor ? matchedMajor.id : "");
-      } catch (err) {
-        console.error("데이터 불러오기 오류:", err);
-      }
+      const matched = majors.find((m) => m.name === my.major);
+      setMajorId(matched?.id || "");
     };
 
-    fetchData();
+    load();
   }, []);
 
-  // ✅ 2️⃣ 이미지 선택
+  // 이미지 업로드 미리보기
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -59,34 +53,29 @@ const EditMyInfo = () => {
     }
   };
 
-  // ✅ 3️⃣ 저장하기
   const handleSave = async () => {
     try {
-      const userInfo = {
+      // ⭐ 1️⃣ 프로필 이미지 먼저 업로드 → URL 받기
+      if (profileFile) {
+        const url = await uploadProfileImage(profileFile);
+        await updateProfileImage(url);
+      }
+
+      // ⭐ 2️⃣ 유저 정보 수정 요청
+      await updateMyInfo({
         name: nickname,
         grade: Number(grade),
         semester: Number(semester),
-        majorid: majorId, // ✅ UUID로 전송
-      };
+        majorId: majorId,
+      });
 
-      await updateMyInfo(userInfo, profileFile, profileImage);
-      alert("정보가 저장되었습니다!");
-      // navigate("/somepath");
+      alert("정보가 수정되었습니다!");
+      navigate("/mypage");
     } catch (err) {
       console.error(err);
-      alert("저장 중 오류가 발생했습니다.");
+      alert("저장 실패");
     }
   };
-
-  // ✅ 4️⃣ 파일 선택창 열기
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  // ✅ 로딩 중 처리
-  if (!majorList.length || !nickname) {
-    return <div className="loading">정보를 불러오는 중입니다...</div>;
-  }
 
   return (
     <div className="edit-whole-container">
@@ -94,8 +83,9 @@ const EditMyInfo = () => {
         <img
           className="edit-img"
           src={profilePreview || profileImage}
-          alt="프로필 이미지"
+          alt="프로필"
         />
+
         <input
           type="file"
           accept="image/*"
@@ -103,7 +93,8 @@ const EditMyInfo = () => {
           ref={fileInputRef}
           onChange={handleImageChange}
         />
-        <button className="edit-profile-button" onClick={handleButtonClick}>
+
+        <button className="edit-profile-button" onClick={() => fileInputRef.current?.click()}>
           프로필 이미지 변경하기
         </button>
       </div>
@@ -150,7 +141,7 @@ const EditMyInfo = () => {
           <div className="edit-title">전공</div>
           <select
             className="edit-major"
-            value={majorId} // ✅ UUID 저장됨
+            value={majorId}
             onChange={(e) => setMajorId(e.target.value)}
           >
             {majorList.map((m) => (
