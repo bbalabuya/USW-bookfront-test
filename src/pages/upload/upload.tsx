@@ -74,31 +74,27 @@ const Upload = () => {
       const token = localStorage.getItem("accessToken");
       const formData = new FormData();
 
-      // 텍스트 데이터 추가
+      // 텍스트 데이터 추가 (기존 로직 유지)
       formData.append("postName", postName);
       formData.append("title", title);
-      // postPrice를 int로 변환하여 추가 (숫자가 아니거나 비어있으면 0으로 처리)
-      const priceInt = parseInt(postPrice.replace(/,/g, '')); // 쉼표 제거 후 파싱
-      formData.append("postPrice", String(isNaN(priceInt) ? 0 : priceInt)); 
+      const priceInt = parseInt(postPrice.replace(/,/g, ""));
+      formData.append("postPrice", String(isNaN(priceInt) ? 0 : priceInt));
       formData.append("professor", professor);
       formData.append("courseName", courseName);
-      formData.append("grade", String(grade)); // formdata가 문자열만 허용 -> 서버에서 자동변경된다고 함
-      formData.append("semester", String(semester)); // formdata가 문자열만 허용 -> 서버에서 자동변경된다고 함
+      formData.append("grade", String(grade));
+      formData.append("semester", String(semester));
       formData.append("content", content);
       formData.append("majorId", majorId);
-      console.log("✅ appended price:", formData.get("postPrice"));
-      console.log("✅ appended professor:", formData.get("professor"));
-      console.log("✅ appended couseName:", formData.get("courseName"));
-      console.log("✅ appended grade:", formData.get("grade"));
-      console.log("✅ appended semester:", formData.get("semester"));
-      console.log("✅ appended content:", formData.get("content"));
-      console.log("✅ appended majorId:", formData.get("majorId"));
 
       // 이미지 파일 추가 (최대 5장)
       postImage.forEach((file) => {
-        formData.append("postImage", file);
+        // 🚨 변경된 백엔드 API 명세에 따라 키 이름을 'postImages'로 변경
+        formData.append("postImages", file);
       });
-      console.log("✅ [handleSubmit] FormData 준비 완료:", formData);
+      console.log(
+        "✅ [handleSubmit] FormData 준비 완료: postImages로 파일 추가 완료"
+      );
+
       const res = await fetch(`${API_URL}/api/posts`, {
         method: "POST",
         headers: {

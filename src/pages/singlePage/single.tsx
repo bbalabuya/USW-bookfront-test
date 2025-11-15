@@ -1,4 +1,5 @@
 // Single.tsx
+
 import React, { useEffect, useState } from "react";
 import "../singlePage/single.css";
 import { useParams, useNavigate } from "react-router-dom";
@@ -36,6 +37,7 @@ const Single: React.FC = () => {
       if (!postId) return;
       try {
         // 로컬 테스트용 기본 목데이터 먼저 세팅 (빠른 렌더링)
+        // multiImageBook 목데이터의 타입도 postImages: string[]로 변경되어 있어야 합니다.
         setBook(multiImageBook);
 
         // 실제 API 조회 시도
@@ -43,7 +45,7 @@ const Single: React.FC = () => {
         if (detail) {
           setBook(detail);
           setCurrentImageIndex(0);
-          setLikeCount(detail.likeCount)
+          setLikeCount(detail.likeCount);
         } else {
           console.warn("상세 데이터가 없습니다. (API가 빈값 반환)");
         }
@@ -58,20 +60,19 @@ const Single: React.FC = () => {
   }, [postId]);
 
   const likeRequestAPI = async () => {
-  if (!postId) return;
+    if (!postId) return;
 
-  try {
-    const res = await likeRequest(postId);
-    if (res) {
-      setIsLiked((prev) => !prev);
-      setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
+    try {
+      const res = await likeRequest(postId);
+      if (res) {
+        setIsLiked((prev) => !prev);
+        setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
+      }
+    } catch (err) {
+      console.error("좋아요 에러:", err);
+      alert("좋아요 처리 중 오류가 발생했습니다.");
     }
-  } catch (err) {
-    console.error("좋아요 에러:", err);
-    alert("좋아요 처리 중 오류가 발생했습니다.");
-  }
-};
-
+  };
 
   // 채팅방 생성 / 이동
   const handleCreateChatRoom = async () => {
@@ -121,13 +122,11 @@ const Single: React.FC = () => {
       alert("신고 전송에 실패했습니다. 콘솔을 확인하세요.");
     }
   };
+
   if (!book) return <div>로딩 중...</div>;
 
-  const images = Array.isArray(book.postImage)
-    ? book.postImage
-    : book.postImage
-    ? [book.postImage]
-    : [];
+  // 🚨 [수정 사항] postImage 대신 postImages 배열 접근
+  const images = book.postImages || [];
 
   const mainImage = images[currentImageIndex] ?? "";
 
@@ -144,6 +143,7 @@ const Single: React.FC = () => {
         </div>
 
         <div className="thumbnail-container">
+          {/* 썸네일도 images 배열을 순회하여 렌더링 */}
           {images.map((img, idx) => (
             <div
               key={idx}
@@ -210,8 +210,11 @@ const Single: React.FC = () => {
 
           <div className="info-set">
             <div className="status">{book.PostStatus}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }} onClick={likeRequestAPI}>
-               <img className="hearts" src={isLiked ? like : unlike} />
+            <div
+              style={{ display: "flex", alignItems: "center", gap: 6 }}
+              onClick={likeRequestAPI}
+            >
+              <img className="hearts" src={isLiked ? like : unlike} />
               <div className="likeCount">{likeCount}</div>
             </div>
             <div className="created-at">

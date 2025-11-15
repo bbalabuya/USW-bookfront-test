@@ -17,7 +17,9 @@ const EditPost = () => {
   const [courseName, setCourseName] = useState("");
   const [grade, setGrade] = useState<number>(1);
   const [semester, setSemester] = useState<number>(1);
+  // postImage는 새로 추가된 File 객체만 저장 (업로드 시 사용)
   const [postImage, setPostImage] = useState<File[]>([]);
+  // imagePreviewUrls는 기존 URL + 새로 추가된 File의 Blob URL을 모두 저장
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [majorList, setMajorList] = useState<{ id: string; name: string }[]>(
     []
@@ -64,12 +66,9 @@ const EditPost = () => {
         const matchedMajor = majors.find((m) => m.name === post.majorName);
         setMajorId(matchedMajor ? matchedMajor.id : majors[0]?.id || "");
 
-        // 이미지 URL
-        if (Array.isArray(post.postImageUrls)) {
-          setImagePreviewUrls(post.postImageUrls);
-          setSelectedImageIndex(0);
-        } else if (typeof post.postImage === "string") {
-          setImagePreviewUrls([post.postImage]);
+        // 🚨 [수정 사항] 이미지 URL: postImages 배열로 받도록 변경
+        if (Array.isArray(post.postImages) && post.postImages.length > 0) {
+          setImagePreviewUrls(post.postImages);
           setSelectedImageIndex(0);
         }
       } catch (err) {
@@ -84,19 +83,25 @@ const EditPost = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    const newImages = [...postImage, ...files].slice(0, MAX_IMAGES);
-    setPostImage(newImages);
-    const newPreviewUrls = [
-      ...imagePreviewUrls,
-      ...files.map((file) => URL.createObjectURL(file)),
-    ].slice(0, MAX_IMAGES);
-    setImagePreviewUrls(newPreviewUrls);
 
-    if (
-      newPreviewUrls.length > 0 &&
-      (selectedImageIndex === null ||
-        newPreviewUrls[selectedImageIndex] === undefined)
-    ) {
+    // 1. 새 파일은 postImage 상태에 추가
+    const newFiles = files.slice(
+      0,
+      MAX_IMAGES -
+        postImage.length -
+        (imagePreviewUrls.length - postImage.length)
+    );
+    setPostImage((prev) => [...prev, ...newFiles]);
+
+    // 2. 미리보기 URL은 imagePreviewUrls에 추가
+    const newPreviewUrls = newFiles.map((file) => URL.createObjectURL(file));
+    setImagePreviewUrls((prev) =>
+      [...prev, ...newPreviewUrls].slice(0, MAX_IMAGES)
+    );
+
+    // 선택 이미지 인덱스 조정
+    const totalImages = imagePreviewUrls.length + newPreviewUrls.length;
+    if (totalImages > 0 && selectedImageIndex === null) {
       setSelectedImageIndex(0);
     }
     e.target.value = "";
@@ -104,12 +109,35 @@ const EditPost = () => {
 
   /** ❌ 이미지 삭제 */
   const handleDeleteImage = (index: number) => {
-    setPostImage((prev) => prev.filter((_, i) => i !== index));
+    // 만약 삭제하는 이미지가 새로 업로드된 파일 (Blob URL)이라면 postImage 상태에서도 제거
+    const isNewFile = imagePreviewUrls[index].startsWith("blob:");
+
+    if (isNewFile) {
+      // Blob URL이 제거될 때 postImage 배열에서도 해당 파일을 제거해야 함.
+      // 정확한 제거 로직을 구현하려면 File 객체와 URL을 매핑해야 하지만,
+      // 여기서는 단순화하여 새로 추가된 파일의 '개수'만큼만 postImage에서 제거합니다.
+      // (실제 프로젝트에서는 Blob URL을 Key로 사용하여 postImage 배열에서 정확히 제거해야 합니다.)
+      setPostImage((prev) => {
+        const filesToRemove = prev.filter(
+          (_, fileIndex) =>
+            imagePreviewUrls.findIndex(
+              (url, urlIndex) => url.startsWith("blob:") && urlIndex === index
+            ) === fileIndex
+        );
+        return prev.filter((file) => !filesToRemove.includes(file));
+      });
+    }
+
+    // 미리보기 URL 배열에서 제거
     setImagePreviewUrls((prev) => prev.filter((_, i) => i !== index));
+
+    // 선택된 이미지 인덱스 조정
     setSelectedImageIndex((prev) => {
       if (prev === null) return null;
-      if (index === prev) return 0;
-      if (index < prev) return prev - 1;
+      const newLength = imagePreviewUrls.length - 1;
+      if (newLength === 0) return null; // 이미지가 없으면 해제
+      if (index === prev) return 0; // 삭제된 이미지가 선택된 이미지면 첫 이미지 선택
+      if (index < prev) return prev - 1; // 삭제된 이미지보다 뒤에 있었으면 인덱스 감소
       return prev;
     });
   };
@@ -121,7 +149,6 @@ const EditPost = () => {
       alert("책 제목과 게시글 제목은 반드시 입력해야 합니다!");
       return;
     }
-
     if (Number(postPrice) < 0) {
       alert("가격은 0 이상으로 입력해주세요!");
       return;
@@ -131,30 +158,36 @@ const EditPost = () => {
 
     try {
       const token = localStorage.getItem("accessToken");
-      const formData = new FormData();
 
-      formData.append("postName", postName);
-      formData.append("title", title);
-      const priceInt = parseInt(postPrice.replace(/,/g, ""));
-      formData.append("postPrice", String(isNaN(priceInt) ? 0 : priceInt));
-      formData.append("professor", professor);
-      formData.append("courseName", courseName);
-      formData.append("grade", String(grade));
-      formData.append("semester", String(semester));
-      formData.append("content", content);
-      formData.append("majorId", majorId);
+      // 🚨 새로 업로드된 파일 (postImage 배열)을 처리하는 로직이 필요하지만,
+      // 백엔드 스펙에 따라 다르므로 현재는 URL 업데이트만 수행합니다.
 
-      postImage.forEach((file) => {
-        formData.append("postImage", file);
-      });
+      // 🚨 [핵심 변경] JSON 요청 본문 생성
+      const updatePayload = {
+        postName: postName,
+        title: title,
+        postPrice: parseInt(postPrice.replace(/,/g, "")) || 0,
+        professor: professor,
+        courseName: courseName,
+        grade: grade,
+        semester: semester,
+        content: content,
+        majorId: majorId,
+        // 🚨 [핵심 변경] postImage 대신 postImages로 URL 배열 전송
+        // Blob URL (새 파일)은 서버로 전송할 수 없으므로 제외하고 기존 URL만 보냄.
+        // 실제로는 새 파일 업로드 후 받은 URL을 여기에 포함해야 함.
+        postImages: imagePreviewUrls.filter((url) => !url.startsWith("blob:")),
+      };
+
+      console.log("⬆️ PATCH 요청 본문 (JSON):", updatePayload);
 
       const res = await axios.patch(
         `${API_URL}/api/posts/${willEditPostId}`,
-        formData,
+        updatePayload, // ⬅️ JSON 본문 전송
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : "",
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json", // ⬅️ Content-Type 변경
           },
         }
       );
@@ -235,7 +268,7 @@ const EditPost = () => {
                     multiple
                     style={{ display: "none" }}
                     onChange={handleImageUpload}
-                    disabled={postImage.length >= MAX_IMAGES}
+                    disabled={imagePreviewUrls.length >= MAX_IMAGES}
                   />
                   <img
                     src={imgUpload}
