@@ -82,7 +82,7 @@ const EditMyInfo = () => {
       });
 
       alert("정보가 수정되었습니다!");
-      navigate("/mypage");
+      navigate("/");
     } catch (err) {
       console.error(err);
       alert("저장 실패");

@@ -33,7 +33,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
 
-  // 현재 로드된 마지막 페이지 (0-based)
   const [pageNumber, setPageNumber] = useState(0);
 
   const [searchParams] = useSearchParams();
@@ -50,66 +49,60 @@ export default function Home() {
   // 관찰용 ref (무한스크롤)
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  // 현재 더 불러올 수 있는지
   const hasMore = pageNumber < Math.max(0, totalPages - 1);
 
   // ---------- 공통 페치 함수 ----------
   const fetchPage = async (page: number, append = false) => {
-  setLoading(true);
-  try {
-    const params: any = {
-      page: page,
-      size: 8,
-      sort: "createdAt,desc",
-    };
+    setLoading(true);
+    try {
+      const params: any = {
+        page: page,
+        size: 8,
+        sort: "createdAt,desc",
+      };
 
-    // 🔹 검색 필터 적용
-    if (keyword.trim()) {
-      if (searchType === "bookName") params.bookName = keyword;
-      else if (searchType === "className") params.className = keyword;
+      // 🔹 검색 필터 적용
+      if (keyword.trim()) {
+        if (searchType === "bookName") params.bookName = keyword;
+        else if (searchType === "className") params.className = keyword;
+      }
+
+      if (grade) params.grade = grade;
+      if (semester) params.semester = semester;
+
+      if (status === "판매중") {
+        params.status = "판매중";
+      } else if (status === "거래완료") {
+        params.status = "거래완료";
+      }
+
+      if (priceMin || priceMin === 0) params.priceMin = priceMin;
+      if (priceMax || priceMax === 0) params.priceMax = priceMax;
+
+      const res = await fetchPosts(params);
+      const serverData = res?.data ?? res;
+
+      const content = serverData?.content ?? [];
+      const tp = serverData?.totalPages ?? totalPages ?? 1;
+
+      if (Array.isArray(content)) {
+        setBooks((prev) => [...prev, ...content]);
+      }
+
+      setTotalPages(tp);
+      setPageNumber(page);
+    } catch (err) {
+      console.error("API 요청 에러:", err);
+      if (!append) {
+        setBooks(sampleBooks); // 초기 로드 실패 시 목데이터
+      }
+    } finally {
+      setLoading(false);
     }
-
-    if (grade) params.grade = grade;
-    if (semester) params.semester = semester;
-
-    // 🔹 판매 상태(status) 필터 적용
-    // ✅ '판매중'일 경우 서버에 status=판매중 으로 전달
-    if (status === "판매중") {
-      params.status = "판매중";
-    } else if (status === "거래완료") {
-      params.status = "거래완료";
-    }
-
-    if (priceMin || priceMin === 0) params.priceMin = priceMin;
-    if (priceMax || priceMax === 0) params.priceMax = priceMax;
-
-    // 🔹 서버 요청
-    const res = await fetchPosts(params);
-    const serverData = res?.data ?? res;
-
-    const content = serverData?.content ?? [];
-    const tp = serverData?.totalPages ?? totalPages ?? 1;
-
-    if (Array.isArray(content)) {
-      setBooks((prev) => [...prev, ...content]);
-    }
-
-    setTotalPages(tp);
-    setPageNumber(page);
-  } catch (err) {
-    console.error("API 요청 에러:", err);
-    if (!append) {
-      setBooks(sampleBooks); // 초기 로드 실패 시 목데이터로 대체
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   // ---------- 필터/검색어 변경 시: 페이지 초기화 후 첫 페이지 로드 ----------
   useEffect(() => {
-    // reset -> load page 0
     setBooks([]);
     setPageNumber(0);
     setTotalPages(1);
@@ -117,7 +110,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, searchType, grade, semester, status, priceMin, priceMax]);
 
-  // ---------- 무한 스크롤: 관찰요소가 보이면 다음 페이지 로드 ----------
+  // ---------- 무한 스크롤 ----------
   useEffect(() => {
     const el = observerRef.current;
     if (!el) return;
@@ -126,17 +119,14 @@ export default function Home() {
       (entries) => {
         const entry = entries[0];
         if (entry.isIntersecting && !loading && hasMore) {
-          // 다음 페이지 요청 (append)
           fetchPage(pageNumber + 1, true);
         }
       },
-      { threshold: 0.5 } // 조금 보이면 트리거 (원하면 1.0으로 바꿔도 됩니다)
+      { threshold: 0.5 }
     );
 
     io.observe(el);
     return () => io.disconnect();
-    // pageNumber/hasMore/loading은 내부에서 참조되므로 의존성으로 넣지 않음(의도적으로),
-    // fetchPage는 항상 최신 상태를 사용하도록 설계됨.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [observerRef.current]);
 
@@ -153,14 +143,12 @@ export default function Home() {
               type="radio"
               name="status"
               checked={status === s}
-              onChange={() => setStatus(s)}
+              onClick={() => setStatus((prev) => (prev === s ? null : s))}
+              readOnly
             />
             {s}
           </label>
         ))}
-        <button onClick={() => setStatus(null)} className="reset-button">
-          상태 초기화
-        </button>
 
         <span className="divider" />
 
@@ -171,14 +159,12 @@ export default function Home() {
               type="radio"
               name="grade"
               checked={grade === g}
-              onChange={() => setGrade(g)}
+              onClick={() => setGrade((prev) => (prev === g ? null : g))}
+              readOnly
             />
             {g}학년
           </label>
         ))}
-        <button onClick={() => setGrade(null)} className="reset-button">
-          학년 초기화
-        </button>
 
         <span className="divider" />
 
@@ -189,14 +175,12 @@ export default function Home() {
               type="radio"
               name="semester"
               checked={semester === s}
-              onChange={() => setSemester(s)}
+              onClick={() => setSemester((prev) => (prev === s ? null : s))}
+              readOnly
             />
             {s}학기
           </label>
         ))}
-        <button onClick={() => setSemester(null)} className="reset-button">
-          학기 초기화
-        </button>
 
         <span className="divider" />
 
@@ -241,66 +225,51 @@ export default function Home() {
         ) : books.length === 0 ? (
           <div className="status-text">책이 없습니다.</div>
         ) : (
-          books.map(
-            (book) => (
-              console.log(book.postImage),
-              (
-                <Link
-                  to={`/single/${book.id}`}
-                  key={book.id}
-                  className="book-card"
-                >
-                  <img
-                    src={book.postImage}
-                    alt="책 사진"
-                    className="book-image"
-                  />
+          books.map((book) => (
+            <Link
+              to={`/single/${book.id}`}
+              key={book.id}
+              className="book-card"
+            >
+              <img
+                src={book.postImage}
+                alt="책 사진"
+                className="book-image"
+              />
+              <div className="book-title">{book.title}</div>
 
-                  {/* 제목 */}
-                  <div className="book-title">{book.title}</div>
-
-                  {/* ✅ 하단 푸터 영역: 제목이나 이미지 길이에 상관없이 하단에 위치 */}
-                  <div className="book-card-footer">
-                    {/* 하트 + 작성시간 */}
-                    <div className="book-info-top">
-                      <div
-                        className="book-heart"
-                        onClick={(e) => {
-                          e.preventDefault(); // ✅ 링크 이동 막기
-                          e.stopPropagation(); // ✅ 상위로 이벤트 전파 막기
-                          likeRequest(book.id);
-                        }}
-                      >
-                        <img src={unlike} alt="heart" />
-                        {book.likeCount}
-                      </div>
-
-                      <div className="book-date">
-                        {getTimeAgo(book.createdAt)}
-                      </div>
-                    </div>
-
-                    {/* 가격 + 판매상태 */}
-                    <div className="book-info-bottom">
-                      <div className="book-price">
-                        {book.postPrice.toLocaleString()}원
-                      </div>
-                      {/* "판매중"이 아닐 때만 "거래완료" 표시 */}
-                      {book.status !== "판매중" && (
-                        <div className="book-status">거래완료</div>
-                      )}
-                    </div>
+              <div className="book-card-footer">
+                <div className="book-info-top">
+                  <div
+                    className="book-heart"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      likeRequest(book.id);
+                    }}
+                  >
+                    <img src={unlike} alt="heart" />
+                    {book.likeCount}
                   </div>
-                </Link>
-              )
-            )
-          )
+
+                  <div className="book-date">{getTimeAgo(book.createdAt)}</div>
+                </div>
+
+                <div className="book-info-bottom">
+                  <div className="book-price">
+                    {book.postPrice.toLocaleString()}원
+                  </div>
+                  {book.status !== "판매중" && (
+                    <div className="book-status">거래완료</div>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ))
         )}
 
-        {/* 관찰 요소: 이 요소가 보이면 다음 페이지를 불러옵니다 */}
         <div ref={observerRef} style={{ height: 20 }} />
 
-        {/* 더 불러오는 중 (페이지가 이미 있던 상태에서 추가로 불러올 때) */}
         {loading && books.length > 0 && (
           <div className="status-text">📚 더 불러오는 중...</div>
         )}
